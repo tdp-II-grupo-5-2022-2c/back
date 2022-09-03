@@ -1,13 +1,13 @@
 # back_profiles
 
-[![codecov](https://codecov.io/gh/TallerII-Grupo11/back_profiles/branch/main/graph/badge.svg?token=CeoOvqKi2B)](https://codecov.io/gh/TallerII-Grupo11/back_profiles)
-[![Linters](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/linter.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/linter.yaml)
-[![Tests](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/test.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/test.yaml)
-[![Deploy](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/deploy.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/deploy.yaml)
+[![codecov](https://codecov.io/gh/tdp-II-grupo-5-2022-2c/back/branch/main/graph/badge.svg?token=CeoOvqKi2B)](https://codecov.io/gh/tdp-II-grupo-5-2022-2c/back)
+[![Linters](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/linter.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/linter.yaml)
+[![Tests](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/test.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/test.yaml)
+[![Deploy](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml)
 
 ### Documentation
 
-http://spotifiuby-profiles.herokuapp.com/docs
+
 
 ### Dependencies
 
@@ -42,9 +42,6 @@ docker-compose up
 heroku config:set port=5000
 heroku config:set version="1.0.0"
 heroku config:set title="Back_Profile"
-heroku config:set db_path="mongodb+srv://<user>:<pass>@profiles.a0iq4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-heroku config:set multimedia_api="https://spotifiuby-multimedia.herokuapp.com"
-heroku config:set users_api="https://spotifiuby-back-users.herokuapp.com"
 
 heroku container:push web -a spotifiuby-profiles
 heroku container:release web -a spotifiuby-profiles
