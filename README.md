@@ -5,9 +5,6 @@
 [![Tests](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/test.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/test.yaml)
 [![Deploy](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml)
 
-### Documentation
-
-
 
 ### Dependencies
 
