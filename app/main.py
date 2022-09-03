@@ -26,14 +26,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.on_event("startup")
 async def startup():
-    continue
+    logging.info("startup")
+
 
 @app.on_event("shutdown")
 async def shutdown():
-    continue
+    logging.info("shutdown")
 
 
 if __name__ == "__main__":
