@@ -1,6 +1,6 @@
 # back_profiles
 
-[![codecov](https://codecov.io/gh/tdp-II-grupo-5-2022-2c/back/branch/main/graph/badge.svg?token=CeoOvqKi2B)](https://codecov.io/gh/tdp-II-grupo-5-2022-2c/back)
+[![codecov](https://codecov.io/gh/tdp-II-grupo-5-2022-2c/back/branch/main/graph/badge.svg?token=60XKM2X9OI)](https://codecov.io/gh/tdp-II-grupo-5-2022-2c/back)
 [![Linters](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/linter.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/linter.yaml)
 [![Tests](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/test.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/test.yaml)
 [![Deploy](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml)
@@ -13,6 +13,7 @@
 
 Install with:
 ```bash
+poetry lock --no-update
 poetry install
 ```
 
@@ -20,8 +21,8 @@ poetry install
 
 Run app commands local
 ```
-docker build -t back-profiles .
-docker run -p 5000:5000 --env-file .env back-profiles
+docker build -t back .
+docker run -p 5000:5000 --env-file .env back
 ```
 
 ### Docker-compose
@@ -40,8 +41,8 @@ heroku config:set port=5000
 heroku config:set version="1.0.0"
 heroku config:set title="Back_Profile"
 
-heroku container:push web -a spotifiuby-profiles
-heroku container:release web -a spotifiuby-profiles
+heroku container:push web -a album-qatar-back
+heroku container:release web -a album-qatar-back
 
 
 ```
