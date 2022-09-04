@@ -55,8 +55,6 @@ Deploy despues de pushear a main
 heroku container:login
 heroku container:push web -a album-qatar-back
 heroku container:release web -a album-qatar-back
-
-
 ```
 
 ### Test
