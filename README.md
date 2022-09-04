@@ -6,6 +6,12 @@
 [![Deploy](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml/badge.svg)](https://github.com/tdp-II-grupo-5-2022-2c/back/actions/workflows/deploy.yaml)
 
 
+# Link a Heroku
+
+Prod: https://album-qatar-back.herokuapp.com/docs
+
+Staging: https://album-qatar-back-stg.herokuapp.com/docs
+
 ### Dependencies
 
 - Python 3.9
@@ -36,11 +42,17 @@ docker-compose up
 
 ### Manual Deploy to Heroku
 
+Para agregar las configuraciones manuales por primera vez
+
 ```
 heroku config:set port=5000
 heroku config:set version="1.0.0"
 heroku config:set title="Back_Profile"
+```
 
+Deploy despues de pushear a main
+```
+heroku container:login
 heroku container:push web -a album-qatar-back
 heroku container:release web -a album-qatar-back
 
