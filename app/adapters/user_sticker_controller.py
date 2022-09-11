@@ -18,12 +18,12 @@ router = APIRouter(tags=["stickers"])
     status_code=status.HTTP_200_OK,
 )
 async def show_my_list(
-	user_sticker_id: str,
+    user_sticker_id: str,
     db: DatabaseManager = Depends(get_database),
 ):
-	manager = UserStickerManager(db.db)
-	response = await manager.get_by_id(id=user_sticker_id)
-	return response
+    manager = UserStickerManager(db.db)
+    response = await manager.get_by_id(id=user_sticker_id)
+    return response
 
 
 @router.get(
@@ -33,12 +33,12 @@ async def show_my_list(
     status_code=status.HTTP_200_OK,
 )
 async def show_my_list_by_user_id(
-	user_id: Optional[str] = None,
+    user_id: Optional[str] = None,
     db: DatabaseManager = Depends(get_database),
 ):
-	manager = UserStickerManager(db.db)
-	response = await manager.get_by_user_id(user_id=user_id)
-	return response
+    manager = UserStickerManager(db.db)
+    response = await manager.get_by_user_id(user_id=user_id)
+    return response
 
 
 @router.put(
@@ -52,12 +52,12 @@ async def update(
     user_sticker: UpdateUserStickerModel = Body(...),
     db: DatabaseManager = Depends(get_database)
 ):
-	manager = UserStickerManager(db.db)
-	try:
-		# do
-		response = await manager.update(id=user_sticker_id, sticker=user_sticker)
-		return response
-	except HTTPException as e:
+    manager = UserStickerManager(db.db)
+    try:
+        # do
+        response = await manager.update(id=user_sticker_id, sticker=user_sticker)
+        return response
+    except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(

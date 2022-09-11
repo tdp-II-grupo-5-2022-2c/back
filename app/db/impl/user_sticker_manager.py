@@ -18,19 +18,18 @@ class UserStickerManager:
         sticker = await self.db["user_stickers"].find_one({"_id": id})
         return sticker
 
-    async def add_new(self, sticker: StickerModel = Body(...)):
+    async def add_new(self, sticker: UserStickerModel = Body(...)):
         new = jsonable_encoder(sticker)
         await self.db["user_stickers"].insert_one(new)
         return new
 
-    async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
+    async def update(self, id: str, sticker: UpdateUserStickerModel = Body(...)):
         try:
             sticker = {k: v for k, v in sticker.dict().items() if v is not None}
             await self.db["user_stickers"].update_one({"_id": id}, {"$set": sticker})
             model = await self.get_by_user_id(id)
             return model
         except Exception as e:
-            msg = f"[UPDATE_STICKER] user_id: {user_id} error: {e}"
+            msg = f"[UPDATE_STICKER] id: {id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
-
