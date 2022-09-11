@@ -7,9 +7,9 @@ from typing import List, Optional
 from bson import ObjectId
 
 
-class UserStickerModel(BaseModel):
+class UserModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    user_id: str = Field(...)
+    mail: str = Field(...)
     stickers: List[StickerModel] = []
 
     class Config:
@@ -18,14 +18,14 @@ class UserStickerModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "user_id": "user_id",
+                "mail": "user@mail",
                 "stickers": [],
             }
         }
 
 
-class UpdateUserStickerModel(BaseModel):
-    user_id: Optional[str]
+class UpdateUserModel(BaseModel):
+    mail: Optional[str]
     stickers: Optional[List[StickerModel]]
 
     class Config:
@@ -33,7 +33,7 @@ class UpdateUserStickerModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "user_id": "user_id",
+                "mail": "user@mail",
                 "stickers": [],
             }
         }

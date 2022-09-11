@@ -3,7 +3,7 @@ import uvicorn
 import logging.config
 
 from app.adapters import health_controller
-from app.adapters import user_sticker_controller
+from app.adapters import user_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,7 +16,7 @@ settings = Settings()
 app = FastAPI(version=settings.version, title=settings.title)
 
 app.include_router(health_controller.router)
-app.include_router(user_sticker_controller.router)
+app.include_router(user_controller.router)
 
 origins = ["*"]
 
@@ -31,12 +31,12 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    logging.info("startup")
+    await db.connect_to_database(path=settings.db_path)
 
 
 @app.on_event("shutdown")
 async def shutdown():
-    logging.info("shutdown")
+    await db.close_database_connection()
 
 
 if __name__ == "__main__":
