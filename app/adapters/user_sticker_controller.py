@@ -1,8 +1,8 @@
-import logging
-from typing import Optional, List
+#import logging
+from typing import Optional
 from fastapi import APIRouter, status, Depends, HTTPException, Body
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
+#from fastapi.responses import JSONResponse
+#from fastapi.encoders import jsonable_encoder
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.user_sticker_manager import UserStickerManager
