@@ -3,6 +3,7 @@ import uvicorn
 import logging.config
 
 from app.adapters import health_controller
+from app.adapters import user_sticker_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,7 @@ settings = Settings()
 app = FastAPI(version=settings.version, title=settings.title)
 
 app.include_router(health_controller.router)
+app.include_router(user_sticker_controller.router)
 
 origins = ["*"]
 
