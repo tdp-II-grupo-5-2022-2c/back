@@ -5,8 +5,8 @@ from fastapi import APIRouter, status, Depends, HTTPException, Body
 # from fastapi.encoders import jsonable_encoder
 
 from app.db import DatabaseManager, get_database
-from app.db.impl.user_sticker_manager import UserManager
-from app.db.model.user_sticker import UserModel, UpdateUserModel
+from app.db.impl.user_manager import UserManager
+from app.db.model.user import UserModel, UpdateUserModel
 
 router = APIRouter(tags=["users"])
 

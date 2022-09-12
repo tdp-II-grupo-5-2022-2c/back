@@ -3,7 +3,8 @@ from pydantic.main import BaseModel
 
 class StickerModel(BaseModel):
     id: str
-    status: str
+    isOnAlbum: bool
+    isRepeated: bool
     quantity: str
 
     def __getitem__(self, item):

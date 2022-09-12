@@ -7,6 +7,7 @@ from app.adapters import user_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.db import db
 
 logging.config.fileConfig('app/conf/logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
