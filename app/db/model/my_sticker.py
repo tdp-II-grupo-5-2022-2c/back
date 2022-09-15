@@ -8,6 +8,5 @@ class MyStickerModel(BaseModel):
     is_repeated: bool = Field(...)
     quantity: int = Field(...)
 
-
     def __getitem__(self, item):
         return getattr(self, item)

@@ -28,6 +28,6 @@ class StickerManager:
         easy_sticker = await self.db["stickers"].find({"type": "easy"}).to_list(3)
         rare_sticker = await self.db["stickers"].find({"type": "rare"}).to_list(1)
 
-        stickers_in_package = rare_sticker + rare_sticker
+        stickers_in_package = easy_sticker + rare_sticker
         package = PackageModel(user_id=user_id, stickers=stickers_in_package)
         return package
