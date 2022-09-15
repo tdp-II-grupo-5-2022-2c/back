@@ -1,8 +1,8 @@
 # import logging
 # from typing import Optional
 from fastapi import APIRouter, status, Depends, HTTPException, Body
-# from fastapi.responses import JSONResponse
-# from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.sticker_manager import StickerManager
@@ -41,8 +41,8 @@ async def create_sticker(
     try:
         response = await manager.create_sticker(sticker=sticker)
         return JSONResponse(
-                    status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
-                )
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not create User. Exception: {e}"

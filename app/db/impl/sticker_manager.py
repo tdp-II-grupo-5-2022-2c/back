@@ -1,8 +1,7 @@
-import logging
+# import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
-from app.db.model import sticker
 from app.db.model.user import PackageModel
 from app.db.model.sticker import StickerModel
 from fastapi.encoders import jsonable_encoder

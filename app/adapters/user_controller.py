@@ -39,8 +39,8 @@ async def create_new(
     try:
         response = await manager.add_new(user=user)
         return JSONResponse(
-                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
-            )
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not create User. Exception: {e}"
