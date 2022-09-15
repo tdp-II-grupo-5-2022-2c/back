@@ -2,7 +2,6 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
-from app.db.model import sticker
 from app.db.model.user import UserModel, UpdateUserModel
 from fastapi.encoders import jsonable_encoder
 
@@ -13,10 +12,10 @@ class UserManager:
 
     async def get_by_id(self, id: str):
         user = await self.db["users"].find_one({"_id": id})
-        return user
+        return UserModel(**user)
 
     async def add_new(self, user: UserModel = Body(...)):
-        new = jsonable_encoder(sticker)
+        new = jsonable_encoder(user)
         await self.db["users"].insert_one(new)
         return new
 
