@@ -1,4 +1,3 @@
-# import logging
 # from typing import Optional
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
@@ -30,7 +29,7 @@ async def show_my_list(
     "/users",
     response_description="Create user",
     response_model=UserModel,
-    status_code=status.HTTP_201_OK,
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_new(
     user: UserModel = Body(...),
@@ -38,7 +37,7 @@ async def create_new(
 ):
     manager = UserManager(db.db)
     try:
-        response = await manager.add_new(user=UserModel)
+        response = await manager.add_new(user=user)
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
