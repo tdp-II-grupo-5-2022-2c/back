@@ -13,7 +13,7 @@ router = APIRouter(tags=["users"])
 
 @router.get(
     "/users/{user_id}",
-    response_description="Get a single user sticker list",
+    response_description="Get a user with the sticker list",
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
 )
@@ -24,6 +24,27 @@ async def show_my_list(
     manager = UserManager(db.db)
     response = await manager.get_by_id(id=user_id)
     return response
+
+
+@router.post(
+    "/users",
+    response_description="Create user",
+    response_model=UserModel,
+    status_code=status.HTTP_201_OK,
+)
+async def create_new(
+    user: UserModel = Body(...),
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = UserManager(db.db)
+    response = await manager.add_new(user=UserModel)
+    return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Could not create User. Exception: {e}"
+        )
 
 
 @router.put(
