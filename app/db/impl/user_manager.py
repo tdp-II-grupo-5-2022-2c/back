@@ -29,3 +29,18 @@ class UserManager:
             msg = f"[UPDATE_USER] id: {id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
+
+    async def paste_sticker(self, user_id: str, sticker_id: str):
+        try:
+            await self.db["users"].update_one(
+                {"_id": user_id, "stickers.id": sticker_id},
+                {"$set": 
+                    {"stickers.is_in_album": True}
+                }
+            )
+            model = await self.get_by_id(user_id)
+            return model
+        except Exception as e:
+            msg = f"[UPDATE_USER] id: {user_id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)

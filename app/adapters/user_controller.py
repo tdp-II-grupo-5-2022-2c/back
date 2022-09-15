@@ -70,3 +70,26 @@ async def update(
         raise HTTPException(
             status_code=400, detail=f"Error updating User. Exception {e}"
         )
+
+
+@router.patch(
+    "/users/{user_id}/sticker/{sticker_id}/paste",
+    response_description="Paste sticker in album",
+    response_model=UserModel,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_new(
+    user_id: str,
+    sticker_id: str,
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = UserManager(db.db)
+    try:
+        response = await manager.paste_sticker(user_id=user_id, sticker_id=sticker_id)
+        return JSONResponse(
+                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
+            )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Could not create User. Exception: {e}"
+        )
