@@ -78,7 +78,7 @@ async def update(
     response_model=UserModel,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_new(
+async def paste_sticker(
     user_id: str,
     sticker_id: str,
     db: DatabaseManager = Depends(get_database),

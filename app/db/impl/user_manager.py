@@ -34,9 +34,7 @@ class UserManager:
         try:
             await self.db["users"].update_one(
                 {"_id": user_id, "stickers.id": sticker_id},
-                {"$set": 
-                    {"stickers.is_in_album": True}
-                }
+                {"$set": {"stickers.is_in_album": True}}
             )
             model = await self.get_by_id(user_id)
             return model
