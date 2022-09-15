@@ -5,7 +5,6 @@ from pydantic import Field
 class MyStickerModel(BaseModel):
     id: str = Field(...)
     is_on_album: bool = Field(...)
-    is_repeated: bool = Field(...)
     quantity: int = Field(...)
 
     def __getitem__(self, item):

@@ -17,7 +17,7 @@ router = APIRouter(tags=["users"])
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
 )
-async def show_my_list(
+async def get_user_by_id(
     user_id: str,
     db: DatabaseManager = Depends(get_database),
 ):
