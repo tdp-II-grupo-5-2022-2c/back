@@ -52,4 +52,3 @@ class TestUserManager(unittest.TestCase):
 
         # Then
         self.assertIsNotNone(result)
-        self.assertEqual(sticker[0], result[0])
