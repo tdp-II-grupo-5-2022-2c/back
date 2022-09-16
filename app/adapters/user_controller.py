@@ -73,7 +73,7 @@ async def update(
 
 
 @router.patch(
-    "/users/{user_id}/sticker/{sticker_id}/paste",
+    "/users/{user_id}/stickers/{sticker_id}/paste",
     response_description="Paste sticker in album",
     response_model=UserModel,
     status_code=status.HTTP_201_CREATED,
@@ -91,5 +91,5 @@ async def paste_sticker(
             )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Could not create User. Exception: {e}"
+            status_code=400, detail=f"Could not paste sticker. Exception: {e}"
         )
