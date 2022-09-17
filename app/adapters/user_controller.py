@@ -1,7 +1,3 @@
-# import logging
-# from typing import Optional
-from typing import List
-
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -21,7 +17,7 @@ router = APIRouter(tags=["users"])
     status_code=status.HTTP_200_OK,
 )
 async def get_all_users(
-    db: DatabaseManager = Depends(get_database),
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
@@ -116,6 +112,8 @@ async def get_stickers(
         raise HTTPException(
             status_code=500, detail=f"Error getting stickers. Exception {e}"
         )
+
+
 @router.patch(
     "/users/{user_id}/stickers/{sticker_id}/paste",
     response_description="Paste sticker in album",
@@ -123,16 +121,16 @@ async def get_stickers(
     status_code=status.HTTP_200_OK,
 )
 async def paste_sticker(
-    user_id: str,
-    sticker_id: str,
-    db: DatabaseManager = Depends(get_database),
+        user_id: str,
+        sticker_id: str,
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
         response = await manager.paste_sticker(user_id=user_id, sticker_id=sticker_id)
         return JSONResponse(
-                status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
-            )
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not paste sticker. Exception: {e}"
