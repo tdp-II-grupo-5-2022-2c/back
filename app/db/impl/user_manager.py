@@ -39,8 +39,8 @@ class UserManager:
             await self.db["users"].update_one(
                 {"_id": user_id, "stickers.id": sticker_id},
                 {
-                    "$set": { "stickers.$.is_on_album": True},
-                    "$inc": { "stickers.$.quantity": -1 }
+                    "$set": {"stickers.$.is_on_album": True},
+                    "$inc": {"stickers.$.quantity": -1}
                 },
                 upsert=False
             )
