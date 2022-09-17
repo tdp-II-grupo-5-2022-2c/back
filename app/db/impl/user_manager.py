@@ -10,6 +10,10 @@ class UserManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
+    async def get_all(self):
+        users = await self.db["users"].find().to_list(20)
+        return users
+
     async def get_by_id(self, id: str):
         user = await self.db["users"].find_one({"_id": id})
         return UserModel(**user)
@@ -27,5 +31,22 @@ class UserManager:
             return model
         except Exception as e:
             msg = f"[UPDATE_USER] id: {id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
+    async def paste_sticker(self, user_id: str, sticker_id: str):
+        try:
+            await self.db["users"].update_one(
+                {"_id": user_id, "stickers.id": sticker_id},
+                {
+                    "$set": {"stickers.$.is_on_album": True},
+                    "$inc": {"stickers.$.quantity": -1}
+                },
+                upsert=False
+            )
+            model = await self.get_by_id(user_id)
+            return model
+        except Exception as e:
+            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
