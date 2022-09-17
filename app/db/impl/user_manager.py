@@ -34,6 +34,16 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
+    async def get_stickers(self, id: str):
+        try:
+            user = await self.db["users"].find_one({"_id": id})
+            user_model = UserModel(**user)
+            return user_model.stickers
+        except Exception as e:
+            msg = f"[GET_STICKERS_FROM_USER] id: {id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
     async def paste_sticker(self, user_id: str, sticker_id: str):
         try:
             await self.db["users"].update_one(

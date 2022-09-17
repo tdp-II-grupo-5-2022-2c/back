@@ -1,5 +1,3 @@
-# import logging
-# from typing import Optional
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
@@ -7,7 +5,7 @@ from typing import List
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.user_manager import UserManager
-from app.db.model.user import UserModel, UpdateUserModel
+from app.db.model.user import MyStickerModel, UserModel, UpdateUserModel
 
 router = APIRouter(tags=["users"])
 
@@ -19,7 +17,7 @@ router = APIRouter(tags=["users"])
     status_code=status.HTTP_200_OK,
 )
 async def get_all_users(
-    db: DatabaseManager = Depends(get_database),
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
@@ -40,8 +38,8 @@ async def get_all_users(
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_id(
-    user_id: str,
-    db: DatabaseManager = Depends(get_database),
+        user_id: str,
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     response = await manager.get_by_id(id=user_id)
@@ -55,15 +53,15 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_new(
-    user: UserModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+        user: UserModel = Body(...),
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
         response = await manager.add_new(user=user)
         return JSONResponse(
-                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
-            )
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not create User. Exception: {e}"
@@ -77,9 +75,9 @@ async def create_new(
     status_code=status.HTTP_200_OK,
 )
 async def update(
-    user_id: str,
-    user: UpdateUserModel = Body(...),
-    db: DatabaseManager = Depends(get_database)
+        user_id: str,
+        user: UpdateUserModel = Body(...),
+        db: DatabaseManager = Depends(get_database)
 ):
     manager = UserManager(db.db)
     try:
@@ -94,6 +92,28 @@ async def update(
         )
 
 
+@router.get(
+    "/users/{user_id}/stickers",
+    response_description="Get an user sticker's list",
+    response_model=List[MyStickerModel],
+    status_code=status.HTTP_200_OK,
+)
+async def get_stickers(
+        user_id: str,
+        db: DatabaseManager = Depends(get_database)
+):
+    manager = UserManager(db.db)
+    try:
+        response = await manager.get_stickers(id=user_id)
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error getting stickers. Exception {e}"
+        )
+
+
 @router.patch(
     "/users/{user_id}/stickers/{sticker_id}/paste",
     response_description="Paste sticker in album",
@@ -101,16 +121,16 @@ async def update(
     status_code=status.HTTP_200_OK,
 )
 async def paste_sticker(
-    user_id: str,
-    sticker_id: str,
-    db: DatabaseManager = Depends(get_database),
+        user_id: str,
+        sticker_id: str,
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
         response = await manager.paste_sticker(user_id=user_id, sticker_id=sticker_id)
         return JSONResponse(
-                status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
-            )
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not paste sticker. Exception: {e}"
