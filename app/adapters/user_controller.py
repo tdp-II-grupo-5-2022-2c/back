@@ -114,7 +114,7 @@ async def get_stickers(
         raise e
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Error getting stickers. Exception {e}"
+            status_code=500, detail=f"Error getting stickers. Exception {e}"
         )
 @router.patch(
     "/users/{user_id}/stickers/{sticker_id}/paste",
