@@ -28,6 +28,8 @@ class TestUserManager(unittest.TestCase):
 
         # Then
         self.assertIsNotNone(result)
+        self.assertEqual("1", result.id)
+        self.assertEqual("usermail@gmail.com", result.mail)
 
     @pytest.mark.asyncio
     async def test_get_stickers_by_user(self):
@@ -52,3 +54,7 @@ class TestUserManager(unittest.TestCase):
 
         # Then
         self.assertIsNotNone(result)
+        self.assertEqual(1, len(result))
+        self.assertEqual("sticker_id", result[0].id)
+        self.assertEqual(False, result[0].is_on_album)
+        self.assertEqual(2, result[0].quantity)
