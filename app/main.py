@@ -2,7 +2,7 @@ import uvicorn
 
 import logging.config
 
-from app.adapters import health_controller
+from app.adapters import health_controller, sticker_controller
 from app.adapters import user_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
@@ -18,6 +18,7 @@ app = FastAPI(version=settings.version, title=settings.title)
 
 app.include_router(health_controller.router)
 app.include_router(user_controller.router)
+app.include_router(sticker_controller.router)
 
 origins = ["*"]
 

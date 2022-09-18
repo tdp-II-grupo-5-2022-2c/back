@@ -1,7 +1,6 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
-
 from app.db.model.user import UserModel, UpdateUserModel
 from fastapi.encoders import jsonable_encoder
 
