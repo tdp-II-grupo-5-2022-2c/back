@@ -26,6 +26,9 @@ async def get_daily_package(
     manager = StickerManager(db.db)
     try:
         response = await manager.create_package(user_id=user_id.user_id)
+        # SE deberia tambien agregar la lista de stickers al user, el package tiene que tener un id??
+        # Como seria el endpoint de open package
+        # Agregar lista de stickers al user
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
         )
