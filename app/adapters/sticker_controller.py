@@ -6,7 +6,7 @@ from fastapi.encoders import jsonable_encoder
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.sticker_manager import StickerManager
-from app.db.model.package import PackageModel
+from app.db.impl.user_manager import UserManager
 from app.db.model.sticker import StickerModel
 from app.db.model.user_id import UserIdModel
 from app.db.model.user import UserModel
@@ -26,15 +26,10 @@ async def get_daily_package(
     db: DatabaseManager = Depends(get_database),
 ):
     manager = StickerManager(db.db)
-    user_manager = StickerManager(db.db)
+    user_manager = UserManageManager(db.db)
     try:
         package = await manager.create_package(user_id=user_id.user_id)
-        # SE deberia tambien agregar la lista de stickers al user,
-        # el package tiene que tener un id??
-        # Como seria el endpoint de open package
-        # Agregar lista de stickers al user
         response = await user_manager.open_package(package=package)
-
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
         )

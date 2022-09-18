@@ -65,11 +65,10 @@ class UserManager:
 
     async def open_package(self, package: PackageModel = Body(...)):
         try:
-            my_stickers = []
             user_id = package.user_id
             for sticker in package.stickers:
-                if not update_sticker(user_id, sticker.id):
-                    add_new_sticker(user_id, sticker.id)
+                if not self.update_sticker(user_id, sticker.id):
+                    self.add_new_sticker(user_id, sticker.id)
             model = await self.get_by_id(user_id)
             return model
         except Exception as e:
@@ -79,8 +78,10 @@ class UserManager:
 
     async def update_sticker(self, user_id: str, sticker_id: str):
         try:
-            user = await self.db["users"].find_one({"_id": user_id, "stickers.id":sticker.id})
-            if user != None:
+            user = await self.db["users"].find_one(
+                {"_id": user_id, "stickers.id": sticker_id}
+            )
+            if user is not None:
                 await self.db["users"].update_one(
                     {"_id": user_id, "stickers.id": sticker_id},
                     {"$inc": {"stickers.$.quantity": 1}},
@@ -96,7 +97,7 @@ class UserManager:
     async def add_new_sticker(self, user_id: str, sticker_id: str):
         try:
             my_sticker = MyStickerModel(
-                id=sticker.id,
+                id=sticker_id,
                 quantity=1,
                 is_on_album=False
             )
