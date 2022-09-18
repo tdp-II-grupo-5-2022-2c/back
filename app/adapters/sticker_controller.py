@@ -33,7 +33,6 @@ async def get_daily_package(
         raise HTTPException(
             status_code=400, detail=f"Could not return daily package. Exception: {e}"
         )
-    
 
 
 @router.post(
