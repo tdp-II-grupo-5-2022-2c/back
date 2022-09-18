@@ -3,6 +3,8 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.user import UserModel, UpdateUserModel
+from app.db.model.package import PackageModel
+from app.db.model.my_sticker import MyStickerModel
 from fastapi.encoders import jsonable_encoder
 
 
@@ -56,6 +58,53 @@ class UserManager:
             )
             model = await self.get_by_id(user_id)
             return model
+        except Exception as e:
+            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
+    async def open_package(self, package: PackageModel = Body(...)):
+        try:
+            my_stickers = []
+            user_id = package.user_id
+            for sticker in package.stickers:
+                if not update_sticker(user_id, sticker.id):
+                    add_new_sticker(user_id, sticker.id)
+            model = await self.get_by_id(user_id)
+            return model
+        except Exception as e:
+            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
+    async def update_sticker(self, user_id: str, sticker_id: str):
+        try:
+            user = await self.db["users"].find_one({"_id": user_id, "stickers.id":sticker.id})
+            if user != None:
+                await self.db["users"].update_one(
+                    {"_id": user_id, "stickers.id": sticker_id},
+                    {"$inc": {"stickers.$.quantity": 1}},
+                    upsert=False
+                )
+                return True
+            return False
+        except Exception as e:
+            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
+    async def add_new_sticker(self, user_id: str, sticker_id: str):
+        try:
+            my_sticker = MyStickerModel(
+                id=sticker.id,
+                quantity=1,
+                is_on_album=False
+            )
+            await self.db["users"].update_one(
+                    {"_id": user_id},
+                    {"$push": {"stickers": my_sticker}},
+                    upsert=False
+                )
         except Exception as e:
             msg = f"[PASTE STICKER] id: {user_id} error: {e}"
             logging.error(msg)
