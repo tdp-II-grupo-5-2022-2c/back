@@ -1,4 +1,4 @@
-import logging
+# import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
@@ -25,7 +25,7 @@ class StickerManager:
         # ver cuantos paquetes abrio el usario
         # Obtener 5 figuritas con determinados atributos
         easy_sticker = await self.db["stickers"].find({"type": "normal"}).to_list(5)
-        #rare_sticker = await self.db["stickers"].find({"type": "rare"}).to_list(1)
-        stickers_in_package = easy_sticker# + rare_sticker
+        # rare_sticker = await self.db["stickers"].find({"type": "rare"}).to_list(1)
+        stickers_in_package = easy_sticker  # + rare_sticker
         package = PackageModel(user_id=user_id, stickers=stickers_in_package)
         return package

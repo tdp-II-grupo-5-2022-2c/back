@@ -4,7 +4,6 @@ from app.db.model.sticker import StickerModel
 from bson import ObjectId
 
 
-
 class PackageModel(BaseModel):
     user_id: str
     stickers: List[StickerModel]
