@@ -27,11 +27,15 @@ class StickerManager:
         package_amount = package_counter_model.counter
 
         if (package_amount % 11 != 0) or (package_amount == 0):
-            stickers_in_package = await self.db["stickers"].find({"weight": {"$gte": 1, "$lte": 3}}).to_list(5)
+            stickers_in_package = await self.db["stickers"].find({
+                "weight": {"$gte": 1, "$lte": 3}
+            }).to_list(5)
         else:
             difficult_sticker = await self.db["stickers"].find({"weight": 5}).to_list(1)
             easy_stickers = await self.db["stickers"].find({"weight": 1}).to_list(2)
-            medium_stickers = await self.db["stickers"].find({"weight": {"$gte": 2, "$lte": 4}}).to_list(2)
+            medium_stickers = await self.db["stickers"].find({"weight":
+                                                                  {"$gte": 2, "$lte": 4}
+                                                              }).to_list(2)
             stickers_in_package = difficult_sticker + easy_stickers + medium_stickers
 
         package = PackageModel(stickers=stickers_in_package)
