@@ -26,7 +26,7 @@ async def get_daily_package(
     db: DatabaseManager = Depends(get_database),
 ):
     manager = StickerManager(db.db)
-    user_manager = UserManageManager(db.db)
+    user_manager = UserManager(db.db)
     try:
         package = await manager.create_package(user_id=user_id.user_id)
         response = await user_manager.open_package(package=package)
