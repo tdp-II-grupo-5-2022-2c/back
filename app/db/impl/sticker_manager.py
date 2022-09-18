@@ -33,9 +33,9 @@ class StickerManager:
         else:
             difficult_sticker = await self.db["stickers"].find({"weight": 5}).to_list(1)
             easy_stickers = await self.db["stickers"].find({"weight": 1}).to_list(2)
-            medium_stickers = await self.db["stickers"].find({"weight":
-                                                                  {"$gte": 2, "$lte": 4}
-                                                              }).to_list(2)
+            medium_stickers = await self.db["stickers"].find({
+                "weight": {"$gte": 2, "$lte": 4}
+            }).to_list(2)
             stickers_in_package = difficult_sticker + easy_stickers + medium_stickers
 
         package = PackageModel(stickers=stickers_in_package)
