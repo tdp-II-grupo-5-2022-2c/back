@@ -78,12 +78,15 @@ class UserManager:
                 sticker_id = str(sticker.id)
                 on_my_list = await self.update_sticker(user_id, sticker_id)
                 if not on_my_list:
-                    await self.add_new_sticker(user_id,sticker_id)
-                # el modelo del comienzo esta desactualizado, porque en la linea anterior se 
+                    await self.add_new_sticker(user_id, sticker_id)
+                # el modelo del comienzo esta desactualizado, porque en
+                # la linea anterior se
                 # inserto un nuevo sticker a la lista que nunca va a encontrar
                 model = await self.get_by_id(user_id)
                 iterator_stickers = iter(model.stickers)
-                sticker_user = next(s for s in iterator_stickers if str(s.id) == str(sticker.id))
+                sticker_user = next(
+                    s for s in iterator_stickers if str(s.id) == str(sticker.id)
+                )
                 sticker_detail = self.create_detail_stickers(sticker, sticker_user)
                 stickers_response.append(sticker_detail)
             return stickers_response

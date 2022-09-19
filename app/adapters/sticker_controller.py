@@ -11,7 +11,7 @@ from app.db.impl.user_manager import UserManager
 from app.db.model.sticker import StickerModel
 from app.db.model.user_id import UserIdModel
 from typing import List
-import logging
+
 
 router = APIRouter(tags=["stickers"])
 
@@ -31,7 +31,9 @@ async def get_package(
     try:
         package = await manager.create_package()
         # After create package open package and add to user myStickers
-        response = await user_manager.open_package(package=package, user_id=user_id.user_id)
+        response = await user_manager.open_package(
+            package=package, user_id=user_id.user_id
+        )
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
