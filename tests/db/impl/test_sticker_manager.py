@@ -9,7 +9,6 @@ from app.db.model.py_object_id import PyObjectId
 from app.db.impl.sticker_manager import StickerManager
 
 
-
 class TestStickerManager(unittest.TestCase):
     db = MagicMock()
 
@@ -79,8 +78,8 @@ class TestStickerManager(unittest.TestCase):
 
         for i in range(2):
             sticker = StickerModel(
-                _id=PyObjectId(f"{2+i}"),
-                image=f"img_{2+i}.png",
+                _id=PyObjectId(f"{2 + i}"),
+                image=f"img_{2 + i}.png",
                 weight=4
             )
             in_package.append(sticker)
@@ -111,4 +110,3 @@ class TestStickerManager(unittest.TestCase):
         self.assertEqual(4, result.sticker[2].weight)
         self.assertEqual(4, result.sticker[3].weight)
         self.assertEqual(5, result.sticker[4].weight)
-

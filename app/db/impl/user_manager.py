@@ -75,28 +75,35 @@ class UserManager:
             model = await self.get_by_id(user_id)
             stickers_response = []
             for sticker in package.stickers:
-                if not self.update_sticker(user_id, sticker.id):
-                    await self.add_new_sticker(user_id, sticker.id)
+                sticker_id = str(sticker.id)
+                on_my_list = await self.update_sticker(user_id, sticker_id)
+                if not on_my_list:
+                    await self.add_new_sticker(user_id,sticker_id)
+                # Este modelo esta desactualizado, porque en la linea anterior se 
+                # inserto un nuevo sticker a la lista que nunca va a encontrar
                 iterator_stickers = iter(model.stickers)
                 sticker_user = next(s for s in iterator_stickers if s.id == sticker.id)
-                sticker_detail = StickerDetailResponse(
-                    id=sticker.id,
-                    image=sticker.image,
-                    name=sticker.name,
-                    quantity=sticker_user.quantity,
-                    is_on_album=sticker_user.is_on_album
-                )
+                sticker_detail = self.create_detail_stickers(sticker, sticker_user)
                 stickers_response.append(sticker_detail)
             return stickers_response
         except Exception as e:
-            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
+            msg = f"[OPEN PACKAGE] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
 
+    def create_detail_stickers(self, sticker, sticker_user):
+        sticker_detail = StickerDetailResponse(
+            id=str(sticker.id),
+            image=sticker.image,
+            name=sticker.name,
+            quantity=sticker_user.quantity,
+            is_on_album=sticker_user.is_on_album
+        )
+        return sticker_detail
+
     async def update_sticker(self, user_id: str, sticker_id: str):
         """
-            If sticker already in user list
-            then increment quantity
+            If sticker already in user list then increment quantity
         """
         try:
             user = await self.db["users"].find_one(
@@ -111,14 +118,13 @@ class UserManager:
                 return True
             return False
         except Exception as e:
-            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
+            msg = f"[UPDATE STICKER] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
 
     async def add_new_sticker(self, user_id: str, sticker_id: str):
         """
-            If sticker is not in user list
-            then create MySticker
+            If sticker is not in user list then create MySticker
         """
         try:
             my_sticker = MyStickerModel(
@@ -126,12 +132,14 @@ class UserManager:
                 quantity=1,
                 is_on_album=False
             )
+            logging.info("ADD NEW STICKER...")
+            logging.info(my_sticker)
             await self.db["users"].update_one(
                     {"_id": user_id},
                     {"$push": {"stickers": my_sticker}},
                     upsert=False
                 )
         except Exception as e:
-            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
+            msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
