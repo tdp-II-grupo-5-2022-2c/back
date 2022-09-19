@@ -71,8 +71,9 @@ class UserManager:
     ):
         try:
             for sticker in package.stickers:
-                if not self.update_sticker(user_id, sticker.id):
-                    self.add_new_sticker(user_id, sticker.id)
+                in_my_list = self.update_sticker(user_id, sticker.id)
+                if not in_my_list:
+                    await self.add_new_sticker(user_id, sticker.id)
             model = await self.get_by_id(user_id)
             return model
         except Exception as e:

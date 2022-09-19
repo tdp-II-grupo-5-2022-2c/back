@@ -5,6 +5,8 @@ from typing import List
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.user_manager import UserManager
+from app.adapters.dtos.user import UserResponse
+import logging
 from app.db.impl.sticker_manager import StickerManager
 from app.db.model.user import UserModel, UpdateUserModel
 from app.adapters.dtos.sticker_details import StickerDetailResponse
@@ -15,19 +17,25 @@ router = APIRouter(tags=["users"])
 @router.get(
     "/users",
     response_description="Get a all users",
-    response_model=List[UserModel],
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-    user: UpdateUserModel = None,
+    mail: str = None,
     db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
-        if user is not None:
-            response = await manager.get_user_by_mail(mail=user.mail)
-        else:
-            response = await manager.get_all()
+        if mail is not None:
+            logging.info(mail)
+            response = await manager.get_user_by_mail(mail=mail)
+            logging.info(response)
+            user = UserResponse(
+                id=str(response.id),
+                mail=response.mail,
+                stickers=response.stickers
+            )
+            return user
+        response = await manager.get_all()
         return response
     except HTTPException as e:
         raise e
@@ -59,8 +67,8 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_new(
-        user: UserModel = Body(...),
-        db: DatabaseManager = Depends(get_database),
+    user: UserModel = Body(...),
+    db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
