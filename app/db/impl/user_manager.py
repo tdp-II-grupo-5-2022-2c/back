@@ -63,7 +63,7 @@ class UserManager:
             raise RuntimeError(msg)
 
     async def open_package(
-        self, user_id: str, package: PackageModel, 
+        self, user_id: str, package: PackageModel
     ):
         try:
             for sticker in package.stickers:
@@ -77,6 +77,10 @@ class UserManager:
             raise RuntimeError(msg)
 
     async def update_sticker(self, user_id: str, sticker_id: str):
+        """
+            If sticker already in user list
+            then increment quantity
+        """
         try:
             user = await self.db["users"].find_one(
                 {"_id": user_id, "stickers.id": sticker_id}
@@ -95,6 +99,10 @@ class UserManager:
             raise RuntimeError(msg)
 
     async def add_new_sticker(self, user_id: str, sticker_id: str):
+        """
+            If sticker is not in user list
+            then create MySticker
+        """
         try:
             my_sticker = MyStickerModel(
                 id=sticker_id,
