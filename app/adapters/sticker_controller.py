@@ -35,7 +35,7 @@ async def get_package(
             package=package, user_id=user_id.user_id
         )
         return JSONResponse(
-                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(package)
+                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
     except Exception as e:
         raise HTTPException(
