@@ -1,6 +1,8 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
+
+from app.adapters.dtos.sticker_details import StickerDetailResponse
 from app.db.model.user import UserModel, UpdateUserModel
 from app.db.model.package import PackageModel
 from app.db.model.my_sticker import MyStickerModel
@@ -70,11 +72,22 @@ class UserManager:
         self, user_id: str, package: PackageModel
     ):
         try:
+            model = await self.get_by_id(user_id)
+            stickers_response = []
             for sticker in package.stickers:
                 if not self.update_sticker(user_id, sticker.id):
-                    self.add_new_sticker(user_id, sticker.id)
-            model = await self.get_by_id(user_id)
-            return model
+                    await self.add_new_sticker(user_id, sticker.id)
+                iterator_stickers = iter(model.stickers)
+                sticker_user = next(s for s in iterator_stickers if s.id == sticker.id)
+                sticker_detail = StickerDetailResponse(
+                    id=sticker.id,
+                    image=sticker.image,
+                    name=sticker.name,
+                    quantity=sticker_user.quantity,
+                    is_on_album=sticker_user.is_on_album
+                )
+                stickers_response.append(sticker_detail)
+            return stickers_response
         except Exception as e:
             msg = f"[PASTE STICKER] id: {user_id} error: {e}"
             logging.error(msg)
