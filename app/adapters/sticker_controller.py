@@ -7,7 +7,6 @@ from starlette.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.sticker_manager import StickerManager
 from app.db.impl.user_manager import UserManager
-from app.db.model.package import PackageModel
 from app.db.model.sticker import StickerModel
 from app.db.model.user_id import UserIdModel
 from app.db.model.user import UserModel
@@ -58,6 +57,6 @@ async def create_sticker(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
     except Exception as e:
-        raise HTTPException(    
+        raise HTTPException(
             status_code=400, detail=f"Could not create Sticker. Exception: {e}"
         )
