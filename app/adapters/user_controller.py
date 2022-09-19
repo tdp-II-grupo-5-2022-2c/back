@@ -5,7 +5,9 @@ from typing import List
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.user_manager import UserManager
-from app.db.model.user import MyStickerModel, UserModel, UpdateUserModel
+from app.db.impl.sticker_manager import StickerManager
+from app.db.model.user import UserModel, UpdateUserModel
+from app.adapters.dtos.sticker_details import StickerDetailResponse
 
 router = APIRouter(tags=["users"])
 
@@ -99,16 +101,25 @@ async def update(
 @router.get(
     "/users/{user_id}/stickers",
     response_description="Get an user sticker's list",
-    response_model=List[MyStickerModel],
+    response_model=List[StickerDetailResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_stickers(
         user_id: str,
         db: DatabaseManager = Depends(get_database)
 ):
-    manager = UserManager(db.db)
+    user_manager = UserManager(db.db)
+    sticker_manager = StickerManager(db.db)
     try:
-        response = await manager.get_stickers(id=user_id)
+        stickers = await user_manager.get_stickers(id=user_id)
+        response = []
+
+        # TODO: Mejorar con una sola llamada a mongo con todos los IDs.
+        for sticker in stickers:
+            sticker_detail = await sticker_manager.get_by_id(sticker.id)
+            sticker_response = StickerDetailResponse(**sticker.dict(), **sticker_detail)
+            response.append(sticker_response)
+
         return response
     except HTTPException as e:
         raise e
