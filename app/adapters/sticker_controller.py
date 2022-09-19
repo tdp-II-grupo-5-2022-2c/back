@@ -33,7 +33,7 @@ async def get_package(
         # After create package open package and add to user myStickers
         response = await user_manager.open_package(package=package, user_id=user_id.user_id)
         return JSONResponse(
-                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
+                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(package)
             )
     except Exception as e:
         raise HTTPException(
