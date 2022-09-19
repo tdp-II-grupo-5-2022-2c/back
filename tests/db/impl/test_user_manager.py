@@ -3,6 +3,7 @@ import pytest
 from unittest.mock import MagicMock
 
 from app.db.impl.user_manager import UserManager
+from app.db.model.sticker import StickerModel
 from app.db.model.user import UserModel
 from app.db.model.my_sticker import MyStickerModel
 from app.db.model.package import PackageModel
@@ -110,9 +111,8 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual(True, result[0].is_on_album)
         self.assertEqual(1, result[0].quantity)
 
-
     @pytest.mark.asyncio
-    async def test_open_package(self):
+    async def test_open_package_with_repeated_stickers(self):
         # Given
         in_package = []
         my_stickers = []
@@ -139,6 +139,50 @@ class TestUserManager(unittest.TestCase):
         )
 
         self.db["users"].update_one = MagicMock(return_value=True)
+        self.db["users"].find_one = MagicMock(return_value=user)
+
+        user_manager = UserManager(self.db)
+
+        # When
+        result = await user_manager.open_package(package)
+
+        # Then
+        self.assertIsNotNone(result)
+        self.assertEqual(1, len(result))
+        self.assertEqual("10", result[0].id)
+        self.assertEqual(5, len(result.stickers[0]))
+        self.assertEqual("1", result.stickers[0].id)
+        self.assertEqual(1, result.stickers[0].quantity)
+        self.assertEqual(False, result.stickers[0].is_on_album)
+
+    @pytest.mark.asyncio
+    async def test_open_package_with_non_repeated_stickers(self):
+        # Given
+        in_package = []
+        my_stickers = []
+        for i in range(5):
+            sticker = StickerModel(
+                _id=PyObjectId(f"{i}"),
+                image=f"img_{i}.png",
+                type="normal"
+            )
+            my_sticker = MyStickerModel(
+                _id=f"{i}",
+                quantity=1,
+                is_on_album=False
+            )
+            my_stickers.append(my_sticker)
+            in_package.append(sticker)
+
+        package = PackageModel(user_id="10", stickers=in_package)
+
+        user = UserModel(
+            _id=PyObjectId("2"),
+            mail="usermail@gmail.com",
+            stickers=my_sticker
+        )
+
+        self.db["users"].update_one = MagicMock(return_value=False)
         self.db["users"].find_one = MagicMock(return_value=user)
 
         user_manager = UserManager(self.db)
