@@ -134,5 +134,3 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual("1", result.stickers[0].id)
         self.assertEqual(1, result.stickers[0].quantity)
         self.assertEqual(False, result.stickers[0].is_on_album)
-
-    
