@@ -21,7 +21,6 @@ class StickerManager:
         return new
 
     async def create_package(self):
-
         package_counter = await self.db["package-counter"].find_one()
         package_counter_model = PackageCounterModel(**package_counter)
         package_amount = package_counter_model.counter

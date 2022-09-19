@@ -1,10 +1,10 @@
 from app.db.model.py_object_id import PyObjectId
 from pydantic import Field
-from app.db.model.my_sticker import MyStickerModel
 
 from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
+from app.db.model.my_sticker import MyStickerModel
 
 
 class UserModel(BaseModel):

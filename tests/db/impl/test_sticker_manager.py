@@ -1,12 +1,13 @@
 import unittest
+import pytest
 from unittest.mock import MagicMock
 
-import pytest
-
-from app.db.impl.sticker_manager import StickerManager
+from app.db.impl.user_manager import UserManager
+from app.db.model.sticker import StickerModel
 from app.db.model.package import PackageModel
 from app.db.model.py_object_id import PyObjectId
-from app.db.model.sticker import StickerModel
+from app.db.impl.sticker_manager import StickerManager
+
 
 
 class TestStickerManager(unittest.TestCase):
@@ -35,6 +36,7 @@ class TestStickerManager(unittest.TestCase):
 
     @pytest.mark.asyncio
     async def test_create_normal_package(self):
+
         # Given
         in_package = []
 
@@ -109,3 +111,4 @@ class TestStickerManager(unittest.TestCase):
         self.assertEqual(4, result.sticker[2].weight)
         self.assertEqual(4, result.sticker[3].weight)
         self.assertEqual(5, result.sticker[4].weight)
+

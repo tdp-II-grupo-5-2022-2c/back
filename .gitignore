@@ -1,3 +1,10 @@
 .env
 # Ignore IDE specific files
 .idea/
+/app/__pycache__/
+**/__pycache__/**
+/app/adapters/__pycache__/
+/app/db/__pycache__/
+/tests/__pycache__/
+/tests/db/impl/__pycache__/
+/app/db/model/__pycache__/
