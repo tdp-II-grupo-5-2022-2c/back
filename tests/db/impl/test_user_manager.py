@@ -33,6 +33,26 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual("usermail@gmail.com", result.mail)
 
     @pytest.mark.asyncio
+    async def test_get_user_by_mail(self):
+        # Given
+        user = UserModel(
+            _id=PyObjectId("1"),
+            mail="usermail@gmail.com",
+            stickers=[]
+        )
+        self.db["users"].find_one = MagicMock(return_value=user)
+
+        user_manager = UserManager(self.db)
+
+        # When
+        result = await user_manager.get_user_by_mail("usermail@gmail.com")
+
+        # Then
+        self.assertIsNotNone(result)
+        self.assertEqual("1", result.id)
+        self.assertEqual("usermail@gmail.com", result.mail)
+
+    @pytest.mark.asyncio
     async def test_get_stickers_by_user(self):
         # Given
         sticker = MyStickerModel(
