@@ -16,12 +16,16 @@ router = APIRouter(tags=["users"])
     response_model=List[UserModel],
     status_code=status.HTTP_200_OK,
 )
-async def get_all_users(
-        db: DatabaseManager = Depends(get_database),
+async def get_users(
+    user: UpdateUserModel = None,
+    db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
-        response = await manager.get_all()
+        if user is not None:
+            response = await manager.get_user_by_mail(mail=user.mail)
+        else:
+            response = await manager.get_all()
         return response
     except HTTPException as e:
         raise e

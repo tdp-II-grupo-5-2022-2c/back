@@ -19,6 +19,10 @@ class UserManager:
         user = await self.db["users"].find_one({"_id": id})
         return UserModel(**user)
 
+    async def get_user_by_mail(self, mail: str):
+        user = await self.db["users"].find_one({"mail": mail})
+        return UserModel(**user)
+
     async def add_new(self, user: UserModel = Body(...)):
         new = jsonable_encoder(user)
         await self.db["users"].insert_one(new)
