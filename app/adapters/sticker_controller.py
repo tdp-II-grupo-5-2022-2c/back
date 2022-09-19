@@ -4,12 +4,13 @@ from fastapi.params import Body
 from starlette import status
 from starlette.responses import JSONResponse
 
+from app.adapters.dtos.sticker_details import StickerDetailResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.sticker_manager import StickerManager
 from app.db.impl.user_manager import UserManager
 from app.db.model.sticker import StickerModel
 from app.db.model.user_id import UserIdModel
-from app.db.model.user import UserModel
+from typing import List
 
 
 router = APIRouter(tags=["stickers"])
@@ -17,11 +18,11 @@ router = APIRouter(tags=["stickers"])
 
 @router.post(
     "/stickers/package",
-    response_description="Get daily package for user",
-    response_model=UserModel,
+    response_description="Get package for user",
+    response_model=List[StickerDetailResponse],
     status_code=status.HTTP_201_CREATED,
 )
-async def get_daily_package(
+async def get_package(
     user_id: UserIdModel = Body(...),
     db: DatabaseManager = Depends(get_database),
 ):
@@ -30,9 +31,11 @@ async def get_daily_package(
     try:
         package = await manager.create_package()
         # After create package open package and add to user myStickers
-        await user_manager.open_package(package=package, user_id=user_id.user_id)
+        response = await user_manager.open_package(
+            package=package, user_id=user_id.user_id
+        )
         return JSONResponse(
-                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(package)
+                status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
     except Exception as e:
         raise HTTPException(
