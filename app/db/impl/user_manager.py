@@ -79,10 +79,11 @@ class UserManager:
                 on_my_list = await self.update_sticker(user_id, sticker_id)
                 if not on_my_list:
                     await self.add_new_sticker(user_id,sticker_id)
-                # Este modelo esta desactualizado, porque en la linea anterior se 
+                # el modelo del comienzo esta desactualizado, porque en la linea anterior se 
                 # inserto un nuevo sticker a la lista que nunca va a encontrar
+                model = await self.get_by_id(user_id)
                 iterator_stickers = iter(model.stickers)
-                sticker_user = next(s for s in iterator_stickers if s.id == sticker.id)
+                sticker_user = next(s for s in iterator_stickers if str(s.id) == str(sticker.id))
                 sticker_detail = self.create_detail_stickers(sticker, sticker_user)
                 stickers_response.append(sticker_detail)
             return stickers_response
@@ -97,7 +98,8 @@ class UserManager:
             image=sticker.image,
             name=sticker.name,
             quantity=sticker_user.quantity,
-            is_on_album=sticker_user.is_on_album
+            is_on_album=sticker_user.is_on_album,
+            country=sticker.country
         )
         return sticker_detail
 
@@ -132,12 +134,10 @@ class UserManager:
                 quantity=1,
                 is_on_album=False
             )
-            logging.info("ADD NEW STICKER...")
-            logging.info(my_sticker)
+            new = {k: v for k, v in my_sticker.dict().items() if v is not None}
             await self.db["users"].update_one(
                     {"_id": user_id},
-                    {"$push": {"stickers": my_sticker}},
-                    upsert=False
+                    {"$push": {"stickers": new}}
                 )
         except Exception as e:
             msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"
