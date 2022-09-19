@@ -2,7 +2,7 @@ import uvicorn
 
 import logging.config
 
-from app.adapters import health_controller
+from app.adapters import health_controller, sticker_controller
 from app.adapters import user_controller
 from app.adapters import sticker_controller
 from app.conf.config import Settings

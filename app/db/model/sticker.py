@@ -4,10 +4,14 @@ from pydantic import Field
 from bson import ObjectId
 
 
+# The weighting measures how likely is the sticker to appear in a package.
+# It goes from 1 to 5 being:
+# 1 - Most likely
+# 5 - Unlikely
 class StickerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     image: str = Field(...)
-    type: str = "normal"
+    weight: int = 1
 
     class Config:
         allow_population_by_field_name = True
@@ -16,7 +20,7 @@ class StickerModel(BaseModel):
         schema_extra = {
             "example": {
                 "image": "image.png",
-                "type": "normal",
+                "weighting": 1,
             }
         }
 

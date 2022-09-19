@@ -1,7 +1,6 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
-
 from app.db.model.user import UserModel, UpdateUserModel
 from app.db.model.package import PackageModel
 from app.db.model.my_sticker import MyStickerModel
@@ -63,9 +62,10 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def open_package(self, package: PackageModel = Body(...)):
+    async def open_package(
+        self, user_id: str, package: PackageModel, 
+    ):
         try:
-            user_id = package.user_id
             for sticker in package.stickers:
                 if not self.update_sticker(user_id, sticker.id):
                     self.add_new_sticker(user_id, sticker.id)

@@ -5,7 +5,6 @@ from bson import ObjectId
 
 
 class PackageModel(BaseModel):
-    user_id: str
     stickers: List[StickerModel]
 
     class Config:
@@ -14,7 +13,6 @@ class PackageModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "user_id": "user_id",
                 "stickers": []
             }
         }

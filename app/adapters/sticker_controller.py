@@ -1,12 +1,13 @@
-# import logging
-# from typing import Optional
-from fastapi import APIRouter, status, Depends, HTTPException, Body
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
+from fastapi.params import Body
+from starlette import status
+from starlette.responses import JSONResponse
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.sticker_manager import StickerManager
 from app.db.impl.user_manager import UserManager
+from app.db.model.package import PackageModel
 from app.db.model.sticker import StickerModel
 from app.db.model.user_id import UserIdModel
 from app.db.model.user import UserModel
@@ -16,7 +17,7 @@ router = APIRouter(tags=["stickers"])
 
 
 @router.post(
-    "/stickers/new-package",
+    "/stickers/package",
     response_description="Get daily package for user",
     response_model=UserModel,
     status_code=status.HTTP_201_CREATED,
@@ -28,14 +29,14 @@ async def get_daily_package(
     manager = StickerManager(db.db)
     user_manager = UserManager(db.db)
     try:
-        package = await manager.create_package(user_id=user_id.user_id)
-        response = await user_manager.open_package(package=package)
-        return JSONResponse(
+        package = await manager.create_package()
+        response = await user_manager.open_package(package=package, user_id=user_id.id)
+    return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
         )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Could not return daily package. Exception: {e}"
+            status_code=500, detail=f"Could not return daily package. Exception: {e}"
         )
 
 
@@ -46,16 +47,16 @@ async def get_daily_package(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_sticker(
-    sticker: StickerModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+        sticker: StickerModel = Body(...),
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = StickerManager(db.db)
     try:
         response = await manager.create_sticker(sticker=sticker)
-        return JSONResponse(
+    return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
         )
     except Exception as e:
-        raise HTTPException(
+        raise HTTPException(    
             status_code=400, detail=f"Could not create Sticker. Exception: {e}"
         )
