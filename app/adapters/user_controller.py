@@ -20,8 +20,8 @@ router = APIRouter(tags=["users"])
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-    mail: str = None,
-    db: DatabaseManager = Depends(get_database),
+        mail: str = None,
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
@@ -46,17 +46,21 @@ async def get_users(
 
 
 @router.get(
-    "/users/{user_id}",
-    response_description="Get a user with the sticker list",
+    "/users",
+    response_description="Get a user by id with the sticker list",
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_by_id(
-        user_id: str,
+async def get_user(
+        id: str = "",
+        mail: str = "",
         db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
-    response = await manager.get_by_id(id=user_id)
+    if len(id) != 0:
+        response = await manager.get_by_id(user_id=id)
+    else:
+        response = await manager.get_user_by_mail(user_mail=mail)
     return response
 
 
@@ -67,8 +71,8 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_new(
-    user: UserModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+        user: UserModel = Body(...),
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:

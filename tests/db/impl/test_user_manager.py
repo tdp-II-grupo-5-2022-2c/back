@@ -14,7 +14,7 @@ class TestUserManager(unittest.TestCase):
     db = MagicMock()
 
     @pytest.mark.asyncio
-    async def test_get_user(self):
+    async def test_get_user_by_id(self):
         # Given
         user = UserModel(
             _id=PyObjectId("1"),

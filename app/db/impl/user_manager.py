@@ -17,12 +17,12 @@ class UserManager:
         users = await self.db["users"].find().to_list(20)
         return users
 
-    async def get_by_id(self, id: str):
-        user = await self.db["users"].find_one({"_id": id})
+    async def get_by_id(self, user_id: str):
+        user = await self.db["users"].find_one({"_id": user_id})
         return UserModel(**user)
 
-    async def get_user_by_mail(self, mail: str):
-        user = await self.db["users"].find_one({"mail": mail})
+    async def get_user_by_mail(self, user_mail: str):
+        user = await self.db["users"].find_one({"mail": user_mail})
         return UserModel(**user)
 
     async def add_new(self, user: UserModel = Body(...)):
