@@ -43,7 +43,8 @@ class StickerManager:
         await self.db["package-counter"].update_one({}, {"$inc": {"counter": 1}})
         return package
 
-    async def find_by_query(self,
+    async def find_by_query(
+        self,
         ids: List[str],
         country: str = None,
         name: str = None
