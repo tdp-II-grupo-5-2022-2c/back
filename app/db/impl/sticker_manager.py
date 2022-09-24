@@ -6,7 +6,6 @@ from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
 from app.db.model.sticker import StickerModel
 from typing import List
-import logging
 
 
 class StickerManager:
@@ -55,3 +54,4 @@ class StickerManager:
         if name is not None:
             query["name"] = name
         stickers = await self.db["stickers"].find(query).to_list(50)
+        return stickers
