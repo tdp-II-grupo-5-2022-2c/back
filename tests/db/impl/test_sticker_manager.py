@@ -54,7 +54,9 @@ class TestStickerManager(unittest.TestCase):
         sticker_manager = StickerManager(self.db)
 
         # When
-        result = await sticker_manager.get_by_query(["1", "2"], "Argentina", "Messi")
+        result = await sticker_manager.get_by_query(
+            ["1", "2"], "Argentina", "Messi"
+        )
 
         # Then
         self.assertIsNotNone(result)

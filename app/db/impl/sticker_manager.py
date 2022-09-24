@@ -49,15 +49,9 @@ class StickerManager:
         country: str = None,
         name: str = None
     ):
-        try:
-            query = {"_id": {"$in": ids}}
-            if country is not None:
-                query["country"] = country
-            if name is not None:
-                query["name"] = name
-            stickers = await self.db["stickers"].find(query).to_list(50)
-            return stickers
-        except Exception as e:
-            msg = f"[FIND STICKER BY QUERY] id: {ids} error: {e}"
-            logging.error(msg)
-            raise RuntimeError(msg)
+        query = {"_id": {"$in": ids}}
+        if country is not None:
+            query["country"] = country
+        if name is not None:
+            query["name"] = name
+        stickers = await self.db["stickers"].find(query).to_list(50)

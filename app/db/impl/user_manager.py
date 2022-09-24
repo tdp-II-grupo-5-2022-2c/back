@@ -42,13 +42,8 @@ class UserManager:
             raise RuntimeError(msg)
 
     async def get_stickers(self, id: str):
-        try:
-            user_model = await self.get_by_id(id)
-            return user_model.stickers
-        except Exception as e:
-            msg = f"[GET_STICKERS_FROM_USER] id: {id} error: {e}"
-            logging.error(msg)
-            raise RuntimeError(msg)
+        user_model = await self.get_by_id(id)
+        return user_model.stickers
 
     async def paste_sticker(self, user_id: str, sticker_id: str):
         try:
