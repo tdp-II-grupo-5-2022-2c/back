@@ -114,6 +114,8 @@ async def update(
 )
 async def get_stickers(
         user_id: str,
+        country: str = None,
+        name: str = None,
         db: DatabaseManager = Depends(get_database)
 ):
     user_manager = UserManager(db.db)
@@ -126,6 +128,12 @@ async def get_stickers(
         for sticker in stickers:
             sticker_detail = await sticker_manager.get_by_id(sticker.id)
             sticker_response = StickerDetailResponse(**sticker.dict(), **sticker_detail)
+            if country is not None:
+                if sticker_response.country != country:
+                    continue
+            if name is not None:
+                if sticker_response.name != name:
+                    continue
             response.append(sticker_response)
 
         return response
