@@ -131,14 +131,13 @@ async def get_stickers(
 
         response = []
         for sticker_detail in sticker_details:
-            if sticker_detail["_id"] in ids:
-                sticker = [s for s in stickers if s.id == sticker_detail["_id"]]
-                if len(sticker) != 0:
-                    sticker_response = StickerDetailResponse(
-                        **sticker[0].dict(),
-                        **sticker_detail
-                    )
-                    response.append(sticker_response)
+            sticker = [s for s in stickers if s.id == sticker_detail["_id"]]
+            if len(sticker) != 0:
+                sticker_response = StickerDetailResponse(
+                    **sticker[0].dict(),
+                    **sticker_detail
+                )
+                response.append(sticker_response)
         return response
     except HTTPException as e:
         raise e

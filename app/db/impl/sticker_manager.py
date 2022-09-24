@@ -53,5 +53,5 @@ class StickerManager:
             query["country"] = country
         if name is not None:
             query["name"] = name
-        stickers = await self.db["stickers"].find(query).to_list(50)
+        stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
