@@ -6,6 +6,7 @@ from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
 from app.db.model.sticker import StickerModel
 from typing import List
+import logging
 
 
 class StickerManager:
@@ -42,11 +43,11 @@ class StickerManager:
         await self.db["package-counter"].update_one({}, {"$inc": {"counter": 1}})
         return package
 
-    async def create_package(self):
-        sticker = await self.db["stickers"].find_one({"_id": id})
-        return sticker
-
-    async def find_by_query(self, ids: List[str], country: str = None, name: str = None):
+    async def find_by_query(self,
+        ids: List[str],
+        country: str = None,
+        name: str = None
+    ):
         try:
             query = {"_id": {"$in": ids}}
             if country is not None:
