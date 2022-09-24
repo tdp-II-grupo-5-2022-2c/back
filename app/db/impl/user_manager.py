@@ -43,8 +43,7 @@ class UserManager:
 
     async def get_stickers(self, id: str):
         try:
-            user = await self.db["users"].find_one({"_id": id})
-            user_model = UserModel(**user)
+            user_model = await self.get_by_id(id)
             return user_model.stickers
         except Exception as e:
             msg = f"[GET_STICKERS_FROM_USER] id: {id} error: {e}"
@@ -54,7 +53,11 @@ class UserManager:
     async def paste_sticker(self, user_id: str, sticker_id: str):
         try:
             await self.db["users"].update_one(
-                {"_id": user_id, "stickers.id": sticker_id},
+                {
+                    "_id": user_id,
+                    "stickers.id": sticker_id,
+                    "stickers.is_on_album": False
+                },
                 {
                     "$set": {"stickers.$.is_on_album": True},
                     "$inc": {"stickers.$.quantity": -1}
