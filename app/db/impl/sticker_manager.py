@@ -5,6 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
 from app.db.model.sticker import StickerModel
+from typing import List
 
 
 class StickerManager:
@@ -40,3 +41,17 @@ class StickerManager:
         package = PackageModel(stickers=stickers_in_package)
         await self.db["package-counter"].update_one({}, {"$inc": {"counter": 1}})
         return package
+
+    async def find_by_query(
+        self,
+        ids: List[str],
+        country: str = None,
+        name: str = None
+    ):
+        query = {"_id": {"$in": ids}}
+        if country is not None:
+            query["country"] = country
+        if name is not None:
+            query["name"] = name
+        stickers = await self.db["stickers"].find(query).to_list(100000)
+        return stickers

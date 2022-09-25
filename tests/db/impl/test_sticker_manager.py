@@ -34,6 +34,39 @@ class TestStickerManager(unittest.TestCase):
         self.assertEqual(5, result.weight)
 
     @pytest.mark.asyncio
+    async def test_get_sticker_by_query(self):
+        # Given
+        sticker = StickerModel(
+            _id=PyObjectId("1"),
+            image="img_mbappe.png",
+            country="Francia",
+            weight=5
+        )
+        sticker_2 = StickerModel(
+            _id=PyObjectId("2"),
+            image="img_messi.png",
+            country="Argentina",
+            name="Messi",
+            weight=5
+        )
+        self.db["stickers"].find = MagicMock(return_value=[sticker_2])
+
+        sticker_manager = StickerManager(self.db)
+
+        # When
+        result = await sticker_manager.get_by_query(
+            ["1", "2"], "Argentina", "Messi"
+        )
+
+        # Then
+        self.assertIsNotNone(result)
+        self.assertEqual("2", result[0].id)
+        self.assertEqual("img_messi.png", result[0].image)
+        self.assertEqual(5, result[0].weight)
+        self.assertEqual("Argentina", result[0].country)
+        self.assertEqual("Messi", result[0].name)
+
+    @pytest.mark.asyncio
     async def test_create_normal_package(self):
 
         # Given

@@ -114,20 +114,30 @@ async def update(
 )
 async def get_stickers(
         user_id: str,
+        country: str = None,
+        name: str = None,
         db: DatabaseManager = Depends(get_database)
 ):
     user_manager = UserManager(db.db)
     sticker_manager = StickerManager(db.db)
     try:
         stickers = await user_manager.get_stickers(id=user_id)
+        ids = [s.id for s in stickers]
+        sticker_details = await sticker_manager.find_by_query(
+            ids,
+            country=country,
+            name=name
+        )
+
         response = []
-
-        # TODO: Mejorar con una sola llamada a mongo con todos los IDs.
-        for sticker in stickers:
-            sticker_detail = await sticker_manager.get_by_id(sticker.id)
-            sticker_response = StickerDetailResponse(**sticker.dict(), **sticker_detail)
-            response.append(sticker_response)
-
+        for sticker_detail in sticker_details:
+            sticker = [s for s in stickers if s.id == sticker_detail["_id"]]
+            if len(sticker) != 0:
+                sticker_response = StickerDetailResponse(
+                    **sticker[0].dict(),
+                    **sticker_detail
+                )
+                response.append(sticker_response)
         return response
     except HTTPException as e:
         raise e
