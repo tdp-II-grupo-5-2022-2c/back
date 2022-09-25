@@ -10,6 +10,7 @@ from app.db.model.my_sticker import MyStickerModel
 class UserModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     mail: str = Field(...)
+    firebaseUID: str = Field(...)
     stickers: List[MyStickerModel] = []
 
     class Config:
@@ -19,6 +20,7 @@ class UserModel(BaseModel):
         schema_extra = {
             "example": {
                 "mail": "user@mail",
+                "firebaseUID": "oHuONT9UJDcbnkfrO7i6GaCW8Tx2",
                 "stickers": [],
             }
         }

@@ -32,7 +32,8 @@ async def get_users(
             user = UserResponse(
                 id=str(response.id),
                 mail=response.mail,
-                stickers=response.stickers
+                stickers=response.stickers,
+                firebaseUID=response.firebaseUID
             )
             return user
         response = await manager.get_all()

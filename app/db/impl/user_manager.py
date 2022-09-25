@@ -1,4 +1,5 @@
 import logging
+from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
@@ -23,6 +24,11 @@ class UserManager:
 
     async def get_user_by_mail(self, mail: str):
         user = await self.db["users"].find_one({"mail": mail})
+        if user is None:
+            raise HTTPException(
+            status_code=404, detail=f"user with mail {mail} not found'"
+        )
+
         return UserModel(**user)
 
     async def add_new(self, user: UserModel = Body(...)):

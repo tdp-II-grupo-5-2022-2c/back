@@ -7,3 +7,4 @@ class UserResponse(BaseModel):
     id: str
     mail: str
     stickers: List[MyStickerModel]
+    firebaseUID: str
