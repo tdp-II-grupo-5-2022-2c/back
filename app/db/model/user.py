@@ -10,6 +10,9 @@ from app.db.model.my_sticker import MyStickerModel
 class UserModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     mail: str = Field(...)
+    name: str = Field(...)
+    lastname: str = Field(...)
+    date_of_birth: str = Field(...)
     stickers: List[MyStickerModel] = []
 
     class Config:
@@ -26,6 +29,9 @@ class UserModel(BaseModel):
 
 class UpdateUserModel(BaseModel):
     mail: Optional[str]
+    name: Optional[str]
+    lastname: Optional[str]
+    date_of_birth: Optional[str]
     stickers: Optional[List[MyStickerModel]]
 
     class Config:

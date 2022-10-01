@@ -52,6 +52,6 @@ class StickerManager:
         if country is not None:
             query["country"] = country
         if name is not None:
-            query["name"] = name
+            query["$or"] = [{"name": name.title()}, {"name": {"$regex": name.title()}}]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
