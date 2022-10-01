@@ -41,8 +41,12 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def get_stickers(self, id: str):
-        user_model = await self.get_by_id(id)
+    async def get_stickers(self, id: str, is_on_album: bool):
+        query = {"_id": id}
+        if is_on_album is not None:
+            query["stickers.is_on_album"] = is_on_album
+        user = await self.db["users"].find_one(query)
+        user_model =  UserModel(**user)
         return user_model.stickers
 
     async def paste_sticker(self, user_id: str, sticker_id: str):
