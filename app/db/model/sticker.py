@@ -13,7 +13,7 @@ import datetime
 class StickerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str = Field(...)
-    code: str = Field(...)
+    number: int = Field(...)
     date_of_birth: datetime.date = Field(...)
     height: float = Field(...)
     position: str = Field(...)
@@ -29,7 +29,7 @@ class StickerModel(BaseModel):
             "example": {
                 "id": "..",
                 "name": "Lionel Messi",
-                "code": "ARG1",
+                "number": 10, # Numero del jugador en el album (posicion del 0 al 11)
                 "dateOfBirth": "1985-02-02",
                 "height": "170",
                 "position": "CF",
