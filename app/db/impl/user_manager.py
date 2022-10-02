@@ -46,7 +46,7 @@ class UserManager:
         if is_on_album is not None:
             query["stickers.is_on_album"] = is_on_album
         user = await self.db["users"].find_one(query)
-        user_model =  UserModel(**user)
+        user_model = UserModel(**user)
         return user_model.stickers
 
     async def paste_sticker(self, user_id: str, sticker_id: str):

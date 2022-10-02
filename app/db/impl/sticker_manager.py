@@ -31,8 +31,12 @@ class StickerManager:
                 "weight": {"$gte": 1, "$lte": 3}
             }).to_list(5)
         else:
-            difficult_sticker = await self.db["stickers"].find({"weight": 5}).to_list(1)
-            easy_stickers = await self.db["stickers"].find({"weight": 1}).to_list(2)
+            difficult_sticker = await self.db["stickers"].find(
+                {"weight": 5}
+            ).to_list(1)
+            easy_stickers = await self.db["stickers"].find(
+                {"weight": 1}
+            ).to_list(2)
             medium_stickers = await self.db["stickers"].find({
                 "weight": {"$gte": 2, "$lte": 4}
             }).to_list(2)
@@ -52,6 +56,9 @@ class StickerManager:
         if country is not None:
             query["country"] = country
         if name is not None:
-            query["$or"] = [{"name": name.title()}, {"name": {"$regex": name.title()}}]
+            query["$or"] = [
+            {"name": name.title()},
+            {"name": {"$regex": name.title()}}
+        ]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
