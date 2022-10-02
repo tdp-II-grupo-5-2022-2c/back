@@ -65,7 +65,7 @@ class UserManager:
                     user_model = UserModel(**user)
                     return user_model.stickers
             else:
-                user_model = self.get_by_id(id)
+                user_model = await self.get_by_id(id)
                 return user_model.stickers
         except Exception as e:
             msg = f"[GET STICKERS] id: {id} error: {e}"
