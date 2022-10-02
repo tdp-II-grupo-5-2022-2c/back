@@ -41,9 +41,36 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def get_stickers(self, id: str):
-        user_model = await self.get_by_id(id)
-        return user_model.stickers
+    async def get_stickers(self, id: str, is_on_album: bool = None):
+        try:
+            if is_on_album is not None:
+                pipeline = [
+                    {"$match": {
+                        "_id": id,
+                        "stickers.is_on_album": is_on_album
+                    }},
+                    {"$addFields": {
+                        "stickers": {
+                            "$filter": {
+                                "input": "$stickers",
+                                "cond": {
+                                    "$eq": ["$$this.is_on_album", is_on_album]
+                                }
+                            }
+                        }
+                    }}
+                ]
+                logging.info(pipeline)
+                async for user in self.db["users"].aggregate(pipeline):
+                    user_model = UserModel(**user)
+                    return user_model.stickers
+            else:
+                user_model = self.get_by_id(id)
+                return user_model.stickers
+        except Exception as e:
+            msg = f"[GET STICKERS] id: {id} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
 
     async def paste_sticker(self, user_id: str, sticker_id: str):
         try:

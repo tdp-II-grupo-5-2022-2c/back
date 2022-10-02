@@ -48,7 +48,9 @@ class StickerManager:
                 if len(stickers_in_package) < 5:
                     raise Exception("No stickers at the moment to create a package")
             else:
-                difficult_sticker = await self.db["stickers"].find({"weight": 5}).to_list(1)
+                difficult_sticker = await self.db["stickers"].find(
+                    {"weight": 5}
+                ).to_list(1)
                 i = 4
                 while len(difficult_sticker) < 1 and i > 0:
                     difficult_sticker = await self.db["stickers"].find({"weight": i}).to_list(1)
@@ -87,7 +89,9 @@ class StickerManager:
                 if len(medium_stickers) < 2:
                     raise Exception("No stickers at the moment to create a package")
 
-                stickers_in_package = difficult_sticker + easy_stickers + medium_stickers
+                stickers_in_package = difficult_sticker + \
+                    easy_stickers + \
+                    medium_stickers
 
                 # Check for duplicates
                 id_list = []
@@ -116,6 +120,9 @@ class StickerManager:
         if country is not None:
             query["country"] = country
         if name is not None:
-            query["$or"] = [{"name": name.title()}, {"name": {"$regex": name.title()}}]
+            query["$or"] = [
+                {"name": name.title()},
+                {"name": {"$regex": name.title()}}
+            ]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers

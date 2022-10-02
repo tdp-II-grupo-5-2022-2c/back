@@ -20,8 +20,8 @@ router = APIRouter(tags=["users"])
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-    mail: str = None,
-    db: DatabaseManager = Depends(get_database),
+        mail: str = None,
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
@@ -67,8 +67,8 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_new(
-    user: UserModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+        user: UserModel = Body(...),
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
@@ -116,12 +116,15 @@ async def get_stickers(
         user_id: str,
         country: str = None,
         name: str = None,
+        is_on_album: bool = None,
         db: DatabaseManager = Depends(get_database)
 ):
     user_manager = UserManager(db.db)
     sticker_manager = StickerManager(db.db)
     try:
-        stickers = await user_manager.get_stickers(id=user_id)
+        stickers = await user_manager.get_stickers(
+            id=user_id, is_on_album=is_on_album
+        )
         ids = [s.id for s in stickers]
         sticker_details = await sticker_manager.find_by_query(
             ids,
