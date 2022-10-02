@@ -81,8 +81,8 @@ class StickerManager:
                     raise Exception("No stickers at the moment to create a package")
 
                 stickers_in_package = difficult_sticker + \
-                                      easy_stickers + \
-                                      medium_stickers
+                    easy_stickers + \
+                    medium_stickers
 
             package = PackageModel(stickers=stickers_in_package)
             await self.db["package-counter"].update_one({}, {"$inc": {"counter": 1}})
@@ -104,8 +104,8 @@ class StickerManager:
             query["country"] = country
         if name is not None:
             query["$or"] = [
-            {"name": name.title()},
-            {"name": {"$regex": name.title()}}
-        ]
+                {"name": name.title()},
+                {"name": {"$regex": name.title()}}
+            ]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
