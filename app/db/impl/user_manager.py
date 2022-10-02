@@ -42,18 +42,14 @@ class UserManager:
             raise RuntimeError(msg)
 
     async def get_stickers(self, id: str, is_on_album: bool = None):
-        #query = {"_id": id}
-        #if is_on_album is not None:
-        #    query["stickers.is_on_album"] = is_on_album
-        #user = await self.db["users"].find_one(query)
         try:
             if is_on_album is not None:
                 pipeline = [
-                    { "$match": {
+                    {"$match": {
                         "_id": id,
                         "stickers.is_on_album": is_on_album
-                    } },
-                    { "$addFields": {
+                    }},
+                    {"$addFields": {
                         "stickers": {
                             "$filter": {
                                 "input": "$stickers",
@@ -62,7 +58,7 @@ class UserManager:
                                 }
                             }
                         }
-                    } }
+                    }}
                 ]
                 logging.info(pipeline)
                 async for user in self.db["users"].aggregate(pipeline):
