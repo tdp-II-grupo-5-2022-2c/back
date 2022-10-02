@@ -9,7 +9,6 @@ import datetime
 # 1 - Most likely
 # 5 - Unlikely
 
-
 class StickerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str = Field(...)
@@ -29,7 +28,7 @@ class StickerModel(BaseModel):
             "example": {
                 "id": "..",
                 "name": "Lionel Messi",
-                "number": 10, # Numero del jugador en el album (posicion del 0 al 11)
+                "number": 10, # Posicion en el album (posicion del 0 al 11)
                 "dateOfBirth": "1985-02-02",
                 "height": "170",
                 "position": "CF",
