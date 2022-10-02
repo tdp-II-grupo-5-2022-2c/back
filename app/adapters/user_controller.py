@@ -116,7 +116,7 @@ async def get_stickers(
         user_id: str,
         country: str = None,
         name: str = None,
-        is_on_album=None,
+        is_on_album: bool = None,
         db: DatabaseManager = Depends(get_database)
 ):
     user_manager = UserManager(db.db)
