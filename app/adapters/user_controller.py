@@ -29,12 +29,7 @@ async def get_users(
             logging.info(mail)
             response = await manager.get_user_by_mail(mail=mail)
             logging.info(response)
-            user = UserResponse(
-                id=str(response.id),
-                mail=response.mail,
-                stickers=response.stickers
-            )
-            return user
+            return response
         response = await manager.get_all()
         return response
     except HTTPException as e:
