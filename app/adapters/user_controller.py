@@ -167,6 +167,8 @@ async def paste_sticker(
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
         )
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not paste sticker. Exception: {e}"
