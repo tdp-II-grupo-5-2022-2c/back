@@ -131,6 +131,7 @@ class UserManager:
             image=sticker.image,
             name=sticker.name,
             quantity=sticker_user.quantity,
+            number=sticker.number,
             is_on_album=sticker_user.is_on_album,
             country=sticker.country
         )

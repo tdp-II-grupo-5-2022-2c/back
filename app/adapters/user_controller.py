@@ -125,6 +125,8 @@ async def get_stickers(
         stickers = await user_manager.get_stickers(
             id=user_id, is_on_album=is_on_album
         )
+        if stickers is None:
+            return []
         ids = [s.id for s in stickers]
         sticker_details = await sticker_manager.find_by_query(
             ids,
@@ -145,6 +147,7 @@ async def get_stickers(
     except HTTPException as e:
         raise e
     except Exception as e:
+        logging.exception(e)
         raise HTTPException(
             status_code=500, detail=f"Error getting stickers. Exception {e}"
         )
