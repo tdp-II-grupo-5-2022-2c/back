@@ -1,6 +1,6 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from fastapi import Body
+from fastapi import Body, HTTPException
 
 from app.adapters.dtos.sticker_details import StickerDetailResponse
 from app.db.model.user import UserModel, UpdateUserModel
@@ -73,25 +73,30 @@ class UserManager:
             raise RuntimeError(msg)
 
     async def paste_sticker(self, user_id: str, sticker_id: str):
-        try:
-            await self.db["users"].update_one(
-                {
-                    "_id": user_id,
-                    "stickers.id": sticker_id,
-                    "stickers.is_on_album": False
-                },
-                {
-                    "$set": {"stickers.$.is_on_album": True},
-                    "$inc": {"stickers.$.quantity": -1}
-                },
-                upsert=False
-            )
-            model = await self.get_by_id(user_id)
-            return model
-        except Exception as e:
-            msg = f"[PASTE STICKER] id: {user_id} error: {e}"
-            logging.error(msg)
-            raise RuntimeError(msg)
+        model = await self.get_by_id(user_id)
+        for s in model.stickers:
+            if s.id == sticker_id:
+                if s.is_on_album == True:
+                    raise HTTPException(status_code=400, detail=f"Sticker {s.id} is already pasted")
+                if s.quantity <= 0:
+                    raise HTTPException(status_code=400, detail=f"Sticker quantity for {s.id} is {s.quantity}")
+                
+                s.is_on_album = True
+                s.quantity -= 1
+        
+        await self.db["users"].update_one(
+            {
+                "_id": user_id
+            },
+            {
+                "$set": model.dict()
+            },
+            upsert=False
+        )
+
+        user = await self.get_by_id(user_id)
+        return user
+
 
     async def open_package(
         self, user_id: str, package: PackageModel
