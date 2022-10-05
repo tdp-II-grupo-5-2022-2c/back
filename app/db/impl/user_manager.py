@@ -1,6 +1,6 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from fastapi import Body, HTTPException
+from fastapi import Body
 
 from app.adapters.dtos.sticker_details import StickerDetailResponse
 from app.db.model.user import UserModel, UpdateUserModel
@@ -91,7 +91,6 @@ class UserManager:
 
         user = await self.get_by_id(user_id)
         return user
-
 
     async def open_package(
         self, user_id: str, package: PackageModel
