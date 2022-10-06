@@ -34,7 +34,7 @@ async def get_all(
 
 @router.get(
     "/communities/{community_id}",
-    response_description="Get sticker by id",
+    response_description="Get community by id",
     status_code=status.HTTP_200_OK,
 )
 async def get_community_by_id(
@@ -56,7 +56,7 @@ async def get_community_by_id(
 
 @router.post(
     "/communities",
-    response_description="Create new sticker",
+    response_description="Create new community",
     response_model=CommunityModel,
     status_code=status.HTTP_201_CREATED,
 )
@@ -72,5 +72,5 @@ async def create_community(
             )
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Could not create Community. Exception: {e}"
+            status_code=500, detail=f"Could not create Community. Exception: {e}"
         )

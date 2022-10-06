@@ -10,6 +10,7 @@ from app.db.model.my_sticker import MyStickerModel
 class CommunityModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     name: str = Field(...)
+    owner: str = Field(...)
     users: List[str] = []
 
     class Config:
@@ -19,6 +20,7 @@ class CommunityModel(BaseModel):
         schema_extra = {
             "example": {
                 "name": "name",
+                "owner": "name",
                 "users": [],
             }
         }
@@ -26,6 +28,7 @@ class CommunityModel(BaseModel):
 
 class UpdateCommunityModel(BaseModel):
     name: Optional[str]
+    owner: Optional[str]
     users: Optional[List[str]]
 
     class Config:
@@ -34,6 +37,7 @@ class UpdateCommunityModel(BaseModel):
         schema_extra = {
             "example": {
                 "name": "name",
+                "owner": "name",
                 "users": [],
             }
         }

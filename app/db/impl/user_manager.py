@@ -1,6 +1,6 @@
 import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from fastapi import Body
+from fastapi import Body, HTTPException
 
 from app.adapters.dtos.sticker_details import StickerDetailResponse
 from app.db.model.user import UserModel, UpdateUserModel
@@ -77,10 +77,10 @@ class UserManager:
         for s in model.stickers:
             if s.id == sticker_id:
                 if s.is_on_album:
-                    raise RuntimeError(f"Sticker {s.id} is already pasted")
+                    raise HTTPException(status_code=400, detail=f"Sticker {s.id} is already pasted")
                 if s.quantity <= 0:
                     msg = f"Sticker quantity for {s.id} is {s.quantity}"
-                    raise RuntimeError(msg)
+                    raise HTTPException(status_code=400, detail=msg)
                 s.is_on_album = True
                 s.quantity -= 1
         await self.db["users"].update_one(
