@@ -47,7 +47,7 @@ async def get_sticker_by_id(
 ):
     manager = StickerManager(db.db)
     try:
-        response = await manager.get_by_id(by=sticker_id)
+        response = await manager.get_by_id(id=sticker_id)
         return response
     except HTTPException as e:
         raise e
