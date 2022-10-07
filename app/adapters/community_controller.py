@@ -18,6 +18,7 @@ router = APIRouter(tags=["communities"])
     status_code=status.HTTP_200_OK,
 )
 async def get_all(
+<<<<<<< HEAD
     owner_id: str = None,
     member_id: str = None,
     db: DatabaseManager = Depends(get_database),
@@ -25,6 +26,13 @@ async def get_all(
     manager = CommunityManager(db.db)
     try:
         response = await manager.get_all(owner_id, member_id)
+=======
+        db: DatabaseManager = Depends(get_database),
+):
+    manager = CommunityManager(db.db)
+    try:
+        response = await manager.get_all()
+>>>>>>> main
         return response
     except HTTPException as e:
         raise e

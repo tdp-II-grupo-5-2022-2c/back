@@ -10,6 +10,7 @@ class CommunityManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
+<<<<<<< HEAD
     async def get_all(self, owner_id: str = None, member_id: str = None):
         if owner_id is not None:
             all_data = await self.get_by_owner(owner_id)
@@ -19,6 +20,10 @@ class CommunityManager:
         else:
             all_data = await self.db["communities"].find().to_list(20)
 
+=======
+    async def get_all(self):
+        all_data = await self.db["communities"].find().to_list(20)
+>>>>>>> main
         return all_data
 
     async def get_by_id(self, id: str):
@@ -40,6 +45,7 @@ class CommunityManager:
             msg = f"[UPDATE COMMUNITY] id: {id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
+<<<<<<< HEAD
 
     async def get_by_owner(self, owner_id: str):
         comms = await self.db["communities"].find({"owner": owner_id}).list(20)
@@ -48,3 +54,5 @@ class CommunityManager:
     async def get_by_member(self, user_id: str):
         comms = await self.db["communities"].find({"users": {"$in": user_id}}).list(20)
         return comms
+=======
+>>>>>>> main
