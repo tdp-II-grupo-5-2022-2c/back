@@ -27,79 +27,101 @@ class StickerManager:
         await self.db["stickers"].insert_one(new)
         return new
 
+    async def eleven_package(self):
+        stickers_in_package = await self.db["stickers"].find({
+            "weight": {"$gte": 1, "$lte": 3}
+        }).to_list(5)
+
+        i = 4
+        stickers_remaining = []
+        stickers_up_to_now = stickers_in_package
+        while len(stickers_up_to_now) < 5 and i < 6:
+            stickers_remaining = await self.db["stickers"].find({"weight": {"$gte": 4, "$lte": i}}) \
+                .to_list(5 - len(stickers_in_package))
+            i += 1
+            stickers_up_to_now = stickers_in_package + stickers_remaining
+
+        stickers_in_package = stickers_in_package + stickers_remaining
+
+        if len(stickers_in_package) < 5:
+            raise Exception("[eleven package]No stickers at the moment to create a package")
+        return stickers_in_package
+
+    async def get_package_amount(self):
+        package_counter = await self.db["package-counter"].find_one()
+        package_counter_model = PackageCounterModel(**package_counter)
+        package_amount = package_counter_model.counter
+        return package_amount
+
+    async def get_difficult_sticker(self):
+        difficult_sticker = await self.db["stickers"].find({"weight": 5}).to_list(1)
+        i = 4
+        while len(difficult_sticker) < 1 and i > 0:
+            difficult_sticker = await self.db["stickers"].find({"weight": i}).to_list(1)
+            i -= 1
+        if len(difficult_sticker) < 1:
+            raise Exception("[get difficult] No stickers at the moment to create a package")
+        return difficult_sticker
+
+    async def get_easy_stickers(self):
+        easy_stickers = await self.db["stickers"].find({"weight": 1}).to_list(2)
+        easy_stickers_remaining = []
+        easy_stickers_up_to_now = easy_stickers
+        i = 2
+        while len(easy_stickers_up_to_now) < 2 and i < 6:
+            easy_stickers_remaining = await self.db["stickers"].find({"weight": i}) \
+                .to_list(2 - len(easy_stickers))
+            i += 1
+            easy_stickers_up_to_now = easy_stickers_up_to_now + easy_stickers_remaining
+
+        easy_stickers = easy_stickers + easy_stickers_remaining
+
+        if len(easy_stickers) < 2:
+            raise Exception("[get easy] No stickers at the moment to create a package")
+
+        return easy_stickers
+
+    async def get_medium_stickers(self):
+        medium_stickers = await self.db["stickers"].find({
+            "weight": {"$gte": 2, "$lte": 4}
+        }).to_list(2)
+        if len(medium_stickers) < 2:
+            remaining_medium_stickers = await self.db["stickers"].find({
+                "weight": 1
+            }).to_list(2 - len(medium_stickers))
+            medium_stickers = medium_stickers + remaining_medium_stickers
+        if len(medium_stickers) < 2:
+            remaining_medium_stickers = await self.db["stickers"].find({
+                "weight": 5
+            }).to_list(2 - len(medium_stickers))
+            medium_stickers = medium_stickers + remaining_medium_stickers
+        if len(medium_stickers) < 2:
+            raise Exception("[get medium] No stickers at the moment to create a package")
+
+        return medium_stickers
+
+    async def check_duplicates(self, stickers_in_package):
+        id_list = []
+        for sticker in stickers_in_package:
+            if sticker['_id'] not in id_list:
+                id_list.append(sticker['_id'])
+        if len(id_list) < 5:
+            raise Exception("[check-duplicates] No stickers at the moment to create a package")
+
     async def create_package(self):
         try:
-            package_counter = await self.db["package-counter"].find_one()
-            package_counter_model = PackageCounterModel(**package_counter)
-            package_amount = package_counter_model.counter
+            package_amount = await self.get_package_amount()
 
             if (package_amount % 11 != 0) or (package_amount == 0):
-                stickers_in_package = await self.db["stickers"].find({
-                    "weight": {"$gte": 1, "$lte": 3}
-                }).to_list(5)
-
-                i = 4
-                stickers_remaining = []
-                stickers_up_to_now = stickers_in_package
-                while len(stickers_up_to_now) < 5 and i < 6:
-                    stickers_remaining = await self.db["stickers"].find({"weight": {"$gte": 4, "$lte": i}}) \
-                        .to_list(5 - len(stickers_in_package))
-                    i += 1
-                    stickers_up_to_now = stickers_in_package + stickers_remaining
-
-                stickers_in_package = stickers_in_package + stickers_remaining
-
-                if len(stickers_in_package) < 5:
-                    raise Exception("No stickers at the moment to create a package")
+                stickers_in_package = await self.eleven_package()
             else:
-                difficult_sticker = await self.db["stickers"].find({"weight": 5}).to_list(1)
-                i = 4
-                while len(difficult_sticker) < 1 and i > 0:
-                    difficult_sticker = await self.db["stickers"].find({"weight": i}).to_list(1)
-                    i -= 1
-                if len(difficult_sticker) < 1:
-                    raise Exception("No stickers at the moment to create a package")
-
-                easy_stickers = await self.db["stickers"].find({"weight": 1}).to_list(2)
-                easy_stickers_remaining = []
-                easy_stickers_up_to_now = easy_stickers
-                i = 2
-                while len(easy_stickers_up_to_now) < 2 and i < 6:
-                    easy_stickers_remaining = await self.db["stickers"].find({"weight": i}) \
-                        .to_list(2 - len(easy_stickers))
-                    i += 1
-                    easy_stickers_up_to_now = easy_stickers_up_to_now + easy_stickers_remaining
-
-                easy_stickers = easy_stickers + easy_stickers_remaining
-
-                if len(easy_stickers) < 2:
-                    raise Exception("No stickers at the moment to create a package")
-
-                medium_stickers = await self.db["stickers"].find({
-                    "weight": {"$gte": 2, "$lte": 4}
-                }).to_list(2)
-                if len(medium_stickers) < 2:
-                    remaining_medium_stickers = await self.db["stickers"].find({
-                        "weight": 1
-                    }).to_list(2 - len(medium_stickers))
-                    medium_stickers = medium_stickers + remaining_medium_stickers
-                if len(medium_stickers) < 2:
-                    remaining_medium_stickers = await self.db["stickers"].find({
-                        "weight": 5
-                    }).to_list(2 - len(medium_stickers))
-                    medium_stickers = medium_stickers + remaining_medium_stickers
-                if len(medium_stickers) < 2:
-                    raise Exception("No stickers at the moment to create a package")
+                difficult_sticker = await self.get_difficult_sticker()
+                easy_stickers = await self.get_easy_stickers()
+                medium_stickers = await self.get_medium_stickers()
 
                 stickers_in_package = difficult_sticker + easy_stickers + medium_stickers
 
-                # Check for duplicates
-                id_list = []
-                for sticker in stickers_in_package:
-                    if sticker['_id'] not in id_list:
-                        id_list.append(sticker['_id'])
-                if len(id_list) < 5:
-                    raise Exception("No stickers at the moment to create a package")
+                await self.check_duplicates(stickers_in_package)
 
             package = PackageModel(stickers=stickers_in_package)
             await self.db["package-counter"].update_one({}, {"$inc": {"counter": 1}})
@@ -111,10 +133,10 @@ class StickerManager:
             raise RuntimeError(msg)
 
     async def find_by_query(
-            self,
-            ids: List[str],
-            country: str = None,
-            name: str = None
+        self,
+        ids: List[str],
+        country: str = None,
+        name: str = None
     ):
         query = {"_id": {"$in": ids}}
         if country is not None:

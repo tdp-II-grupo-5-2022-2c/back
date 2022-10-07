@@ -15,7 +15,8 @@ class CommunityManager:
             all_data = await self.get_by_owner(owner_id)
 
         if member_id is not None:
-            all_data await self.get_by_member(member_id)
+            all_data = await self.get_by_member(member_id)
+
         else:
             all_data = await self.db["communities"].find().to_list(20)
 
