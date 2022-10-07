@@ -19,8 +19,8 @@ router = APIRouter(tags=["users"])
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-        mail: str = None,
-        db: DatabaseManager = Depends(get_database),
+    mail: str = None,
+    db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
