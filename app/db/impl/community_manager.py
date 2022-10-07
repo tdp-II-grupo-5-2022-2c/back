@@ -13,10 +13,8 @@ class CommunityManager:
     async def get_all(self, owner_id: str = None, member_id: str = None):
         if owner_id is not None:
             all_data = await self.get_by_owner(owner_id)
-
         if member_id is not None:
             all_data = await self.get_by_member(member_id)
-
         else:
             all_data = await self.db["communities"].find().to_list(20)
 
@@ -47,5 +45,10 @@ class CommunityManager:
         return comms
 
     async def get_by_member(self, user_id: str):
-        comms = await self.db["communities"].find({"users": {"$in": user_id}}).to_list(20)
+        comms = await self.db["communities"].find({"users": user_id}).to_list(20)
         return comms
+
+    async def add_new_member(self, community_id: str, user_id: str):
+        await self.db["communities"].update_one({"_id": community_id}, {"$push": {"users": user_id}})
+        model = await self.get_by_id(community_id)
+        return model
