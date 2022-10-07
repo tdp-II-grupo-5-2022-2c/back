@@ -43,7 +43,7 @@ async def get_community_by_id(
 ):
     manager = CommunityManager(db.db)
     try:
-        response = await manager.get_by_id(by=community_id)
+        response = await manager.get_by_id(id=community_id)
         return response
     except HTTPException as e:
         raise e

@@ -18,15 +18,15 @@ class CommunityManager:
         comm = await self.db["communities"].find_one({"_id": id})
         return CommunityModel(**comm)
 
-    async def add_new(self, user: CommunityModel = Body(...)):
-        new = jsonable_encoder(user)
+    async def add_new(self, community: CommunityModel = Body(...)):
+        new = jsonable_encoder(community)
         await self.db["communities"].insert_one(new)
         return new
 
-    async def update(self, id: str, user: UpdateCommunityModel = Body(...)):
+    async def update(self, id: str, community: UpdateCommunityModel = Body(...)):
         try:
-            user = {k: v for k, v in user.dict().items() if v is not None}
-            await self.db["communities"].update_one({"_id": id}, {"$set": user})
+            community = {k: v for k, v in community.dict().items() if v is not None}
+            await self.db["communities"].update_one({"_id": id}, {"$set": community})
             model = await self.get_by_id(id)
             return model
         except Exception as e:
