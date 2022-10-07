@@ -43,9 +43,9 @@ class CommunityManager:
             raise RuntimeError(msg)
 
     async def get_by_owner(self, owner_id: str):
-        comms = await self.db["communities"].find({"owner": owner_id}).list(20)
+        comms = await self.db["communities"].find({"owner": owner_id}).to_list(20)
         return comms
 
     async def get_by_member(self, user_id: str):
-        comms = await self.db["communities"].find({"users": {"$in": user_id}}).list(20)
+        comms = await self.db["communities"].find({"users": {"$in": user_id}}).to_list(20)
         return comms
