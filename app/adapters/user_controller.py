@@ -5,7 +5,6 @@ from typing import List
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.user_manager import UserManager
-from app.adapters.dtos.user import UserResponse
 import logging
 from app.db.impl.sticker_manager import StickerManager
 from app.db.model.user import UserModel, UpdateUserModel

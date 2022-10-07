@@ -16,6 +16,47 @@ from typing import List
 router = APIRouter(tags=["stickers"])
 
 
+@router.get(
+    "/stickers",
+    response_description="Get all stickers",
+    status_code=status.HTTP_200_OK,
+)
+async def get_stickers(
+        db: DatabaseManager = Depends(get_database),
+):
+    manager = StickerManager(db.db)
+    try:
+        response = await manager.get_all()
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error getting All Sticker. Exception {e}"
+        )
+
+
+@router.get(
+    "/stickers/{sticker_id}",
+    response_description="Get sticker by id",
+    status_code=status.HTTP_200_OK,
+)
+async def get_sticker_by_id(
+    sticker_id: str,
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = StickerManager(db.db)
+    try:
+        response = await manager.get_by_id(id=sticker_id)
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error getting All Sticker. Exception {e}"
+        )
+
+
 @router.post(
     "/stickers/package",
     response_description="Get package for user",

@@ -18,6 +18,10 @@ class StickerManager:
         sticker = await self.db["stickers"].find_one({"_id": id})
         return sticker
 
+    async def get_all(self):
+        stickers = await self.db["stickers"].find().to_list(100)
+        return stickers
+
     async def create_sticker(self, sticker: StickerModel = Body(...)):
         new = jsonable_encoder(sticker)
         await self.db["stickers"].insert_one(new)

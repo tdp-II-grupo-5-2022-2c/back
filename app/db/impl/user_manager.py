@@ -76,27 +76,21 @@ class UserManager:
         model = await self.get_by_id(user_id)
         for s in model.stickers:
             if s.id == sticker_id:
-                if s.is_on_album == True:
+                if s.is_on_album:
                     raise HTTPException(status_code=400, detail=f"Sticker {s.id} is already pasted")
                 if s.quantity <= 0:
-                    raise HTTPException(status_code=400, detail=f"Sticker quantity for {s.id} is {s.quantity}")
-                
+                    msg = f"Sticker quantity for {s.id} is {s.quantity}"
+                    raise HTTPException(status_code=400, detail=msg)
                 s.is_on_album = True
                 s.quantity -= 1
-        
         await self.db["users"].update_one(
-            {
-                "_id": user_id
-            },
-            {
-                "$set": model.dict()
-            },
+            {"_id": user_id},
+            {"$set": model.dict()},
             upsert=False
         )
 
         user = await self.get_by_id(user_id)
         return user
-
 
     async def open_package(
         self, user_id: str, package: PackageModel
