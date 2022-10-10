@@ -25,11 +25,23 @@ async def create_exchange(
     db: DatabaseManager = Depends(get_database),
 ):
     manager = ExchangeManager(db.db)
+
+    if len(exchange.stickers_to_give) > 5:
+        raise HTTPException(status_code=400, detail=f"Could not create Exchange. len of stickers_to_give is: {exchange.stickers_to_give} should be lower or equal than 5")
+    if len(exchange.stickers_to_receive) > 5:
+        raise HTTPException(status_code=400, detail=f"Could not create Exchange. len of stickers_to_receive is: {exchange.stickers_to_receive} should be lower or equal than 5")
+
     try:
+        pendingExchanges = await manager.get_pending_exchanges_by_sender_id(exchange.sender_id)
+        if len(pendingExchanges) >= 3: 
+            raise HTTPException(status_code=400, detail=f"Could not create Exchange. user reached max amount of pending exchanges")
+
         response = await manager.add_new(exchange)
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not create Community. Exception: {e}"

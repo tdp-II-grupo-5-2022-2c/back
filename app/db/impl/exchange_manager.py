@@ -21,9 +21,9 @@ class ExchangeManager:
 
         return all_data
 
-    async def get_by_id(self, id: str):
-        comm = await self.db["communities"].find_one({"_id": id})
-        return CommunityModel(**comm)
+    async def get_pending_exchanges_by_sender_id(self, sender_id: str):
+        pendingExchanges = await self.db["exchanges"].find({"sender_id": sender_id, "completed": False}).to_list(10) # Max amount of exchanges per user is 3
+        return pendingExchanges
 
     async def add_new(self, exchange: ExchangeModel = Body(...)):
         new = jsonable_encoder(exchange)
