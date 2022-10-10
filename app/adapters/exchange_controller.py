@@ -80,6 +80,8 @@ async def apply_action_to_exchange(
     exchangeAction: ExchangeActionModel = Body(...),
     db: DatabaseManager = Depends(get_database),
 ):
+    # WARNING: Here we are assuming that sender and receiver are on the same community so they can perform exchange operations
+
     if exchangeAction.action not in available_exchange_actions:
         raise HTTPException(status_code=400, detail=f"Could not apply action to exchange. invalid action: {exchangeAction.action}. Available actions: {available_exchange_actions}")
 
