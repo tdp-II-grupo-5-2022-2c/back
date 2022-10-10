@@ -2,7 +2,7 @@ import uvicorn
 
 import logging.config
 
-from app.adapters import health_controller
+from app.adapters import exchange_controller, health_controller
 from app.adapters import user_controller
 from app.adapters import sticker_controller
 from app.adapters import community_controller
@@ -22,6 +22,7 @@ app.include_router(health_controller.router)
 app.include_router(user_controller.router)
 app.include_router(sticker_controller.router)
 app.include_router(community_controller.router)
+app.include_router(exchange_controller.router)
 
 origins = ["*"]
 
