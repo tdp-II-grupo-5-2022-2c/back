@@ -155,10 +155,10 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 
         
         if found == False:
-            sticker = MyStickerModel()
-            sticker.id = rs
-            sticker.quantity = 1
-            sticker.is_on_album = False
+            sticker = MyStickerModel(
+                id=rs,
+                quantity=1,
+                is_on_album=False)
             sender.stickers.append(sticker)
 
     # Do exchange for receiver, he must receive stickers_to_give
@@ -172,11 +172,12 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 
         
         if found == False:
-            sticker = MyStickerModel()
-            sticker.id = sg
-            sticker.quantity = 1
-            sticker.is_on_album = False
-            sender.stickers.append(sticker)
+            sticker = MyStickerModel(
+                id=sg,
+                quantity=1,
+                is_on_album=False
+            )
+            receiver.stickers.append(sticker)
 
     print('sender: ', sender.dict())
     print()
