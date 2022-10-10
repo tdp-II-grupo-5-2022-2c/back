@@ -13,12 +13,15 @@ class CommunityManager:
     async def get_all(self, owner_id: str = None, member_id: str = None):
         if owner_id is not None:
             all_data = await self.get_by_owner(owner_id)
+            return all_data
+        
         if member_id is not None:
             all_data = await self.get_by_member(member_id)
+            return all_data
+
         else:
             all_data = await self.db["communities"].find().to_list(20)
-
-        return all_data
+            return all_data
 
     async def get_by_id(self, id: str):
         comm = await self.db["communities"].find_one({"_id": id})
