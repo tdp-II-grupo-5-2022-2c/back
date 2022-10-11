@@ -199,6 +199,32 @@ async def applyReject(exchange: ExchangeModel, receiver_id: str):
 
 
 @router.get(
+    "/exchanges",
+    response_description="Get exchanges",
+    status_code=status.HTTP_200_OK,
+)
+async def create_exchange(
+    sender_id: str,
+    db: DatabaseManager = Depends(get_database),
+):
+    exchange_manager = ExchangeManager(db.db)
+
+    try:
+        if sender_id is not None:
+            response = await exchange_manager.get_pending_exchanges_by_sender_id(sender_id)
+            return response
+        
+        raise HTTPException(status_code=500, detail=f"Could not get exchanges. operation getAll not supported")
+    
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not get exchanges. Exception: {e}"
+        )
+
+
+@router.get(
     "/users/{user_id}/exchanges",
     response_description="Get available exchanges for user_id",
     status_code=status.HTTP_200_OK,
