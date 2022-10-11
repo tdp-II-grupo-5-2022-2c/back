@@ -30,3 +30,7 @@ class ExchangeManager:
         model = await self.get_exchange_by_id(id)
         return model
     
+    async def get_exchange_by_community_id(self, community_id: str):
+        exchanges = await self.db["exchanges"].find({"community_id": community_id}).to_list(100)
+        return exchanges
+    

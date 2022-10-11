@@ -196,3 +196,68 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 async def applyReject(exchange: ExchangeModel, receiver_id: str):
     exchange.blacklist_user_ids.append(receiver_id)
     return exchange
+
+
+@router.get(
+    "/users/{user_id}/exchanges",
+    response_description="Get available exchanges for user_id",
+    status_code=status.HTTP_200_OK,
+)
+async def create_exchange(
+    user_id: str,
+    db: DatabaseManager = Depends(get_database),
+):
+    exchange_manager = ExchangeManager(db.db)
+    user_manager = UserManager(db.db)
+    community_manager = CommunityManager(db.db)
+
+    try:
+        userCommunities = await community_manager.get_by_member(user_id)
+
+        if len(userCommunities) == 0:
+            return JSONResponse(
+                status_code=status.HTTP_200_OK, content=jsonable_encoder([])
+            )
+
+        allExchanges = []
+        for comm in userCommunities:
+            exchanges = await exchange_manager.get_exchange_by_community_id(comm['_id'])
+            allExchanges.extend(exchanges)
+
+        user = await user_manager.get_by_id(user_id)
+
+        result = []
+        for exchange in allExchanges:
+            if exchange['completed'] == True:
+                continue
+            if user_id in exchange['blacklist_user_ids']:
+                continue
+            if not userContainsSticker(user, exchange['stickers_to_receive']):
+                continue
+            
+            result.append(exchange)
+
+    
+        return JSONResponse(
+                status_code=status.HTTP_200_OK, content=jsonable_encoder(result)
+            )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not get exchanges. Exception: {e}"
+        )
+
+def userContainsSticker(user: UserModel, sticker_ids: List[str]) -> bool:
+    for sid in sticker_ids:
+        found = False
+        
+        for sticker in user.stickers:
+            if sticker.quantity > 0 and sid == sticker.id:
+                found = True
+                sticker.quantity -= 1 # this is because if there is more than 1 sticker with same ID on the exchange we should count if the user has the quantity for satisfy the exchange
+        
+        if found == False:
+            return False
+
+    return True
