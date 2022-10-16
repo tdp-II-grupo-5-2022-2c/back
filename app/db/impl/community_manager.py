@@ -49,6 +49,7 @@ class CommunityManager:
         return comms
 
     async def add_new_member(self, community_id: str, user_id: str):
-        await self.db["communities"].update_one({"_id": community_id}, {"$push": {"users": user_id}})
+        await self.db["communities"].\
+            update_one({"_id": community_id}, {"$push": {"users": user_id}})
         model = await self.get_by_id(community_id)
         return model
