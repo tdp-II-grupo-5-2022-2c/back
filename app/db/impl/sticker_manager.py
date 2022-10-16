@@ -42,7 +42,8 @@ class StickerManager:
                 stickers_remaining = []
                 stickers_up_to_now = stickers_in_package
                 while len(stickers_up_to_now) < 5 and i < 6:
-                    stickers_remaining = await self.db["stickers"].find({"weight": {"$gte": 4, "$lte": i}}) \
+                    stickers_remaining = await self.db["stickers"].\
+                        find({"weight": {"$gte": 4, "$lte": i}}) \
                         .to_list(5 - len(stickers_in_package))
                     i += 1
                     stickers_up_to_now = stickers_in_package + stickers_remaining
