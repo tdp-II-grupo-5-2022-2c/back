@@ -12,7 +12,7 @@ class ExchangeManager:
         self.db = db
 
     async def get_pending_exchanges_by_sender_id(self, sender_id: str):
-        pendingExchanges = await self.db["exchanges"].find({"sender_id": sender_id, "completed": False}).to_list(10) # Max amount of exchanges per user is 3
+        pendingExchanges = await self.db["exchanges"].find({"sender_id": sender_id, "completed": False}, {'id': 0}).to_list(10) # Max amount of exchanges per user is 3, exclude id from result because there was a problem when marshalling ObjectID to JSON...
         return pendingExchanges
 
     async def get_exchange_by_id(self, id: str):
@@ -29,8 +29,4 @@ class ExchangeManager:
         await self.db["exchanges"].update_one({"_id": id}, {"$set": exchange})
         model = await self.get_exchange_by_id(id)
         return model
-    
-    async def get_exchange_by_community_id(self, community_id: str):
-        exchanges = await self.db["exchanges"].find({"community_id": community_id}).to_list(100)
-        return exchanges
-    
+ 

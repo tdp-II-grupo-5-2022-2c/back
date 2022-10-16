@@ -10,7 +10,6 @@ from app.db.model.my_sticker import MyStickerModel
 class ExchangeModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     sender_id: str = Field(...) # user_id
-    community_id: str = Field(...)
     stickers_to_give: List[str] = Field(...),
     stickers_to_receive: List[str] = Field(...),
     blacklist_user_ids: List[str] = []
@@ -26,7 +25,6 @@ class ExchangeModel(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": "user1",
-                "community_id": "community",
                 "stickers_to_give": ["s1", "s2"],
                 "stickers_to_receive": ["s3", "s4"], 
                 "blacklist_user_ids": [],            

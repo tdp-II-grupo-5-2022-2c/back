@@ -49,6 +49,7 @@ async def create_exchange(
             for sticker in sender.stickers:
                 if sticker.quantity > 0 and ss == sticker.id:
                     found = True
+                    sticker.quantity -= 1
 
             
             if found == False:
@@ -194,7 +195,8 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 
 
 async def applyReject(exchange: ExchangeModel, receiver_id: str):
-    exchange.blacklist_user_ids.append(receiver_id)
+    if receiver_id not in exchange.blacklist_user_ids:
+        exchange.blacklist_user_ids.append(receiver_id)
     return exchange
 
 
@@ -203,7 +205,7 @@ async def applyReject(exchange: ExchangeModel, receiver_id: str):
     response_description="Get exchanges",
     status_code=status.HTTP_200_OK,
 )
-async def create_exchange(
+async def get_pending_exchanges_by_sender_id(
     sender_id: str,
     db: DatabaseManager = Depends(get_database),
 ):
@@ -229,7 +231,7 @@ async def create_exchange(
     response_description="Get available exchanges for user_id",
     status_code=status.HTTP_200_OK,
 )
-async def create_exchange(
+async def get_available_exchanges(
     user_id: str,
     db: DatabaseManager = Depends(get_database),
 ):
@@ -238,24 +240,29 @@ async def create_exchange(
     community_manager = CommunityManager(db.db)
 
     try:
-        userCommunities = await community_manager.get_by_member(user_id)
+        communities = await community_manager.get_by_member(user_id)
 
-        if len(userCommunities) == 0:
+        if len(communities) == 0:
             return JSONResponse(
                 status_code=status.HTTP_200_OK, content=jsonable_encoder([])
             )
 
+        possibleExchangers = set()
+        for comm in communities:
+            community = await community_manager.get_by_id(comm['_id'])
+            possibleExchangers.update(community.users)
+
+        possibleExchangers.remove(user_id)
+
         allExchanges = []
-        for comm in userCommunities:
-            exchanges = await exchange_manager.get_exchange_by_community_id(comm['_id'])
+        for pe in possibleExchangers:
+            exchanges = await exchange_manager.get_pending_exchanges_by_sender_id(pe)
             allExchanges.extend(exchanges)
 
         user = await user_manager.get_by_id(user_id)
 
         result = []
         for exchange in allExchanges:
-            if exchange['completed'] == True:
-                continue
             if user_id in exchange['blacklist_user_ids']:
                 continue
             if not userContainsSticker(user, exchange['stickers_to_receive']):
@@ -263,7 +270,6 @@ async def create_exchange(
             
             result.append(exchange)
 
-    
         return JSONResponse(
                 status_code=status.HTTP_200_OK, content=jsonable_encoder(result)
             )
