@@ -207,13 +207,14 @@ async def applyReject(exchange: ExchangeModel, receiver_id: str):
 )
 async def get_pending_exchanges_by_sender_id(
     sender_id: str,
+    completed: bool = None,
     db: DatabaseManager = Depends(get_database),
 ):
     exchange_manager = ExchangeManager(db.db)
 
     try:
         if sender_id is not None:
-            response = await exchange_manager.get_pending_exchanges_by_sender_id(sender_id)
+            response = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)
             return response
         
         raise HTTPException(status_code=500, detail=f"Could not get exchanges. operation getAll not supported")

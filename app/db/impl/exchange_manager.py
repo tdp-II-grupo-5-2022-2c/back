@@ -19,6 +19,14 @@ class ExchangeManager:
         exchange = await self.db["exchanges"].find_one({"_id": id})
         return ExchangeModel(**exchange)
 
+    async def get_exchange_by_sender_id(self, sender_id: str, completed: bool):
+        query = {"sender_id": sender_id}
+        if completed is not None:
+            query['completed'] = completed
+
+        exchanges = await self.db["exchanges"].find(query, {'id': 0}).to_list(100)
+        return exchanges
+
     async def add_new(self, exchange: ExchangeModel = Body(...)):
         new = jsonable_encoder(exchange)
         await self.db["exchanges"].insert_one(new)
