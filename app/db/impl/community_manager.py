@@ -10,15 +10,15 @@ class CommunityManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_all(self, owner_id: str = None, member_id: str = None):
-        if owner_id is not None:
-            all_data = await self.get_by_owner(owner_id)
-        if member_id is not None:
-            all_data = await self.get_by_member(member_id)
+    async def get_communities(self, owner: str, member: str):
+        if owner is not None:
+            data = await self.get_by_owner(owner)
+        elif member is not None:
+            data = await self.get_by_member(member)
         else:
-            all_data = await self.db["communities"].find().to_list(20)
+            data = await self.db["communities"].find().to_list(5000)
 
-        return all_data
+        return data
 
     async def get_by_id(self, id: str):
         comm = await self.db["communities"].find_one({"_id": id})
@@ -41,14 +41,15 @@ class CommunityManager:
             raise RuntimeError(msg)
 
     async def get_by_owner(self, owner_id: str):
-        comms = await self.db["communities"].find({"owner": owner_id}).to_list(20)
+        comms = await self.db["communities"].find({"owner": owner_id}).to_list(5000)
         return comms
 
     async def get_by_member(self, user_id: str):
-        comms = await self.db["communities"].find({"users": user_id}).to_list(20)
+        comms = await self.db["communities"].find({"users": user_id}).to_list(5000)
         return comms
 
     async def add_new_member(self, community_id: str, user_id: str):
-        await self.db["communities"].update_one({"_id": community_id}, {"$push": {"users": user_id}})
+        await self.db["communities"].\
+            update_one({"_id": community_id}, {"$push": {"users": user_id}})
         model = await self.get_by_id(community_id)
         return model
