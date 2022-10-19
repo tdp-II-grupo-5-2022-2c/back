@@ -100,6 +100,7 @@ async def create_community(
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
         )
+
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not create Community. Exception: {e}"
