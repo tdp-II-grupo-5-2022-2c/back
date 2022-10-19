@@ -1,6 +1,9 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
+from fastapi import Request
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -40,12 +43,14 @@ async def get_communities(
     status_code=status.HTTP_200_OK,
 )
 async def get_community_by_id(
+        request: Request,
         community_id: str,
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
     try:
-        response = await manager.get_by_id(id=community_id)
+        sender = request.headers['x-user-id']
+        response = await manager.get_by_id(id=community_id, sender=sender)
         return response
     except HTTPException as e:
         raise e
