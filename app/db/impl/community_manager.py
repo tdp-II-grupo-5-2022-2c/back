@@ -10,18 +10,15 @@ class CommunityManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_all(self, owner_id: str = None, member_id: str = None):
-        if owner_id is not None:
-            all_data = await self.get_by_owner(owner_id)
-            return all_data
-        
-        if member_id is not None:
-            all_data = await self.get_by_member(member_id)
-            return all_data
-
+    async def get_communities(self, owner: str, member: str):
+        if owner is not None:
+            data = await self.get_by_owner(owner)
+        elif member is not None:
+            data = await self.get_by_member(member)
         else:
-            all_data = await self.db["communities"].find().to_list(20)
-            return all_data
+            data = await self.db["communities"].find().to_list(5000)
+
+        return data
 
     async def get_by_id(self, id: str):
         comm = await self.db["communities"].find_one({"_id": id})
@@ -44,14 +41,21 @@ class CommunityManager:
             raise RuntimeError(msg)
 
     async def get_by_owner(self, owner_id: str):
-        comms = await self.db["communities"].find({"owner": owner_id}).to_list(20)
+        comms = await self.db["communities"].find({"owner": owner_id}).to_list(5000)
         return comms
 
     async def get_by_member(self, user_id: str):
-        comms = await self.db["communities"].find({"users": user_id}).to_list(20)
+        comms = await self.db["communities"].find({"users": user_id}).to_list(5000)
         return comms
 
-    async def add_new_member(self, community_id: str, user_id: str):
-        await self.db["communities"].update_one({"_id": community_id}, {"$push": {"users": user_id}})
-        model = await self.get_by_id(community_id)
-        return model
+    async def join_community(self, community_id: str, user_id: str, password=password):
+        community = await self.get_by_id(community_id)
+        if (community.password == password):
+            await self.db["communities"].\
+                update_one({"_id": community_id}, {"$push": {"users": user_id}})
+            model = await self.get_by_id(community_id)
+            return model
+        else:
+            msg = "Password invalid, user {user_id} can't join community {community_id}"
+            logging.error(msg)
+            raise RuntimeError(msg)
