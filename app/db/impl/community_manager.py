@@ -3,7 +3,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.community import CommunityModel, UpdateCommunityModel
-from app.db.impl.exception.error_join_user_to_community import ErrorJoinUserToCommunity
 
 from fastapi.encoders import jsonable_encoder
 
