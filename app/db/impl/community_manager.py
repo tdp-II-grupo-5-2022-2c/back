@@ -24,6 +24,8 @@ class CommunityManager:
 
     @staticmethod
     def does_user_belongs_to_community(community: CommunityModel, user_id: str):
+        if user_id is None:
+            return True
         if community.owner == user_id:
             return True
         if user_id in community.users:
@@ -31,7 +33,7 @@ class CommunityManager:
 
         return False
 
-    async def get_by_id(self, id: str, sender: str):
+    async def get_by_id(self, id: str, sender: str = None):
         comm = await self.db["communities"].find_one({"_id": id})
         comm_model = CommunityModel(**comm)
         if self.does_user_belongs_to_community(comm_model, sender) is False:
@@ -69,7 +71,7 @@ class CommunityManager:
     async def join_community(self, community_id: str, user_id: str, password: str):
         community = await self.get_community_by_id(community_id)
         logging.info(community)
-        if (community["password"] == password):
+        if community["password"] == password:
             await self.db["communities"].\
                 update_one({"_id": community_id}, {"$push": {"users": user_id}})
             model = await self.get_community_by_id(community_id)
