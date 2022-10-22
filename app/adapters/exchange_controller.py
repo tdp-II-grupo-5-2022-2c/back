@@ -1,19 +1,18 @@
 import logging
 from typing import List
-from app.db.impl.exchange_manager import ExchangeManager
-from app.db.impl.user_manager import UserManager
-from app.db.model.exchange import ExchangeModel, ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
-from app.db.model.my_sticker import MyStickerModel
-from app.db.model.user import UpdateUserModel, UserModel
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
 from starlette import status
 from starlette.responses import JSONResponse
-
 from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager
-from app.db.model.community import CommunityModel
+from app.db.impl.exchange_manager import ExchangeManager
+from app.db.impl.user_manager import UserManager
+from app.db.model.exchange import ExchangeModel, \
+    ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
+from app.db.model.my_sticker import MyStickerModel
+from app.db.model.user import UserModel
 
 
 router = APIRouter(tags=["exchanges"])
@@ -33,40 +32,65 @@ async def create_exchange(
 
     # Validation for amount of stickers in exchange
     if len(exchange.stickers_to_give) > 5:
-        raise HTTPException(status_code=400, detail=f"Could not create Exchange. len of stickers_to_give is: {exchange.stickers_to_give} should be lower or equal than 5")
+        raise HTTPException(
+            status_code=400,
+            detail="Could not create Exchange. len of stickers_to_give " + \
+            f"is: {exchange.stickers_to_give} should be lower or equal than 5"
+        )
     if len(exchange.stickers_to_receive) > 5:
-        raise HTTPException(status_code=400, detail=f"Could not create Exchange. len of stickers_to_receive is: {exchange.stickers_to_receive} should be lower or equal than 5")
+        raise HTTPException(
+            status_code=400,
+            detail="Could not create Exchange. len of stickers_to_receive " + \
+            f"is: {exchange.stickers_to_receive} should be lower or equal than 5"
+        )
 
     # Validation for unique stickers in exchange
     if not stickersForExchangeAreUnique(exchange.stickers_to_give):
-        raise HTTPException(status_code=400, detail=f"Could not create Exchange. stickers_to_give are not unique: {exchange.stickers_to_give}")
+        raise HTTPException(
+            status_code=400,
+            detail="Could not create Exchange. " + \
+            f"stickers_to_give are not unique: {exchange.stickers_to_give}"
+        )
     if not stickersForExchangeAreUnique(exchange.stickers_to_receive):
-        raise HTTPException(status_code=400, detail=f"Could not create Exchange. stickers_to_receive are not unique: {exchange.stickers_to_receive}")
+        raise HTTPException(
+            status_code=400,
+            detail="Could not create Exchange. " + \
+            f"stickers_to_receive are not unique: {exchange.stickers_to_receive}"
+        )
 
     if not stickersToGiveAndReceiveAreDiff(exchange.stickers_to_give, exchange.stickers_to_receive):
-        raise HTTPException(status_code=400, detail=f"Could not create Exchange. stickers_to_receive and stickers_to_give must not have sticker in common")
+        raise HTTPException(
+            status_code=400,
+            detail="Could not create Exchange. stickers_to_receive " + \
+            "and stickers_to_give must not have sticker in common"
+        )
 
     try:
         pendingExchanges = await manager.get_pending_exchanges_by_sender_id(exchange.sender_id)
-        if len(pendingExchanges) >= 3: 
-            raise HTTPException(status_code=400, detail=f"Could not create Exchange. user reached max amount of pending exchanges")
+        if len(pendingExchanges) >= 3:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not create Exchange. " + \
+                "user reached max amount of pending exchanges"
+            )
 
         sender = await user_manager.get_by_id(exchange.sender_id)
         if not userHasStickersForExchange(sender, exchange.stickers_to_give):
             raise HTTPException(
                 status_code=400,
-                detail=f"Error trying to create exchange for user: {sender.id}. Does not have available all the stickers for exchange."
+                detail=f"Error trying to create exchange for user: {sender.id}. " + \
+                "Does not have available all the stickers for exchange."
             )
     
         response = await manager.add_new(exchange)
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
             )
-    except HTTPException as e:
-        raise e
-    except Exception as e:
+    except HTTPException as exception:
+        raise exception
+    except Exception as exception:
         raise HTTPException(
-            status_code=500, detail=f"Could not create Community. Exception: {e}"
+            status_code=500, detail=f"Could not create Community. Exception: {exception}"
         )
 
 
