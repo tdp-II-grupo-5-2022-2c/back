@@ -204,7 +204,7 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             newSticker = MyStickerModel(id=rs, quantity=1, is_on_album=False)
             sender.stickers.append(newSticker)
 
-    # Do exchange for stickers_to_give 
+    # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
         # sender must deliver stickers_to_give
         for sticker in sender.stickers:
@@ -337,7 +337,7 @@ def userHasStickersForExchange(user: UserModel, sticker_ids: List[str]) -> bool:
         for sticker in user.stickers:
             if sticker.quantity >= stickersFreq[sid] and sid == sticker.id:
                 found = True
-        
+
         if not found:
             return False
 

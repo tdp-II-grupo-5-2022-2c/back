@@ -13,7 +13,7 @@ AVAILABLE_EXCHANGE_ACTIONS = [ACCEPT_ACTION, REJECT_ACTION]
 
 class ExchangeModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    sender_id: str = Field(...) # user_id
+    sender_id: str = Field(...)  # user_id
     stickers_to_give: List[str] = Field(...),
     stickers_to_receive: List[str] = Field(...),
     blacklist_user_ids: List[str] = []
@@ -42,14 +42,14 @@ class ExchangeActionModel(BaseModel):
     receiver_id: str = Field(...)  # user_id who could potentially receive the exchange
 
     class Config:
-            arbitrary_types_allowed = True
-            json_encoders = {ObjectId: str}
-            schema_extra = {
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
             "example": {
-                    "action": "accept",
-                    "receiver_id": "user_id"
-                }
+                "action": "accept",
+                "receiver_id": "user_id"
             }
+        }
 
 
 class UpdateExchangeModel(BaseModel):
