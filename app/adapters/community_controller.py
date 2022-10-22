@@ -11,6 +11,7 @@ from app.db.model.community import CommunityModel
 
 router = APIRouter(tags=["communities"])
 
+MAX_USERS_PER_COMM = 10
 
 @router.get(
     "/communities",
@@ -100,15 +101,29 @@ async def join_community(
 ):
     manager = CommunityManager(db.db)
     try:
+        community = await manager.get_by_id(id=community_id)
+        if community.password != password:
+            raise HTTPException(
+                status_code=401, detail=f"Wrong password. User {user_id} could not join community {community_id}"
+            )
+        if len(community.users) == MAX_USERS_PER_COMM:
+            raise HTTPException(
+                status_code=400, detail=f"Full community.User {user_id} could not join community {community_id}"
+            )
+        if user_id in community.users:
+            raise HTTPException(
+                status_code=400, detail=f"User {user_id} already joined community {community_id}"
+            )
         response = await manager.join_community(
             community_id=community_id,
-            user_id=user_id,
-            password=password
+            user_id=user_id
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
         )
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
