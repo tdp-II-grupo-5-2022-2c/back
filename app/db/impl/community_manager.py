@@ -3,6 +3,8 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.community import CommunityModel, UpdateCommunityModel
+from app.db.exception.error_join_user_to_community import ErrorJoinUserToCommunity
+
 from fastapi.encoders import jsonable_encoder
 
 
@@ -58,4 +60,4 @@ class CommunityManager:
         else:
             msg = "Password invalid, user {user_id} can't join community {community_id}"
             logging.error(msg)
-            raise RuntimeError(msg)
+            raise ErrorJoinUserToCommunity(msg)
