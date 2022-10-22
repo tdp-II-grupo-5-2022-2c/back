@@ -109,8 +109,10 @@ def stickersForExchangeAreUnique(stickers: List[str]) -> bool:
     return True
 
 
-def stickersToGiveAndReceiveAreDiff(stickersToGive: List[str],
- stickersToReceive: List[str]) -> bool:
+def stickersToGiveAndReceiveAreDiff(
+    stickersToGive: List[str],
+    stickersToReceive: List[str],
+) -> bool:
     give = set(stickersToGive)
     receive = set(stickersToReceive)
 
