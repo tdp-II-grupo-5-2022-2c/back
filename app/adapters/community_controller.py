@@ -100,6 +100,7 @@ async def join_community(
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
         )
+
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
