@@ -6,10 +6,10 @@ from functools import lru_cache
 class Settings(BaseSettings):
     DEV_ENV = "dev"
     environment: str = DEV_ENV
-    title: str
-    version: str
+    title: str = 'album-backend'
+    version: str = '0.0.1'
     port: int = 5000
-    db_path: str
+    db_path: str = ''
 
     class Config:
         BASE_DIR = os.path.dirname(os.path.abspath("../.env"))

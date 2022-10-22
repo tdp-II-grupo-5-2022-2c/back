@@ -4,6 +4,6 @@ from fastapi.testclient import TestClient
 client = TestClient(app)
 
 def test_create_exchange():
-    response = client.post("/exchanges")
+    response = client.post("/exchanges", json={'sender_id': 'sender'})
     print(response)
     assert response == None
