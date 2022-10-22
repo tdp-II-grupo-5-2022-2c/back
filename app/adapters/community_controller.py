@@ -79,3 +79,32 @@ async def create_community(
         raise HTTPException(
             status_code=500, detail=f"Could not create Community. Exception: {e}"
         )
+
+
+@router.post(
+    "/communities/{community_id}/users/{user_id}",
+    response_description="Join user to community",
+    response_model=CommunityModel,
+    status_code=status.HTTP_200_OK,
+)
+async def join_community(
+        community_id: str,
+        user_id: str,
+        password: str = None,
+        db: DatabaseManager = Depends(get_database),
+):
+    manager = CommunityManager(db.db)
+    try:
+        response = await manager.join_community(
+            community_id=community_id,
+            user_id=user_id,
+            password=password
+        )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not join user to Community. Exception: {e}"
+        )
