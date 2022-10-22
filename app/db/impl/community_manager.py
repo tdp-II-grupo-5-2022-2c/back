@@ -20,9 +20,21 @@ class CommunityManager:
 
         return data
 
-    async def get_by_id(self, id: str):
+    @staticmethod
+    def does_user_belongs_to_community(community: CommunityModel, user_id: str):
+        if community.owner == user_id:
+            return True
+        if user_id in community.users:
+            return True
+
+        return False
+
+    async def get_by_id(self, id: str, sender: str):
         comm = await self.db["communities"].find_one({"_id": id})
-        return CommunityModel(**comm)
+        comm_model = CommunityModel(**comm)
+        if self.does_user_belongs_to_community(comm_model, sender) is False:
+            raise Exception("User not allowed")
+        return comm_model
 
     async def add_new(self, community: CommunityModel = Body(...)):
         new = jsonable_encoder(community)
