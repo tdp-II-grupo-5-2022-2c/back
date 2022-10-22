@@ -62,7 +62,7 @@ class CommunityManager:
         comms = await self.db["communities"].find({"users": user_id}).to_list(5000)
         return comms
 
-    async def join_community(self, community_id: str, user_id: str, password=password):
+    async def join_community(self, community_id: str, user_id: str, password: str):
         community = await self.get_by_id(community_id)
         if (community.password == password):
             await self.db["communities"].\
