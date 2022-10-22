@@ -6,6 +6,9 @@ from typing import List, Optional
 from bson import ObjectId
 from app.db.model.my_sticker import MyStickerModel
 
+ACCEPT_ACTION = 'accept'
+REJECT_ACTION = 'reject'
+AVAILABLE_EXCHANGE_ACTIONS = [ACCEPT_ACTION, REJECT_ACTION]
 
 class ExchangeModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
@@ -45,10 +48,6 @@ class ExchangeActionModel(BaseModel):
                     "receiver_id": "user_id"
                 }
             }
-
-accept_action = 'accept'
-reject_action = 'reject'
-available_exchange_actions = [accept_action, reject_action]
 
 class UpdateExchangeModel(BaseModel):
     completed: Optional[bool]
