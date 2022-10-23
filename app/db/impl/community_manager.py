@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.community import CommunityModel, UpdateCommunityModel
+
 from fastapi.encoders import jsonable_encoder
 
 
@@ -20,20 +21,9 @@ class CommunityManager:
 
         return data
 
-    @staticmethod
-    def does_user_belongs_to_community(community: CommunityModel, user_id: str):
-        if community.owner == user_id:
-            return True
-        if user_id in community.users:
-            return True
-
-        return False
-
-    async def get_by_id(self, id: str, sender: str):
+    async def get_by_id(self, id: str):
         comm = await self.db["communities"].find_one({"_id": id})
         comm_model = CommunityModel(**comm)
-        if self.does_user_belongs_to_community(comm_model, sender) is False:
-            raise Exception("User not allowed")
         return comm_model
 
     async def add_new(self, community: CommunityModel = Body(...)):
@@ -42,15 +32,10 @@ class CommunityManager:
         return new
 
     async def update(self, id: str, community: UpdateCommunityModel = Body(...)):
-        try:
-            community = {k: v for k, v in community.dict().items() if v is not None}
-            await self.db["communities"].update_one({"_id": id}, {"$set": community})
-            model = await self.get_by_id(id)
-            return model
-        except Exception as e:
-            msg = f"[UPDATE COMMUNITY] id: {id} error: {e}"
-            logging.error(msg)
-            raise RuntimeError(msg)
+        community = {k: v for k, v in community.dict().items() if v is not None}
+        await self.db["communities"].update_one({"_id": id}, {"$set": community})
+        model = await self.get_by_id(id)
+        return model
 
     async def get_by_owner(self, owner_id: str):
         comms = await self.db["communities"].find({"owner": owner_id}).to_list(5000)
@@ -60,8 +45,19 @@ class CommunityManager:
         comms = await self.db["communities"].find({"users": user_id}).to_list(5000)
         return comms
 
-    async def add_new_member(self, community_id: str, user_id: str):
-        await self.db["communities"].\
-            update_one({"_id": community_id}, {"$push": {"users": user_id}})
-        model = await self.get_by_id(community_id)
-        return model
+    async def get_community_by_id(self, community_id: str):
+        comm = await self.db["communities"].find_one({"_id": community_id})
+        return comm
+
+    async def join_community(self, community_id: str, user_id: str, password: str):
+        community = await self.get_community_by_id(community_id)
+        logging.info(community)
+        if (community["password"] == password):
+            await self.db["communities"].\
+                update_one({"_id": community_id}, {"$push": {"users": user_id}})
+            model = await self.get_community_by_id(community_id)
+            return model
+        else:
+            msg = "Password invalid, user {user_id} can't join community {community_id}"
+            logging.error(msg)
+            raise RuntimeError(msg)
