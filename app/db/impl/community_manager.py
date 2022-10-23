@@ -3,7 +3,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.community import CommunityModel, UpdateCommunityModel
-from app.db.impl.exception.error_join_user_to_community import ErrorJoinUserToCommunity
 
 from fastapi.encoders import jsonable_encoder
 
@@ -50,15 +49,10 @@ class CommunityManager:
         comm = await self.db["communities"].find_one({"_id": community_id})
         return comm
 
-    async def join_community(self, community_id: str, user_id: str, password: str):
+    async def join_community(self, community_id: str, user_id: str):
         community = await self.get_community_by_id(community_id)
         logging.info(community)
-        if (community["password"] == password):
-            await self.db["communities"].\
-                update_one({"_id": community_id}, {"$push": {"users": user_id}})
-            model = await self.get_community_by_id(community_id)
-            return model
-        else:
-            msg = "Password invalid, user {user_id} can't join community {community_id}"
-            logging.error(msg)
-            raise ErrorJoinUserToCommunity(msg)
+        await self.db["communities"].\
+            update_one({"_id": community_id}, {"$push": {"users": user_id}})
+        model = await self.get_community_by_id(community_id)
+        return model

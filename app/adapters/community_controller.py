@@ -12,6 +12,8 @@ from app.db.model.community import CommunityModel, UpdateCommunityModel
 
 router = APIRouter(tags=["communities"])
 
+MAX_USERS_PER_COMM = 10
+
 
 @router.get(
     "/communities",
@@ -48,12 +50,15 @@ async def get_community_by_id(
 ):
     manager = CommunityManager(db.db)
     try:
-        response = await manager.get_by_id(id=community_id)
+        community = await manager.get_by_id(id=community_id)
         sender = request.headers['x-user-id']
-        if sender not in response.users and sender != response.owner:
-            raise HTTPException(status_code=401)
+        if sender not in community.users and sender != community.owner:
+            raise HTTPException(
+                status_code=401,
+                detail=f"User {sender} not allowed to access community {community_id}"
+            )
+        return community
 
-        return response
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -143,15 +148,31 @@ async def join_community(
 ):
     manager = CommunityManager(db.db)
     try:
+        community = await manager.get_by_id(id=community_id)
+        if community.password != password:
+            raise HTTPException(
+                status_code=401, detail=f"Wrong password. "
+                                        f"User {user_id} could not join community {community_id}"
+            )
+        if len(community.users) == MAX_USERS_PER_COMM:
+            raise HTTPException(
+                status_code=400, detail=f"Full community."
+                                        f"User {user_id} could not join community {community_id}"
+            )
+        if user_id in community.users:
+            raise HTTPException(
+                status_code=400, detail=f"User {user_id} already joined community {community_id}"
+            )
         response = await manager.join_community(
             community_id=community_id,
-            user_id=user_id,
-            password=password
+            user_id=user_id
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
         )
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
