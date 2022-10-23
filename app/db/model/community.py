@@ -30,6 +30,7 @@ class UpdateCommunityModel(BaseModel):
     name: Optional[str]
     owner: Optional[str]
     users: Optional[List[str]]
+    password: Optional[str]
 
     class Config:
         arbitrary_types_allowed = True

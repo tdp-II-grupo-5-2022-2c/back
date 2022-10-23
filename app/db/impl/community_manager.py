@@ -30,16 +30,11 @@ class CommunityManager:
         return new
 
     async def update(self, id: str, community: UpdateCommunityModel = Body(...)):
-        try:
-            community = {k: v for k, v in community.dict().items() if v is not None}
-            await self.db["communities"].update_one({"_id": id}, {"$set": community})
-            model = await self.get_by_id(id)
-            return model
-        except Exception as e:
-            msg = f"[UPDATE COMMUNITY] id: {id} error: {e}"
-            logging.error(msg)
-            raise RuntimeError(msg)
-
+        community = {k: v for k, v in community.dict().items() if v is not None}
+        await self.db["communities"].update_one({"_id": id}, {"$set": community})
+        model = await self.get_by_id(id)
+        return model
+    
     async def get_by_owner(self, owner_id: str):
         comms = await self.db["communities"].find({"owner": owner_id}).to_list(20)
         return comms
