@@ -48,7 +48,7 @@ class CommunityManager:
         await self.db["communities"].update_one({"_id": id}, {"$set": community})
         model = await self.get_by_id(id)
         return model
-    
+
     async def get_by_owner(self, owner_id: str):
         comms = await self.db["communities"].find({"owner": owner_id}).to_list(5000)
         return comms

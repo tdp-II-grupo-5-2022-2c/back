@@ -2,7 +2,6 @@ from typing import Union
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
-from fastapi import Header
 from fastapi import Request, Header
 from starlette import status
 from starlette.responses import JSONResponse
