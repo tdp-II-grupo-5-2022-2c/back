@@ -1,13 +1,14 @@
+from typing import Union
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
-from fastapi import Request
+from fastapi import Request, Header
 from starlette import status
 from starlette.responses import JSONResponse
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager
-from app.db.model.community import CommunityModel
+from app.db.model.community import CommunityModel, UpdateCommunityModel
 
 router = APIRouter(tags=["communities"])
 
@@ -49,20 +50,65 @@ async def get_community_by_id(
 ):
     manager = CommunityManager(db.db)
     try:
-        sender = request.headers['x-user-id']
         community = await manager.get_by_id(id=community_id)
-        if not (community.owner == sender or sender in community.users):
+        sender = request.headers['x-user-id']
+        if sender not in response.users and sender != response.owner:
             raise HTTPException(
-                status_code=400,
+                status_code=401,
                 detail=f"User {sender} not allowed to access community {community_id}"
             )
         return community
+
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Error getting Community by id {community_id}. Exception {e}"
+        )
+
+
+@router.patch(
+    "/communities/{community_id}",
+    response_description="Set community password",
+    status_code=status.HTTP_200_OK,
+)
+async def set_community_password(
+    community_id: str,
+    body: UpdateCommunityModel = Body(...),
+    x_user_id: Union[str, None] = Header(default=None),
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = CommunityManager(db.db)
+
+    if x_user_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing X-User-Id header on request",
+        )
+
+    if body.password is None or body.password == "":
+        raise HTTPException(
+            status_code=400,
+            detail="password is required",
+        )
+
+    try:
+        community = await manager.get_by_id(id=community_id)
+        if community.owner != x_user_id:
+            raise HTTPException(
+                status_code=401,
+                detail=f"user_id: {x_user_id} is not authorized for this operation",
+            )
+
+        result = await manager.update(community_id, body)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error updating Community by id {community_id}. Exception {e}"
         )
 
 
