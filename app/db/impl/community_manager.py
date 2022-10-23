@@ -22,7 +22,7 @@ class CommunityManager:
 
         return data
 
-    async def get_by_id(self, id: str, sender: str):
+    async def get_by_id(self, id: str):
         comm = await self.db["communities"].find_one({"_id": id})
         comm_model = CommunityModel(**comm)
         return comm_model

@@ -47,10 +47,11 @@ async def get_community_by_id(
 ):
     manager = CommunityManager(db.db)
     try:
+        response = await manager.get_by_id(id=community_id)
         sender = request.headers['x-user-id']
-        response = await manager.get_by_id(id=community_id, sender=sender)
-        if sender not in response.users:
+        if sender not in response.users and sender != response.owner:
             raise HTTPException(status_code=401)
+
         return response
     except HTTPException as e:
         raise e
