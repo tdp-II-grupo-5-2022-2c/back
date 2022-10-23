@@ -52,7 +52,7 @@ async def get_community_by_id(
     try:
         community = await manager.get_by_id(id=community_id)
         sender = request.headers['x-user-id']
-        if sender not in response.users and sender != response.owner:
+        if sender not in community.users and sender != community.owner:
             raise HTTPException(
                 status_code=401,
                 detail=f"User {sender} not allowed to access community {community_id}"
