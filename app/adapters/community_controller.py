@@ -119,6 +119,7 @@ async def create_community(
 ):
     manager = CommunityManager(db.db)
     try:
+        community.users.append(community.owner)
         response = await manager.add_new(community=community)
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
