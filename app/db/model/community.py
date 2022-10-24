@@ -11,6 +11,7 @@ class CommunityModel(BaseModel):
     name: str = Field(...)
     owner: str = Field(...)
     users: List[str] = []
+    password: str = "password"
 
     class Config:
         allow_population_by_field_name = True
@@ -20,6 +21,7 @@ class CommunityModel(BaseModel):
             "example": {
                 "name": "name",
                 "owner": "name",
+                "password": "password",
                 "users": [],
             }
         }
@@ -28,6 +30,7 @@ class CommunityModel(BaseModel):
 class UpdateCommunityModel(BaseModel):
     name: Optional[str]
     owner: Optional[str]
+    password: Optional[str]
     users: Optional[List[str]]
 
     class Config:
@@ -37,6 +40,7 @@ class UpdateCommunityModel(BaseModel):
             "example": {
                 "name": "name",
                 "owner": "name",
+                "password": "password",
                 "users": [],
             }
         }
