@@ -45,7 +45,6 @@ class CommunityManager:
         return comms
 
     async def get_by_name(self, name: str):
-        print('name: ', name)
         comm = await self.db["communities"].find_one({"name": name})
         return comm
 
