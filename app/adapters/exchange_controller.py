@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Dict, List
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
@@ -8,6 +8,7 @@ from starlette.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager
 from app.db.impl.exchange_manager import ExchangeManager
+from app.db.impl.sticker_manager import StickerManager
 from app.db.impl.user_manager import UserManager
 from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
@@ -313,8 +314,10 @@ async def get_available_exchanges(
 
             result.append(exchange)
 
+        response_body = await render_fetch(db, result)
+
         return JSONResponse(
-                status_code=status.HTTP_200_OK, content=jsonable_encoder(result)
+                status_code=status.HTTP_200_OK, content=jsonable_encoder(response_body)
             )
     except HTTPException as e:
         raise e
@@ -322,6 +325,35 @@ async def get_available_exchanges(
         raise HTTPException(
             status_code=500, detail=f"Could not get exchanges. Exception: {e}"
         )
+
+
+async def render_fetch(db: DatabaseManager, exchanges: List[Dict]):
+    sticker_manager = StickerManager(db.db)
+    user_manager = UserManager(db.db)
+
+    for exc in exchanges:
+        stickers_to_receive = []
+        stickers_to_give = []
+
+        for sr in exc['stickers_to_receive']:
+            sticker = await sticker_manager.get_by_id(sr)
+            stickers_to_receive.append(sticker)
+
+        for sg in exc['stickers_to_give']:
+            sticker = await sticker_manager.get_by_id(sg)
+            stickers_to_give.append(sticker)
+
+        exc['stickers_to_receive'] = stickers_to_receive
+        exc['stickers_to_give'] = stickers_to_give
+
+        userModel = await user_manager.get_by_id(exc['sender_id'])
+        sender = userModel.dict()
+        sender['_id'] = exc['sender_id']
+        del sender['stickers']
+        del sender['id']
+        exc['sender'] = sender
+
+    return exchanges
 
 
 def userHasStickersForExchange(user: UserModel, sticker_ids: List[str]) -> bool:

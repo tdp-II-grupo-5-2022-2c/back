@@ -16,7 +16,7 @@ from app.db.model.community import CommunityModel, UpdateCommunityModel
 
 router = APIRouter(tags=["communities"])
 
-MAX_USERS_PER_COMM = 10
+MAX_USERS_PER_COMM = 11
 
 
 @router.get(
@@ -57,7 +57,7 @@ async def get_community_by_id(
     try:
         sender = request.headers['x-user-id']
         comm = await comm_manager.get_by_id(id=community_id)
-        if sender not in comm.users or sender != comm.owner:
+        if sender not in comm.users and sender != comm.owner:
             raise HTTPException(
                 status_code=401,
                 detail=f"User {sender} not allowed to access community {community_id}"
@@ -148,6 +148,7 @@ async def create_community(
 ):
     manager = CommunityManager(db.db)
     try:
+        community.users.append(community.owner)
         response = await manager.add_new(community=community)
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
