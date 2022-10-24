@@ -223,6 +223,20 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
 
+    # Remove user.stickers that are with quantity 0
+    senderStickers = []
+    receiverStickers = []
+    for s in sender.stickers:
+        if s.quantity > 0:
+            senderStickers.append(s)
+    
+    for s in receiver.stickers:
+        if s.quantity > 0:
+            receiverStickers.append(s)
+
+    sender.stickers = senderStickers
+    receiver.stickers = receiverStickers
+
     logging.info(f'sender after exchange: {sender.dict()}')
     logging.info(f'receiver after exchange: {receiver.dict()}')
 
