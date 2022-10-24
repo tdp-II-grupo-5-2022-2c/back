@@ -229,7 +229,7 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
     for s in sender.stickers:
         if s.quantity > 0:
             senderStickers.append(s)
-    
+
     for s in receiver.stickers:
         if s.quantity > 0:
             receiverStickers.append(s)
