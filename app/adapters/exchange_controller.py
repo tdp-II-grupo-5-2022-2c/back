@@ -346,7 +346,11 @@ async def render_fetch(db: DatabaseManager, exchanges: List[Dict]):
         exc['stickers_to_receive'] = stickers_to_receive
         exc['stickers_to_give'] = stickers_to_give
 
-        sender = await user_manager.get_by_id(exc['sender_id'])
+        userModel = await user_manager.get_by_id(exc['sender_id'])
+        sender = userModel.dict()
+        sender['_id'] = exc['sender_id']
+        del sender['stickers']
+        del sender['id']
         exc['sender'] = sender
 
     return exchanges
