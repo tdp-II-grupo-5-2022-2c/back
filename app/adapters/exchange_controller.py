@@ -83,6 +83,15 @@ async def create_exchange(
                 "Does not have available all the stickers for exchange."
             )
 
+        # update user
+        for sg in exchange.stickers_to_give:
+            # sender must deliver stickers_to_give
+            for sticker in sender.stickers:
+                if sg == sticker.id:
+                    sticker.quantity -= 1
+
+        await user_manager.update(exchange.sender_id, sender)
+
         response = await manager.add_new(exchange)
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
@@ -207,10 +216,10 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
-        # sender must deliver stickers_to_give
-        for sticker in sender.stickers:
-            if sg == sticker.id:
-                sticker.quantity -= 1
+        # sender must deliver stickers_to_give, this action is moved to create exchange
+        # for sticker in sender.stickers:
+        #     if sg == sticker.id:
+        #         sticker.quantity -= 1
 
         # receiver must receive stickers_to_give
         found = False

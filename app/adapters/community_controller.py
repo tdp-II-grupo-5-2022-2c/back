@@ -154,6 +154,14 @@ async def create_community(
                 status_code=400,
                 detail='there is already a community with that name'
             )
+
+        comms = await manager.get_by_member(community.owner)
+        if len(comms) >= 10:
+            raise HTTPException(
+                status_code=400,
+                detail="user can't be in more than 10 communities"
+            )
+
         community.users.append(community.owner)
         response = await manager.add_new(community=community)
         return JSONResponse(
@@ -196,6 +204,13 @@ async def join_community(
             raise HTTPException(
                 status_code=400, detail=f"User {user_id} already joined community {community_id}"
             )
+        comms = await manager.get_by_member(user_id)
+        if len(comms) >= 10:
+            raise HTTPException(
+                status_code=400,
+                detail="user can't be in more than 10 communities"
+            )
+
         response = await manager.join_community(
             community_id=community_id,
             user_id=user_id
