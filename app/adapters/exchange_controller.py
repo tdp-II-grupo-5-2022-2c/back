@@ -83,6 +83,15 @@ async def create_exchange(
                 "Does not have available all the stickers for exchange."
             )
 
+        # update user
+        for sg in exchange.stickers_to_give:
+            # sender must deliver stickers_to_give
+            for sticker in sender.stickers:
+                if sg == sticker.id:
+                    sticker.quantity -= 1
+
+        await user_manager.update(exchange.sender_id, sender)
+
         response = await manager.add_new(exchange)
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
@@ -207,10 +216,10 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
-        # sender must deliver stickers_to_give
-        for sticker in sender.stickers:
-            if sg == sticker.id:
-                sticker.quantity -= 1
+        # sender must deliver stickers_to_give, this action is moved to create exchange
+        # for sticker in sender.stickers:
+        #     if sg == sticker.id:
+        #         sticker.quantity -= 1
 
         # receiver must receive stickers_to_give
         found = False
@@ -222,20 +231,6 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         if not found:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
-
-    # Remove user.stickers that are with quantity 0
-    senderStickers = []
-    receiverStickers = []
-    for s in sender.stickers:
-        if s.quantity > 0:
-            senderStickers.append(s)
-
-    for s in receiver.stickers:
-        if s.quantity > 0:
-            receiverStickers.append(s)
-
-    sender.stickers = senderStickers
-    receiver.stickers = receiverStickers
 
     logging.info(f'sender after exchange: {sender.dict()}')
     logging.info(f'receiver after exchange: {receiver.dict()}')
