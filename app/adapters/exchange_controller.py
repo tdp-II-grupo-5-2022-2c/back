@@ -189,12 +189,13 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         )
 
     sender = await user_manager.get_by_id(exchange.sender_id)
-    if not userHasStickersForExchange(sender, exchange.stickers_to_give):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Error trying to apply action to exchange {exchange.id}. " +
-            f"Sender with id: {sender.id} does not have available all the stickers for exchange."
-        )
+    # We should be good to delete this, commenting for now to avoid big impact
+    # if not userHasStickersForExchange(sender, exchange.stickers_to_give): 
+    #     raise HTTPException(
+    #         status_code=400,
+    #         detail=f"Error trying to apply action to exchange {exchange.id}. " +
+    #         f"Sender with id: {sender.id} does not have available all the stickers for exchange."
+    #     )
 
     # Do exchange for stickers_to_receive
     for rs in exchange.stickers_to_receive:
