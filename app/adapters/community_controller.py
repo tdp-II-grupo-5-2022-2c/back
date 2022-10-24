@@ -16,7 +16,7 @@ from app.db.model.community import CommunityModel, UpdateCommunityModel
 
 router = APIRouter(tags=["communities"])
 
-MAX_USERS_PER_COMM = 10
+MAX_USERS_PER_COMM = 11
 
 
 @router.get(
