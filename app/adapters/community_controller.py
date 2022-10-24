@@ -149,7 +149,6 @@ async def create_community(
     manager = CommunityManager(db.db)
     try:
         comm = await manager.get_by_name(community.name)
-        print('comm: ', comm)
         if comm is not None:
             raise HTTPException(
                 status_code=400,
