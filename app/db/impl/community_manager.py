@@ -1,4 +1,3 @@
-import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
