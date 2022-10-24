@@ -51,7 +51,6 @@ class CommunityManager:
 
     async def join_community(self, community_id: str, user_id: str, password: str):
         community = await self.get_community_by_id(community_id)
-        logging.info(community)
         if (community["password"] == password):
             await self.db["communities"].\
                 update_one({"_id": community_id}, {"$push": {"users": user_id}})

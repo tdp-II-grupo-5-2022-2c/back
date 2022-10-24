@@ -36,3 +36,4 @@ class ExchangeManager:
         await self.db["exchanges"].update_one({"_id": id}, {"$set": exchange})
         model = await self.get_exchange_by_id(id)
         return model
+
