@@ -2,7 +2,8 @@ import uvicorn
 
 import logging.config
 
-from app.adapters import exchange_controller, health_controller
+from app.adapters import health_controller
+from app.adapters import exchange_controller
 from app.adapters import user_controller
 from app.adapters import sticker_controller
 from app.adapters import community_controller

@@ -8,9 +8,15 @@ from starlette.responses import JSONResponse
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager
+from app.adapters.dtos.community_details import UserNameResponse
+from app.adapters.dtos.community_details import CommunityDetailResponse
+from app.db.impl.user_manager import UserManager
+import logging
 from app.db.model.community import CommunityModel, UpdateCommunityModel
 
 router = APIRouter(tags=["communities"])
+
+MAX_USERS_PER_COMM = 10
 
 
 @router.get(
@@ -42,17 +48,40 @@ async def get_communities(
     status_code=status.HTTP_200_OK,
 )
 async def get_community_by_id(
-        request: Request,
-        community_id: str,
-        db: DatabaseManager = Depends(get_database),
+    request: Request,
+    community_id: str,
+    db: DatabaseManager = Depends(get_database),
 ):
-    manager = CommunityManager(db.db)
+    comm_manager = CommunityManager(db.db)
+    user_manager = UserManager(db.db)
     try:
-        response = await manager.get_by_id(id=community_id)
         sender = request.headers['x-user-id']
-        if sender not in response.users and sender != response.owner:
-            raise HTTPException(status_code=401)
-
+        comm = await comm_manager.get_by_id(id=community_id)
+        if sender not in comm.users or sender != comm.owner:
+            raise HTTPException(
+                status_code=401,
+                detail=f"User {sender} not allowed to access community {community_id}"
+            )
+        users = []
+        for user_id in comm.users:
+            logging.info(user_id)
+            user_model = await user_manager.get_by_id(user_id)
+            logging.info(user_model)
+            if user_model is not None:
+                user = UserNameResponse(
+                    id=str(user_model.id),
+                    name=user_model.name,
+                    lastname=user_model.lastname,
+                    mail=user_model.mail
+                )
+                users.append(user)
+        response = CommunityDetailResponse(
+            id=str(comm.id),
+            name=comm.name,
+            owner=comm.owner,
+            users=users,
+            password=comm.password
+        )
         return response
     except HTTPException as e:
         raise e
@@ -144,15 +173,31 @@ async def join_community(
 ):
     manager = CommunityManager(db.db)
     try:
+        community = await manager.get_by_id(id=community_id)
+        if community.password != password:
+            raise HTTPException(
+                status_code=401, detail=f"Wrong password. "
+                                        f"User {user_id} could not join community {community_id}"
+            )
+        if len(community.users) == MAX_USERS_PER_COMM:
+            raise HTTPException(
+                status_code=400, detail=f"Full community."
+                                        f"User {user_id} could not join community {community_id}"
+            )
+        if user_id in community.users:
+            raise HTTPException(
+                status_code=400, detail=f"User {user_id} already joined community {community_id}"
+            )
         response = await manager.join_community(
             community_id=community_id,
-            user_id=user_id,
-            password=password
+            user_id=user_id
         )
         return JSONResponse(
             status_code=status.HTTP_200_OK, content=jsonable_encoder(response)
         )
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
