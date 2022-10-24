@@ -254,8 +254,9 @@ async def get_pending_exchanges_by_sender_id(
 
     try:
         if sender_id is not None:
-            response = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)
-            return response
+            exchanges = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)
+            response_body = await render_fetch(db, exchanges)
+            return response_body
 
         raise HTTPException(
             status_code=500,

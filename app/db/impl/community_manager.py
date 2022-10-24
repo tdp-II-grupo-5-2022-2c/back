@@ -44,6 +44,10 @@ class CommunityManager:
         comms = await self.db["communities"].find({"users": user_id}).to_list(5000)
         return comms
 
+    async def get_by_name(self, name: str):
+        comm = await self.db["communities"].find_one({"name": name})
+        return comm
+
     async def get_community_by_id(self, community_id: str):
         comm = await self.db["communities"].find_one({"_id": community_id})
         return comm

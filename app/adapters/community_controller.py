@@ -148,11 +148,19 @@ async def create_community(
 ):
     manager = CommunityManager(db.db)
     try:
+        comm = await manager.get_by_name(community.name)
+        if comm is not None:
+            raise HTTPException(
+                status_code=400,
+                detail='there is already a community with that name'
+            )
         community.users.append(community.owner)
         response = await manager.add_new(community=community)
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(response)
         )
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not create Community. Exception: {e}"
