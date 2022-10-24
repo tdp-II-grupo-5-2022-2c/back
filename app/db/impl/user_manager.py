@@ -19,7 +19,7 @@ class UserManager:
 
     async def get_by_id(self, id: str):
         user = await self.db["users"].find_one({"_id": id})
-        if user != None:
+        if user is not None:
             return UserModel(**user)
         return None
 

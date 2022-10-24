@@ -61,7 +61,7 @@ async def get_community_by_id(
             logging.info(user_id)
             user_model = await user_manager.get_by_id(user_id)
             logging.info(user_model)
-            if user_model != None:
+            if user_model is not None:
                 user = UserNameResponse(
                     id=str(user_model.id),
                     name=user_model.name,
