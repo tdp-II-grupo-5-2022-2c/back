@@ -205,7 +205,6 @@ async def join_community(
                 status_code=400, detail=f"User {user_id} already joined community {community_id}"
             )
         comms = await manager.get_by_member(user_id)
-        print('cantidad de coms', len(comms))
         if len(comms) >= 10:
             raise HTTPException(
                 status_code=400,
