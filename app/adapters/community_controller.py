@@ -154,6 +154,14 @@ async def create_community(
                 status_code=400,
                 detail='there is already a community with that name'
             )
+
+        comms = await manager.get_by_owner(community.owner)
+        if len(comms) >= 10:
+            raise HTTPException(
+                status_code=400,
+                detail="user can't own more than 10 communities"
+            )
+
         community.users.append(community.owner)
         response = await manager.add_new(community=community)
         return JSONResponse(
