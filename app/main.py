@@ -35,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 async def ping():
     lastHash = 'unknown'
@@ -42,6 +43,7 @@ async def ping():
         lastHash = os.environ['GIT_COMMIT']
 
     return {"status": "Running...", "version": lastHash}
+
 
 @app.on_event("startup")
 async def startup():
