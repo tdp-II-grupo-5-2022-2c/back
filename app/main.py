@@ -1,5 +1,5 @@
 import uvicorn
-
+import os
 import logging.config
 
 from app.adapters import health_controller
@@ -35,6 +35,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def ping():
+    lastHash = 'unknown'
+    if 'GIT_COMMIT' in os.environ:
+        lastHash = os.environ['GIT_COMMIT']
+
+    return {"status": "Running...", "version": lastHash}
 
 @app.on_event("startup")
 async def startup():

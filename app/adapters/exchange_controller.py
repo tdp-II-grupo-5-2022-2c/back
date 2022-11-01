@@ -157,6 +157,8 @@ async def apply_action_to_exchange(
     try:
         exchange = await manager.get_exchange_by_id(exchange_id)
 
+        # TODO falta chequear que el exchange no este completado
+
         # WARNING: This is not a transactional operation,
         # if something fails this doesn't assure to end in a consistent state
         if exchangeAction.action == ACCEPT_ACTION:
@@ -190,7 +192,7 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
 
     sender = await user_manager.get_by_id(exchange.sender_id)
     # We should be good to delete this, commenting for now to avoid big impact
-    # if not userHasStickersForExchange(sender, exchange.stickers_to_give): 
+    # if not userHasStickersForExchange(sender, exchange.stickers_to_give):
     #     raise HTTPException(
     #         status_code=400,
     #         detail=f"Error trying to apply action to exchange {exchange.id}. " +

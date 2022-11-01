@@ -5,6 +5,7 @@ RUN pip install poetry
 # copy project requirement files here to ensure they will be cached.
 WORKDIR /
 ADD app/ app/
+ADD .git .git
 COPY docker/entrypoint.sh poetry.lock pyproject.toml ./
 
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
