@@ -76,6 +76,12 @@ async def create_exchange(
             )
 
         sender = await user_manager.get_by_id(exchange.sender_id)
+        if sender.is_profile_complete is False:
+            raise HTTPException(
+                status_code=400,
+                detail=f"user_id {exchange.sender_id} has not complete his profile"
+            )
+
         if not userHasStickersForExchange(sender, exchange.stickers_to_give):
             raise HTTPException(
                 status_code=400,
@@ -154,7 +160,16 @@ async def apply_action_to_exchange(
         )
 
     manager = ExchangeManager(db.db)
+    user_manager = UserManager(db.db)
+
     try:
+        user = await user_manager.get_by_id(exchangeAction.receiver_id)
+        if user.is_profile_complete is False:
+            raise HTTPException(
+                status_code=400,
+                detail=f"user_id {exchangeAction.receiver_id} has not complete his profile"
+            )
+
         exchange = await manager.get_exchange_by_id(exchange_id)
 
         # WARNING: This is not a transactional operation,

@@ -14,6 +14,25 @@ class UserModel(BaseModel):
     lastname: str = Field(...)
     date_of_birth: str = Field(...)
     stickers: List[MyStickerModel] = []
+    country: str = ""
+    favorite_countries: List[str] = []
+    is_profile_complete: bool = False
+
+    def isProfileComplete(self) -> bool:
+        if self.mail == "":
+            return False
+        if self.name == "":
+            return False
+        if self.lastname == "":
+            return False
+        if self.date_of_birth == "":
+            return False
+        if self.country == "":
+            return False
+        if len(self.favorite_country) == 0:
+            return False
+
+        return True
 
     class Config:
         allow_population_by_field_name = True
@@ -33,6 +52,8 @@ class UpdateUserModel(BaseModel):
     lastname: Optional[str]
     date_of_birth: Optional[str]
     stickers: Optional[List[MyStickerModel]]
+    country: Optional[str]
+    favorite_countries: Optional[List[str]]
 
     class Config:
         arbitrary_types_allowed = True

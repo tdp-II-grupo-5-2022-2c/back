@@ -147,7 +147,16 @@ async def create_community(
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
+    user_manager = UserManager(db.db)
+
     try:
+        owner = await user_manager.get_by_id(community.owner)
+        if owner.is_profile_complete is False:
+            raise HTTPException(
+                status_code=400,
+                detail=f"user_id {community.owner} has not complete his profile"
+            )
+
         comm = await manager.get_by_name(community.name)
         if comm is not None:
             raise HTTPException(
@@ -188,7 +197,16 @@ async def join_community(
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
+    user_manager = UserManager(db.db)
+
     try:
+        user = await user_manager.get_by_id(user_id)
+        if user.is_profile_complete is False:
+            raise HTTPException(
+                status_code=400,
+                detail=f"user_id {user_id} has not complete his profile"
+            )
+
         community = await manager.get_by_id(id=community_id)
         if community.password != password:
             raise HTTPException(
