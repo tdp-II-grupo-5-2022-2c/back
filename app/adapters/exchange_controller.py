@@ -236,6 +236,10 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
     logging.info(f'sender after exchange: {sender.dict()}')
     logging.info(f'receiver after exchange: {receiver.dict()}')
 
+    # Update statistics
+    receiver.exchanges_amount += 1
+    sender.exchanges_amount += 1
+
     await user_manager.update(exchange.sender_id, sender)
     await user_manager.update(receiver_id, receiver)
 

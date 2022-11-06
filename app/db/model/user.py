@@ -14,6 +14,11 @@ class UserModel(BaseModel):
     lastname: str = Field(...)
     date_of_birth: str = Field(...)
     stickers: List[MyStickerModel] = []
+    stickers_on_album: int = 0
+    stickers_on_my_stickers_section: int = 0
+    total_stickers_collected: int = 0
+    album_completion_pct: float = 0
+    exchanges_amount: int = 0
 
     class Config:
         allow_population_by_field_name = True
