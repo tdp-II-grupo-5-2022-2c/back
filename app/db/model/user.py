@@ -29,7 +29,7 @@ class UserModel(BaseModel):
             return False
         if self.country == "":
             return False
-        if len(self.favorite_country) == 0:
+        if len(self.favorite_countries) == 0:
             return False
 
         return True
