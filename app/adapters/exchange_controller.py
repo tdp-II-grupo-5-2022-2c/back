@@ -203,6 +203,8 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         for sticker in receiver.stickers:
             if rs == sticker.id:
                 sticker.quantity -= 1
+                receiver.stickers_on_my_stickers_section -= 1
+                receiver.total_stickers_collected -= 1
 
         # sender must receive stickers_to_receive
         found = False
@@ -210,17 +212,23 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if rs == sticker.id:
                 found = True
                 sticker.quantity += 1
+                sender.stickers_on_my_stickers_section += 1
+                sender.total_stickers_collected += 1
 
         if not found:
             newSticker = MyStickerModel(id=rs, quantity=1, is_on_album=False)
             sender.stickers.append(newSticker)
+            sender.stickers_on_my_stickers_section += 1
+            sender.total_stickers_collected += 1
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
         # sender must deliver stickers_to_give, this action is moved to create exchange
-        # for sticker in sender.stickers:
-        #     if sg == sticker.id:
-        #         sticker.quantity -= 1
+        # but the statistic is updated here
+        for sticker in sender.stickers:
+            if sg == sticker.id:
+                sender.stickers_on_my_stickers_section -= 1
+                sender.total_stickers_collected -= 1
 
         # receiver must receive stickers_to_give
         found = False
@@ -228,10 +236,14 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if sg == sticker.id:
                 found = True
                 sticker.quantity += 1
+                receiver.stickers_on_my_stickers_section += 1
+                receiver.total_stickers_collected += 1
 
         if not found:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
+            receiver.stickers_on_my_stickers_section += 1
+            receiver.total_stickers_collected += 1
 
     logging.info(f'sender after exchange: {sender.dict()}')
     logging.info(f'receiver after exchange: {receiver.dict()}')
