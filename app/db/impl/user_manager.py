@@ -89,6 +89,7 @@ class UserManager:
                 s.quantity -= 1
                 model.stickers_on_album += 1
                 model.album_completion_pct = model.stickers_on_album/TOTAL_STICKERS_ALBUM
+                model.stickers_on_my_stickers_section -= 1
         await self.db["users"].update_one(
             {"_id": user_id},
             {"$set": model.dict()},
