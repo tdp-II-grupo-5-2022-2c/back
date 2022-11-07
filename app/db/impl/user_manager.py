@@ -177,6 +177,7 @@ class UserManager:
                           "total_stickers_collected": 1
                           }
                  },
+                upsert=False
             )
         except Exception as e:
             msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"

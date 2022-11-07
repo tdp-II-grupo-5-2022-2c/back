@@ -95,7 +95,7 @@ async def get_package(
         raise e
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Could not return daily package. Exception: {e}"
+            status_code=500, detail=f"Could not open package. Exception: {e}"
         )
 
 
