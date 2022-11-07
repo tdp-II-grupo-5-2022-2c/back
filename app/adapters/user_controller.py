@@ -91,6 +91,12 @@ async def update(
     try:
         # do
         response = await manager.update(id=user_id, user=user)
+        if response.is_profile_complete is False:
+            if response.isProfileComplete():
+                response.is_profile_complete = True
+                response.package_counter += 3
+                response = await manager.update(id=user_id, user=response)
+
         return response
     except HTTPException as e:
         raise e
