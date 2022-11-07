@@ -172,6 +172,8 @@ async def apply_action_to_exchange(
 
         exchange = await manager.get_exchange_by_id(exchange_id)
 
+        # TODO falta chequear que el exchange no este completado
+
         # WARNING: This is not a transactional operation,
         # if something fails this doesn't assure to end in a consistent state
         if exchangeAction.action == ACCEPT_ACTION:
