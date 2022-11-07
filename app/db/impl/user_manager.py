@@ -172,10 +172,12 @@ class UserManager:
             new = {k: v for k, v in my_sticker.dict().items() if v is not None}
             await self.db["users"].update_one(
                 {"_id": user_id},
-                {"$push": {"stickers": new}},
-                {"$inc": {"stickers_on_my_stickers_section": 1,
-                          "total_stickers_collected": 1
-                          }
+                {
+                    "$push": {"stickers": new},
+                    "$inc": {
+                        "stickers_on_my_stickers_section": 1,
+                        "total_stickers_collected": 1
+                    }
                  },
                 upsert=False
             )
