@@ -70,15 +70,29 @@ async def get_package(
     manager = StickerManager(db.db)
     user_manager = UserManager(db.db)
     try:
+        user = await user_manager.get_by_id(id=user_id.user_id)
+        if user.package_counter == 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"User {user_id.user_id} doesn't have any packages to open",
+            )
+
         package = await manager.create_package()
         # After create package open package and add to user myStickers
         response = await user_manager.open_package(
             package=package, user_id=user_id.user_id
         )
+        # User updated with his new stickers
+        user_updated = await user_manager.get_by_id(id=user_id.user_id)
+        user_updated.package_counter -= 1
+        await user_manager.update(id=user_id.user_id, user=user_updated)
+
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
                 content=jsonable_encoder(response)
             )
+    except HTTPException as e:
+        raise e
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not return daily package. Exception: {e}"
