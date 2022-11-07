@@ -8,6 +8,8 @@ from app.db.model.package import PackageModel
 from app.db.model.my_sticker import MyStickerModel
 from fastapi.encoders import jsonable_encoder
 
+TOTAL_STICKERS_ALBUM = 860
+
 
 class UserManager:
     def __init__(self, db: AsyncIOMotorDatabase):
@@ -85,6 +87,9 @@ class UserManager:
                     raise HTTPException(status_code=400, detail=msg)
                 s.is_on_album = True
                 s.quantity -= 1
+                model.stickers_on_album += 1
+                model.album_completion_pct = model.stickers_on_album/TOTAL_STICKERS_ALBUM
+                model.stickers_on_my_stickers_section -= 1
         await self.db["users"].update_one(
             {"_id": user_id},
             {"$set": model.dict()},
@@ -95,19 +100,15 @@ class UserManager:
         return user
 
     async def open_package(
-        self, user_id: str, package: PackageModel
+            self, user_id: str, package: PackageModel
     ):
         try:
-            model = await self.get_by_id(user_id)
             stickers_response = []
             for sticker in package.stickers:
                 sticker_id = str(sticker.id)
                 on_my_list = await self.update_sticker(user_id, sticker_id)
                 if not on_my_list:
                     await self.add_new_sticker(user_id, sticker_id)
-                # el modelo del comienzo esta desactualizado, porque en
-                # la linea anterior se
-                # inserto un nuevo sticker a la lista que nunca va a encontrar
                 model = await self.get_by_id(user_id)
                 iterator_stickers = iter(model.stickers)
                 sticker_user = next(
@@ -144,7 +145,11 @@ class UserManager:
             if user is not None:
                 await self.db["users"].update_one(
                     {"_id": user_id, "stickers.id": sticker_id},
-                    {"$inc": {"stickers.$.quantity": 1}},
+                    {"$inc": {"stickers.$.quantity": 1,
+                              "stickers_on_my_stickers_section": 1,
+                              "total_stickers_collected": 1
+                              }
+                     },
                     upsert=False
                 )
                 return True
@@ -166,9 +171,13 @@ class UserManager:
             )
             new = {k: v for k, v in my_sticker.dict().items() if v is not None}
             await self.db["users"].update_one(
-                    {"_id": user_id},
-                    {"$push": {"stickers": new}}
-                )
+                {"_id": user_id},
+                {"$push": {"stickers": new}},
+                {"$inc": {"stickers_on_my_stickers_section": 1,
+                          "total_stickers_collected": 1
+                          }
+                 },
+            )
         except Exception as e:
             msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"
             logging.error(msg)

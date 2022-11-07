@@ -18,6 +18,11 @@ class UserModel(BaseModel):
     favorite_countries: List[str] = []
     is_profile_complete: bool = False
     package_counter: int = 0
+    stickers_on_album: int = 0
+    stickers_on_my_stickers_section: int = 0
+    total_stickers_collected: int = 0
+    album_completion_pct: float = 0
+    exchanges_amount: int = 0
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
