@@ -76,6 +76,12 @@ async def create_exchange(
             )
 
         sender = await user_manager.get_by_id(exchange.sender_id)
+        if sender.is_profile_complete is False:
+            raise HTTPException(
+                status_code=400,
+                detail=f"user_id {exchange.sender_id} has not complete his profile"
+            )
+
         if not userHasStickersForExchange(sender, exchange.stickers_to_give):
             raise HTTPException(
                 status_code=400,
@@ -154,7 +160,16 @@ async def apply_action_to_exchange(
         )
 
     manager = ExchangeManager(db.db)
+    user_manager = UserManager(db.db)
+
     try:
+        user = await user_manager.get_by_id(exchangeAction.receiver_id)
+        if user.is_profile_complete is False:
+            raise HTTPException(
+                status_code=400,
+                detail=f"user_id {exchangeAction.receiver_id} has not complete his profile"
+            )
+
         exchange = await manager.get_exchange_by_id(exchange_id)
 
         # TODO falta chequear que el exchange no este completado
@@ -191,13 +206,6 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         )
 
     sender = await user_manager.get_by_id(exchange.sender_id)
-    # We should be good to delete this, commenting for now to avoid big impact
-    # if not userHasStickersForExchange(sender, exchange.stickers_to_give):
-    #     raise HTTPException(
-    #         status_code=400,
-    #         detail=f"Error trying to apply action to exchange {exchange.id}. " +
-    #         f"Sender with id: {sender.id} does not have available all the stickers for exchange."
-    #     )
 
     # Do exchange for stickers_to_receive
     for rs in exchange.stickers_to_receive:
@@ -205,6 +213,8 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         for sticker in receiver.stickers:
             if rs == sticker.id:
                 sticker.quantity -= 1
+                receiver.stickers_on_my_stickers_section -= 1
+                receiver.total_stickers_collected -= 1
 
         # sender must receive stickers_to_receive
         found = False
@@ -212,17 +222,23 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if rs == sticker.id:
                 found = True
                 sticker.quantity += 1
+                sender.stickers_on_my_stickers_section += 1
+                sender.total_stickers_collected += 1
 
         if not found:
             newSticker = MyStickerModel(id=rs, quantity=1, is_on_album=False)
             sender.stickers.append(newSticker)
+            sender.stickers_on_my_stickers_section += 1
+            sender.total_stickers_collected += 1
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
         # sender must deliver stickers_to_give, this action is moved to create exchange
-        # for sticker in sender.stickers:
-        #     if sg == sticker.id:
-        #         sticker.quantity -= 1
+        # but the statistic is updated here
+        for sticker in sender.stickers:
+            if sg == sticker.id:
+                sender.stickers_on_my_stickers_section -= 1
+                sender.total_stickers_collected -= 1
 
         # receiver must receive stickers_to_give
         found = False
@@ -230,13 +246,21 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if sg == sticker.id:
                 found = True
                 sticker.quantity += 1
+                receiver.stickers_on_my_stickers_section += 1
+                receiver.total_stickers_collected += 1
 
         if not found:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
+            receiver.stickers_on_my_stickers_section += 1
+            receiver.total_stickers_collected += 1
 
     logging.info(f'sender after exchange: {sender.dict()}')
     logging.info(f'receiver after exchange: {receiver.dict()}')
+
+    # Update statistics
+    receiver.exchanges_amount += 1
+    sender.exchanges_amount += 1
 
     await user_manager.update(exchange.sender_id, sender)
     await user_manager.update(receiver_id, receiver)

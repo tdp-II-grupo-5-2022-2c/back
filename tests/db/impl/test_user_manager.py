@@ -19,6 +19,14 @@ class TestUserManager(unittest.TestCase):
         user = UserModel(
             _id=PyObjectId("1"),
             mail="usermail@gmail.com",
+            name="Daniela",
+            lastname="Sua",
+            date_of_birth="28-07-12",
+            stickers_on_album=0,
+            stickers_on_my_stickers_section=0,
+            total_stickers_collected=0,
+            album_completion_pct=0,
+            exchanges_amount=0,
             stickers=[]
         )
         self.db["users"].find_one = MagicMock(return_value=user)
@@ -31,7 +39,15 @@ class TestUserManager(unittest.TestCase):
         # Then
         self.assertIsNotNone(result)
         self.assertEqual("1", result.id)
-        self.assertEqual("usermail@gmail.com", result.mail)
+        self.assertEqual("usermail@gmail.com", result.mail),
+        self.assertEqual("Daniela", result.name)
+        self.assertEqual("Sua", result.lastname)
+        self.assertEqual("28-07-12", result.date_of_birth)
+        self.assertEqual(0, result.stickers_on_album)
+        self.assertEqual(0, result.stickers_on_my_stickers_section)
+        self.assertEqual(0, result.total_stickers_collected)
+        self.assertEqual(0, result.album_completion_pct)
+        self.assertEqual(0, result.exchanges_amount)
 
     @pytest.mark.asyncio
     async def test_get_user_by_mail(self):
@@ -39,7 +55,15 @@ class TestUserManager(unittest.TestCase):
         user = UserModel(
             _id=PyObjectId("1"),
             mail="usermail@gmail.com",
-            stickers=[]
+            stickers=[],
+            name="Maria",
+            lastname="Sra",
+            date_of_birth="28-04-12",
+            stickers_on_album=0,
+            stickers_on_my_stickers_section=0,
+            total_stickers_collected=0,
+            album_completion_pct=0,
+            exchanges_amount=0
         )
         self.db["users"].find_one = MagicMock(return_value=user)
 
@@ -52,6 +76,14 @@ class TestUserManager(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual("1", result.id)
         self.assertEqual("usermail@gmail.com", result.mail)
+        self.assertEqual("Maria", result.name)
+        self.assertEqual("Sra", result.lastname)
+        self.assertEqual("28-04-12", result.date_of_birth)
+        self.assertEqual(0, result.stickers_on_album)
+        self.assertEqual(0, result.stickers_on_my_stickers_section)
+        self.assertEqual(0, result.total_stickers_collected)
+        self.assertEqual(0, result.album_completion_pct)
+        self.assertEqual(0, result.exchanges_amount)
 
     @pytest.mark.asyncio
     async def test_get_stickers_by_user(self):
@@ -64,7 +96,15 @@ class TestUserManager(unittest.TestCase):
         user = UserModel(
             _id=PyObjectId("2"),
             mail="usermail@gmail.com",
-            stickers=[sticker]
+            stickers=[sticker],
+            name="Maria",
+            lastname="Sra",
+            date_of_birth="28-04-12",
+            stickers_on_album=0,
+            stickers_on_my_stickers_section=2,
+            total_stickers_collected=2,
+            album_completion_pct=0,
+            exchanges_amount=0
         )
 
         self.db["users"].find_one = MagicMock(return_value=user)
@@ -80,6 +120,11 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual("sticker_id", result[0].id)
         self.assertEqual(False, result[0].is_on_album)
         self.assertEqual(2, result[0].quantity)
+        self.assertEqual(0, result.stickers_on_album)
+        self.assertEqual(2, result.stickers_on_my_stickers_section)
+        self.assertEqual(2, result.total_stickers_collected)
+        self.assertEqual(0, result.album_completion_pct)
+        self.assertEqual(0, result.exchanges_amount)
 
     @pytest.mark.asyncio
     async def test_paste_sticker(self):
@@ -90,13 +135,21 @@ class TestUserManager(unittest.TestCase):
             quantity=1
         )
 
-        user_aftere_paste = UserModel(
+        user_after_paste = UserModel(
             _id=PyObjectId("2"),
             mail="usermail@gmail.com",
-            stickers=[sticker_paste]
+            stickers=[sticker_paste],
+            name="Maria",
+            lastname="Sra",
+            date_of_birth="28-04-12",
+            stickers_on_album=1,
+            stickers_on_my_stickers_section=0,
+            total_stickers_collected=1,
+            album_completion_pct=0.001,
+            exchanges_amount=0
         )
 
-        self.db["users"].find_one = MagicMock(return_value=user_aftere_paste)
+        self.db["users"].find_one = MagicMock(return_value=user_after_paste)
         self.db["users"].update_one = MagicMock(return_value=True)
 
         user_manager = UserManager(self.db)
@@ -110,6 +163,11 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual("sticker_id", result[0].id)
         self.assertEqual(True, result[0].is_on_album)
         self.assertEqual(1, result[0].quantity)
+        self.assertEqual(1, result.stickers_on_album)
+        self.assertEqual(0, result.stickers_on_my_stickers_section)
+        self.assertEqual(1, result.total_stickers_collected)
+        self.assertEqual(0.001, result.album_completion_pct)
+        self.assertEqual(0, result.exchanges_amount)
 
     @pytest.mark.asyncio
     async def test_open_package_with_repeated_stickers(self):
@@ -133,9 +191,17 @@ class TestUserManager(unittest.TestCase):
         package = PackageModel(user_id="10", stickers=in_package)
 
         user = UserModel(
-            _id=PyObjectId("2"),
+            _id=PyObjectId("10"),
             mail="usermail@gmail.com",
-            stickers=my_sticker
+            stickers=my_stickers,
+            name="Maria",
+            lastname="Sra",
+            date_of_birth="28-04-12",
+            stickers_on_album=0,
+            stickers_on_my_stickers_section=5,
+            total_stickers_collected=5,
+            album_completion_pct=0.,
+            exchanges_amount=0
         )
 
         self.db["users"].update_one = MagicMock(return_value=True)
@@ -154,6 +220,11 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual("1", result.stickers[0].id)
         self.assertEqual(1, result.stickers[0].quantity)
         self.assertEqual(False, result.stickers[0].is_on_album)
+        self.assertEqual(0, result.stickers_on_album)
+        self.assertEqual(5, result.stickers_on_my_stickers_section)
+        self.assertEqual(5, result.total_stickers_collected)
+        self.assertEqual(0, result.album_completion_pct)
+        self.assertEqual(0, result.exchanges_amount)
 
     @pytest.mark.asyncio
     async def test_open_package_with_non_repeated_stickers(self):
@@ -177,9 +248,17 @@ class TestUserManager(unittest.TestCase):
         package = PackageModel(user_id="10", stickers=in_package)
 
         user = UserModel(
-            _id=PyObjectId("2"),
+            _id=PyObjectId("10"),
             mail="usermail@gmail.com",
-            stickers=my_sticker
+            stickers=my_stickers,
+            name="Maria",
+            lastname="Sra",
+            date_of_birth="28-04-12",
+            stickers_on_album=0,
+            stickers_on_my_stickers_section=5,
+            total_stickers_collected=5,
+            album_completion_pct=0.,
+            exchanges_amount=0
         )
 
         self.db["users"].update_one = MagicMock(return_value=False)
@@ -198,3 +277,8 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual("1", result.stickers[0].id)
         self.assertEqual(1, result.stickers[0].quantity)
         self.assertEqual(False, result.stickers[0].is_on_album)
+        self.assertEqual(0, result.stickers_on_album)
+        self.assertEqual(5, result.stickers_on_my_stickers_section)
+        self.assertEqual(5, result.total_stickers_collected)
+        self.assertEqual(0, result.album_completion_pct)
+        self.assertEqual(0, result.exchanges_amount)
