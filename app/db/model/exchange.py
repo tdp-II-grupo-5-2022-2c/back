@@ -14,8 +14,8 @@ AVAILABLE_EXCHANGE_ACTIONS = [ACCEPT_ACTION, REJECT_ACTION]
 class ExchangeModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     sender_id: str = Field(...)  # user_id
-    stickers_to_give: List[str] = Field(...),
-    stickers_to_receive: List[str] = Field(...),
+    stickers_to_give: List[str] = [],
+    stickers_to_receive: List[str] = [],
     blacklist_user_ids: List[str] = []
     completed: bool = False
 
