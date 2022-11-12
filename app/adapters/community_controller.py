@@ -243,3 +243,26 @@ async def join_community(
         raise HTTPException(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
         )
+
+@router.put(
+    "/communities/{community_id}",
+    response_description="Update community",
+    status_code=status.HTTP_200_OK,
+)
+async def update(
+    community_id: str,
+    body: UpdateCommunityModel = Body(...),
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = CommunityManager(db.db)
+
+    try:
+        result = await manager.update(community_id, body)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error updating Community by id {community_id}. Exception {e}"
+        )
