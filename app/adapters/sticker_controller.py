@@ -119,3 +119,26 @@ async def create_sticker(
         raise HTTPException(
             status_code=400, detail=f"Could not create Sticker. Exception: {e}"
         )
+
+
+@router.put(
+    "/stickers/{sticker_id}",
+    response_description="Update an sticker",
+    response_model=StickerModel,
+    status_code=status.HTTP_200_OK,
+)
+async def update(
+        sticker_id: str,
+        stickers: UpdateUserModel = Body(...),
+        db: DatabaseManager = Depends(get_database)
+):
+   manager = StickerManager(db.db)
+    try:
+        response = await manager.update(id=sticker_id, sticker=stickers)
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Error updating Sticker. Exception {e}"
+        )

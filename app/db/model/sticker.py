@@ -41,3 +41,35 @@ class StickerModel(BaseModel):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
+
+class UpdateStickerModel(BaseModel):
+    name: Optional[str]
+    number: Optional[int]
+    date_of_birth: Optional[datetime.date]
+    height: Optional[float]
+    position: Optional[str]
+    country: Optional[str]
+    image: Optional[str]
+    weight: Optional[int]
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "id": "..",
+                "name": "Lionel Messi",
+                "number": 10,  # Posicion en el album (posicion del 0 al 11)
+                "dateOfBirth": "1985-02-02",
+                "height": "170",
+                "position": "CF",
+                "country": "Argentina",
+                "image": "https://picsum.photos/300/200",
+                "weight": 5,
+            }
+        }
+
+    def __getitem__(self, item):
+        return getattr(self, item)
