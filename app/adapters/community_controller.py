@@ -213,6 +213,11 @@ async def join_community(
                 status_code=401, detail=f"Wrong password. "
                                         f"User {user_id} could not join community {community_id}"
             )
+        if community.is_blocked == True:
+            raise HTTPException(
+                status_code=401, detail=f"Community is blocked. "
+                                        f"User {user_id} could not join community {community_id}"
+            )
         if len(community.users) == MAX_USERS_PER_COMM:
             raise HTTPException(
                 status_code=400, detail=f"Full community."
@@ -252,12 +257,23 @@ async def join_community(
 async def update(
     community_id: str,
     body: UpdateCommunityModel = Body(...),
+    x_user_id: Union[str, None] = Header(default=None),
     db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
-
+    
+    if x_user_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing X-User-Id header on request",
+        )
     try:
         result = await manager.update(community_id, body)
+        if community.owner != x_user_id:
+            raise HTTPException(
+                status_code=401,
+                detail=f"user_id: {x_user_id} is not authorized for this operation",
+            )
         return result
     except HTTPException as e:
         raise e
