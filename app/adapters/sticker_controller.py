@@ -8,7 +8,7 @@ from app.adapters.dtos.sticker_details import StickerDetailResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.sticker_manager import StickerManager
 from app.db.impl.user_manager import UserManager
-from app.db.model.sticker import StickerModel
+from app.db.model.sticker import StickerModel, UpdateStickerModel
 from app.db.model.user_id import UserIdModel
 from typing import List
 
@@ -129,10 +129,10 @@ async def create_sticker(
 )
 async def update(
         sticker_id: str,
-        stickers: UpdateUserModel = Body(...),
+        stickers: UpdateStickerModel = Body(...),
         db: DatabaseManager = Depends(get_database)
 ):
-   manager = StickerManager(db.db)
+    manager = StickerManager(db.db)
     try:
         response = await manager.update(id=sticker_id, sticker=stickers)
         return response

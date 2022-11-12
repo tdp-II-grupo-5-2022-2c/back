@@ -1,5 +1,6 @@
 from pydantic.main import BaseModel
 from app.db.model.py_object_id import PyObjectId
+from typing import Optional
 from pydantic import Field
 from bson import ObjectId
 import datetime
@@ -46,7 +47,7 @@ class StickerModel(BaseModel):
 class UpdateStickerModel(BaseModel):
     name: Optional[str]
     number: Optional[int]
-    date_of_birth: Optional[datetime.date]
+    date_of_birth: Optional[str]
     height: Optional[float]
     position: Optional[str]
     country: Optional[str]
@@ -59,7 +60,6 @@ class UpdateStickerModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "id": "..",
                 "name": "Lionel Messi",
                 "number": 10,  # Posicion en el album (posicion del 0 al 11)
                 "dateOfBirth": "1985-02-02",
