@@ -29,7 +29,7 @@ async def get_communities(
         owner: str = None,
         member: str = None,
         name: str = None,
-        blocked: bool = None
+        blocked: bool = None,
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
