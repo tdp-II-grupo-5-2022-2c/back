@@ -28,11 +28,13 @@ MAX_USERS_PER_COMM = 11
 async def get_communities(
         owner: str = None,
         member: str = None,
+        name: str = None,
+        blocked: bool = None
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
     try:
-        response = await manager.get_communities(owner, member)
+        response = await manager.get_communities(owner, member, name, blocked)
         return response
     except HTTPException as e:
         raise e
