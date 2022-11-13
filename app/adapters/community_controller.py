@@ -213,7 +213,7 @@ async def join_community(
                 status_code=401, detail=f"Wrong password. "
                                         f"User {user_id} could not join community {community_id}"
             )
-        if community.is_blocked == True:
+        if community.is_blocked is True:
             raise HTTPException(
                 status_code=401, detail=f"Community is blocked. "
                                         f"User {user_id} could not join community {community_id}"
@@ -249,6 +249,7 @@ async def join_community(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
         )
 
+
 @router.put(
     "/communities/{community_id}",
     response_description="Update community",
@@ -261,7 +262,7 @@ async def update(
     db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
-    
+
     if x_user_id is None:
         raise HTTPException(
             status_code=400,
@@ -269,7 +270,7 @@ async def update(
         )
     try:
         result = await manager.update(community_id, body)
-        if community.owner != x_user_id:
+        if result.owner != x_user_id:
             raise HTTPException(
                 status_code=401,
                 detail=f"user_id: {x_user_id} is not authorized for this operation",
