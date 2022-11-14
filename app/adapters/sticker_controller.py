@@ -129,12 +129,12 @@ async def create_sticker(
 )
 async def update(
         sticker_id: str,
-        stickers: UpdateStickerModel = Body(...),
+        sticker: UpdateStickerModel = Body(...),
         db: DatabaseManager = Depends(get_database)
 ):
     manager = StickerManager(db.db)
     try:
-        response = await manager.update(id=sticker_id, sticker=stickers)
+        response = await manager.update(id=sticker_id, sticker=sticker)
         return response
     except HTTPException as e:
         raise e
