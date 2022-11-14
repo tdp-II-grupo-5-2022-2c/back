@@ -28,15 +28,10 @@ class StickerManager:
         return new
 
     async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
-        try:
-            sticker = {k: v for k, v in sticker.dict().items() if v is not None}
-            await self.db["stickers"].update_one({"_id": id}, {"$set": sticker})
-            model = await self.get_by_id(id)
-            return model
-        except Exception as e:
-            msg = f"[UPDATE_STICKER] id: {id} error: {e}"
-            logging.error(msg)
-            raise RuntimeError(msg)
+        sticker = {k: v for k, v in sticker.dict().items() if v is not None}
+        await self.db["stickers"].update_one({"_id": id}, {"$set": sticker})
+        model = await self.get_by_id(id)
+        return model
 
     async def create_package(self):
         try:

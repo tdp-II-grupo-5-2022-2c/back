@@ -46,12 +46,6 @@ class StickerModel(BaseModel):
 
 class UpdateStickerModel(BaseModel):
     name: Optional[str]
-    number: Optional[int]
-    date_of_birth: Optional[str]
-    height: Optional[float]
-    position: Optional[str]
-    country: Optional[str]
-    image: Optional[str]
     weight: Optional[int]
 
     class Config:
@@ -60,13 +54,6 @@ class UpdateStickerModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "name": "Lionel Messi",
-                "number": 10,  # Posicion en el album (posicion del 0 al 11)
-                "dateOfBirth": "1985-02-02",
-                "height": "170",
-                "position": "CF",
-                "country": "Argentina",
-                "image": "https://picsum.photos/300/200",
                 "weight": 5,
             }
         }
