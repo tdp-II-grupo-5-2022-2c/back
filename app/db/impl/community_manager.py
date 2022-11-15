@@ -49,7 +49,14 @@ class CommunityManager:
         return comms
 
     async def get_by_name(self, name: str):
-        comm = await self.db["communities"].find_one({"name": name})
+        query = {}
+        query["$or"] = [
+            {"name": name.title()},
+            {"name": name.lower()},
+            {"name": {"$regex": name.title()}},
+            {"name": {"$regex": name.lower()}}
+        ]
+        comm = await self.db["communities"].find(query).to_list(5000)
         return comm
 
     async def get_blocked(self, blocked: bool):
