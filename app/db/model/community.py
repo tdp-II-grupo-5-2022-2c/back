@@ -12,6 +12,7 @@ class CommunityModel(BaseModel):
     owner: str = Field(...)
     users: List[str] = []
     password: str = "password"
+    is_blocked: bool = False
 
     class Config:
         allow_population_by_field_name = True
@@ -23,6 +24,7 @@ class CommunityModel(BaseModel):
                 "owner": "name",
                 "password": "password",
                 "users": [],
+                "is_blocked": False
             }
         }
 
@@ -32,6 +34,7 @@ class UpdateCommunityModel(BaseModel):
     owner: Optional[str]
     password: Optional[str]
     users: Optional[List[str]]
+    is_blocked: Optional[bool]
 
     class Config:
         arbitrary_types_allowed = True
@@ -42,5 +45,6 @@ class UpdateCommunityModel(BaseModel):
                 "owner": "name",
                 "password": "password",
                 "users": [],
+                "is_blocked": False
             }
         }

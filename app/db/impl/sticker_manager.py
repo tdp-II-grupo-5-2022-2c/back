@@ -6,7 +6,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
-from app.db.model.sticker import StickerModel
+from app.db.model.sticker import StickerModel, UpdateStickerModel
 from typing import List
 
 
@@ -26,6 +26,12 @@ class StickerManager:
         new = jsonable_encoder(sticker)
         await self.db["stickers"].insert_one(new)
         return new
+
+    async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
+        sticker = {k: v for k, v in sticker.dict().items() if v is not None}
+        await self.db["stickers"].update_one({"_id": id}, {"$set": sticker})
+        model = await self.get_by_id(id)
+        return model
 
     async def create_package(self):
         try:
