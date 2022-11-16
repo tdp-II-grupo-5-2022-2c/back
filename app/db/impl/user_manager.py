@@ -8,7 +8,16 @@ from app.db.model.package import PackageModel
 from app.db.model.my_sticker import MyStickerModel
 from fastapi.encoders import jsonable_encoder
 
-TOTAL_STICKERS_ALBUM = 860
+TOTAL_STICKERS_ALBUM = 76
+
+
+def set_statistics(model: UserModel):
+    stickers_on_album = list(filter(lambda x: x.is_on_album is True, model.stickers))
+    stickers_on_album_amount = len(stickers_on_album)
+    model.album_completion_pct = stickers_on_album_amount / TOTAL_STICKERS_ALBUM
+    stickers_on_my_stickers_section = [i.quantity for i in model.stickers]
+    model.stickers_collected = sum(stickers_on_my_stickers_section) + stickers_on_album_amount
+    return model
 
 
 class UserManager:
@@ -22,12 +31,14 @@ class UserManager:
     async def get_by_id(self, id: str):
         user = await self.db["users"].find_one({"_id": id})
         if user is not None:
-            return UserModel(**user)
+            model = UserModel(**user)
+            return set_statistics(model)
         return None
 
     async def get_user_by_mail(self, mail: str):
         user = await self.db["users"].find_one({"mail": mail})
-        return UserModel(**user)
+        model = UserModel(**user)
+        return set_statistics(model)
 
     async def add_new(self, user: UserModel = Body(...)):
         new = jsonable_encoder(user)
