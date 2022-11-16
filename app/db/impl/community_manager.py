@@ -2,7 +2,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.community import CommunityModel, UpdateCommunityModel
-
 from fastapi.encoders import jsonable_encoder
 
 
@@ -51,6 +50,7 @@ class CommunityManager:
     async def get_by_name(self, name: str):
         query = {}
         query["$or"] = [
+            {"name": name},
             {"name": name.title()},
             {"name": name.lower()},
             {"name": {"$regex": name.title()}},

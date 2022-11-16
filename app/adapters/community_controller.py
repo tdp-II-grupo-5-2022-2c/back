@@ -29,12 +29,20 @@ async def get_communities(
         owner: str = None,
         member: str = None,
         name: str = None,
+        mail: str = None,
         blocked: bool = None,
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
+    user_manager = UserManager(db.db)
+
     try:
-        response = await manager.get_communities(owner, member, name, blocked)
+        if mail is not None:
+            user = await user_manager.get_user_by_mail(mail)
+            logging.info(user)
+            response = await manager.get_communities(str(user.id), None, None, None)
+        else:
+            response = await manager.get_communities(owner, member, name, blocked)
         return response
     except HTTPException as e:
         raise e
