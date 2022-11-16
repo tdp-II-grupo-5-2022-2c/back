@@ -22,11 +22,15 @@ router = APIRouter(tags=["stickers"])
     status_code=status.HTTP_200_OK,
 )
 async def get_stickers(
-        db: DatabaseManager = Depends(get_database),
+    name: str = None,
+    db: DatabaseManager = Depends(get_database),
 ):
     manager = StickerManager(db.db)
     try:
-        response = await manager.get_all()
+        if name is not None:
+            response = await manager.find_by_name(name)
+        else:
+            response = await manager.get_all()
         return response
     except HTTPException as e:
         raise e
