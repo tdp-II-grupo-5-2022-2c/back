@@ -1,4 +1,6 @@
 import logging
+from typing import Union
+from app.db import DatabaseManager, get_database
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body, HTTPException
 
@@ -182,3 +184,15 @@ class UserManager:
             msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
+
+
+instance: Union[UserManager, None] = None
+
+
+async def GetUserManager():
+    global instance
+    if instance is None:
+        db: DatabaseManager = await get_database()
+        instance = UserManager(db.db)
+
+    return instance

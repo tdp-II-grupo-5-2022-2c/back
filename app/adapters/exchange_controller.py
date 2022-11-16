@@ -7,9 +7,9 @@ from starlette import status
 from starlette.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager
-from app.db.impl.exchange_manager import ExchangeManager
+from app.db.impl.exchange_manager import GetExchangeManager, ExchangeManager
 from app.db.impl.sticker_manager import StickerManager
-from app.db.impl.user_manager import UserManager
+from app.db.impl.user_manager import UserManager, GetUserManager
 from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
 from app.db.model.my_sticker import MyStickerModel
@@ -26,11 +26,9 @@ router = APIRouter(tags=["exchanges"])
 )
 async def create_exchange(
     exchange: ExchangeModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+    manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
 ):
-    manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-
     # Validation for amount of stickers in exchange
     if len(exchange.stickers_to_give) > 5:
         raise HTTPException(
@@ -272,9 +270,8 @@ async def get_pending_exchanges_by_sender_id(
     sender_id: str,
     completed: bool = None,
     db: DatabaseManager = Depends(get_database),
+    exchange_manager: ExchangeManager = Depends(GetExchangeManager),
 ):
-    exchange_manager = ExchangeManager(db.db)
-
     try:
         if sender_id is not None:
             exchanges = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)
