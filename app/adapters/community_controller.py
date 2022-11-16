@@ -39,7 +39,6 @@ async def get_communities(
     try:
         if mail is not None:
             user = await user_manager.get_user_by_mail(mail)
-            logging.info(user)
             response = await manager.get_communities(str(user.id), None, None, None)
         else:
             response = await manager.get_communities(owner, member, name, blocked)
