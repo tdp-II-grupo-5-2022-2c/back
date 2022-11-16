@@ -1,7 +1,10 @@
+from typing import Union
+
 from app.db.model.exchange import ExchangeModel, UpdateExchangeModel
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 from fastapi.encoders import jsonable_encoder
+from app.db import DatabaseManager, get_database
 
 
 class ExchangeManager:
@@ -36,3 +39,15 @@ class ExchangeManager:
         await self.db["exchanges"].update_one({"_id": id}, {"$set": exchange})
         model = await self.get_exchange_by_id(id)
         return model
+
+
+instance: Union[ExchangeManager, None] = None
+
+
+async def GetExchangeManager():
+    global instance
+    if instance is None:
+        db: DatabaseManager = await get_database()
+        instance = ExchangeManager(db.db)
+
+    return instance
