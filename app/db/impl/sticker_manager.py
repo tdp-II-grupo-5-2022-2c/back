@@ -117,6 +117,16 @@ class StickerManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
+    async def find_by_name(self, name: str):
+        query = {}
+        if name is not None:
+            query["$or"] = [
+                {"name": name.title()},
+                {"name": {"$regex": name.title()}}
+            ]
+        stickers = await self.db["stickers"].find(query).to_list(100000)
+        return stickers
+
     async def find_by_query(
             self,
             ids: List[str],
