@@ -242,6 +242,10 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
 
+    # Update statistics
+    receiver.exchanges_amount += 1
+    sender.exchanges_amount += 1
+
     logging.info(f'sender after exchange: {sender.dict()}')
     logging.info(f'receiver after exchange: {receiver.dict()}')
 
