@@ -222,8 +222,6 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         if not found:
             newSticker = MyStickerModel(id=rs, quantity=1, is_on_album=False)
             sender.stickers.append(newSticker)
-            sender.stickers_on_my_stickers_section += 1
-            sender.total_stickers_collected += 1
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
