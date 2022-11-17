@@ -7,9 +7,9 @@ from starlette import status
 from starlette.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager
-from app.db.impl.exchange_manager import ExchangeManager
+from app.db.impl.exchange_manager import GetExchangeManager, ExchangeManager
 from app.db.impl.sticker_manager import StickerManager
-from app.db.impl.user_manager import UserManager
+from app.db.impl.user_manager import UserManager, GetUserManager
 from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
 from app.db.model.my_sticker import MyStickerModel
@@ -26,11 +26,9 @@ router = APIRouter(tags=["exchanges"])
 )
 async def create_exchange(
     exchange: ExchangeModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+    manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
 ):
-    manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-
     # Validation for amount of stickers in exchange
     if len(exchange.stickers_to_give) > 5:
         raise HTTPException(
@@ -213,8 +211,6 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         for sticker in receiver.stickers:
             if rs == sticker.id:
                 sticker.quantity -= 1
-                receiver.stickers_on_my_stickers_section -= 1
-                receiver.total_stickers_collected -= 1
 
         # sender must receive stickers_to_receive
         found = False
@@ -222,23 +218,14 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if rs == sticker.id:
                 found = True
                 sticker.quantity += 1
-                sender.stickers_on_my_stickers_section += 1
-                sender.total_stickers_collected += 1
 
         if not found:
             newSticker = MyStickerModel(id=rs, quantity=1, is_on_album=False)
             sender.stickers.append(newSticker)
-            sender.stickers_on_my_stickers_section += 1
-            sender.total_stickers_collected += 1
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
         # sender must deliver stickers_to_give, this action is moved to create exchange
-        # but the statistic is updated here
-        for sticker in sender.stickers:
-            if sg == sticker.id:
-                sender.stickers_on_my_stickers_section -= 1
-                sender.total_stickers_collected -= 1
 
         # receiver must receive stickers_to_give
         found = False
@@ -246,21 +233,17 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if sg == sticker.id:
                 found = True
                 sticker.quantity += 1
-                receiver.stickers_on_my_stickers_section += 1
-                receiver.total_stickers_collected += 1
 
         if not found:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
-            receiver.stickers_on_my_stickers_section += 1
-            receiver.total_stickers_collected += 1
-
-    logging.info(f'sender after exchange: {sender.dict()}')
-    logging.info(f'receiver after exchange: {receiver.dict()}')
 
     # Update statistics
     receiver.exchanges_amount += 1
     sender.exchanges_amount += 1
+
+    logging.info(f'sender after exchange: {sender.dict()}')
+    logging.info(f'receiver after exchange: {receiver.dict()}')
 
     await user_manager.update(exchange.sender_id, sender)
     await user_manager.update(receiver_id, receiver)
@@ -285,9 +268,8 @@ async def get_pending_exchanges_by_sender_id(
     sender_id: str,
     completed: bool = None,
     db: DatabaseManager = Depends(get_database),
+    exchange_manager: ExchangeManager = Depends(GetExchangeManager),
 ):
-    exchange_manager = ExchangeManager(db.db)
-
     try:
         if sender_id is not None:
             exchanges = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)

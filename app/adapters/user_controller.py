@@ -41,7 +41,7 @@ async def get_users(
 
 @router.get(
     "/users/{user_id}",
-    response_description="Get a user with the sticker list",
+    response_description="Get a user",
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
 )
