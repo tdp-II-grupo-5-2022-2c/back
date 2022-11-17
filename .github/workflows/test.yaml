@@ -16,6 +16,10 @@ jobs:
   test:
     name: 'Tests'
     runs-on: ubuntu-latest
+    env:
+      - TITLE: album-qatar
+      - VERSION: 1.0.0
+      - DB_PATH: no-need-of-db-path
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
