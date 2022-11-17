@@ -1,4 +1,3 @@
-import asyncio
 import unittest
 from fastapi.testclient import TestClient
 from app.main import app
@@ -8,8 +7,7 @@ from app.db.model.my_sticker import MyStickerModel
 from app.db.model.user import UserModel
 from app.db.model.exchange import ExchangeModel
 from unittest.mock import MagicMock, AsyncMock
-from motor.motor_asyncio import AsyncIOMotorDatabase
-import pytest
+import requests
 
 
 class TestStickerManager(unittest.TestCase):
