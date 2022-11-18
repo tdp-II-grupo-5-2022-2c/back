@@ -9,6 +9,7 @@ import logging
 from app.db.impl.sticker_manager import StickerManager
 from app.db.model.user import UserModel, UpdateUserModel
 from app.adapters.dtos.sticker_details import StickerDetailResponse
+from app.notifications import sendPush
 
 router = APIRouter(tags=["users"])
 
@@ -52,6 +53,22 @@ async def get_user_by_id(
     manager = UserManager(db.db)
     response = await manager.get_by_id(id=user_id)
     return response
+
+
+@router.get(
+    "/users/notification/{user_id}",
+    response_description="Get a user with the sticker list",
+    response_model=UserModel,
+    status_code=status.HTTP_200_OK,
+)
+async def get_user_by_id(
+        user_id: str,
+        db: DatabaseManager = Depends(get_database),
+):
+    manager = UserManager(db.db)
+    user = await manager.get_by_id(id=user_id)
+    sendPush("puto el que lee", "jaja leiste alto puto", user.fcmToken)
+    return user
 
 
 @router.post(
