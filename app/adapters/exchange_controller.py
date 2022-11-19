@@ -6,9 +6,9 @@ from fastapi.params import Body
 from starlette import status
 from starlette.responses import JSONResponse
 from app.db import DatabaseManager, get_database
-from app.db.impl.community_manager import CommunityManager
+from app.db.impl.community_manager import CommunityManager, GetCommunityManager
 from app.db.impl.exchange_manager import GetExchangeManager, ExchangeManager
-from app.db.impl.sticker_manager import StickerManager
+from app.db.impl.sticker_manager import GetStickerManager
 from app.db.impl.user_manager import UserManager, GetUserManager
 from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
@@ -144,7 +144,8 @@ def stickersToGiveAndReceiveAreDiff(
 async def apply_action_to_exchange(
     exchange_id: str,
     exchangeAction: ExchangeActionModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+    manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
 ):
     # WARNING: Here we are assuming that sender and receiver are on the same community
     #  so they can perform exchange operations
@@ -157,9 +158,6 @@ async def apply_action_to_exchange(
             f"Available actions: {AVAILABLE_EXCHANGE_ACTIONS}"
         )
 
-    manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-
     try:
         user = await user_manager.get_by_id(exchangeAction.receiver_id)
         if user.is_profile_complete is False:
@@ -170,12 +168,16 @@ async def apply_action_to_exchange(
 
         exchange = await manager.get_exchange_by_id(exchange_id)
 
-        # TODO falta chequear que el exchange no este completado
+        if exchange.completed is True:
+            raise HTTPException(
+                status_code=400,
+                detail=f"exchange {exchange_id} is completed, you cannot apply any action"
+            )
 
         # WARNING: This is not a transactional operation,
         # if something fails this doesn't assure to end in a consistent state
         if exchangeAction.action == ACCEPT_ACTION:
-            updatedExchange = await applyAccept(db, exchange, exchangeAction.receiver_id)
+            updatedExchange = await applyAccept(exchange, exchangeAction.receiver_id)
         elif exchangeAction.action == REJECT_ACTION:
             updatedExchange = await applyReject(exchange, exchangeAction.receiver_id)
 
@@ -191,8 +193,8 @@ async def apply_action_to_exchange(
         )
 
 
-async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id: str):
-    user_manager = UserManager(db.db)
+async def applyAccept(exchange: ExchangeModel, receiver_id: str):
+    user_manager = await GetUserManager()
 
     receiver = await user_manager.get_by_id(receiver_id)
     if not userHasStickersForExchange(receiver, exchange.stickers_to_receive):
@@ -282,13 +284,12 @@ async def applyReject(exchange: ExchangeModel, receiver_id: str):
 async def get_pending_exchanges_by_sender_id(
     sender_id: str,
     completed: bool = None,
-    db: DatabaseManager = Depends(get_database),
     exchange_manager: ExchangeManager = Depends(GetExchangeManager),
 ):
     try:
         if sender_id is not None:
             exchanges = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)
-            response_body = await render_fetch(db, exchanges)
+            response_body = await render_fetch(exchanges)
             return response_body
 
         raise HTTPException(
@@ -312,12 +313,10 @@ async def get_pending_exchanges_by_sender_id(
 async def get_available_exchanges(
     user_id: str,
     community_id: str,
-    db: DatabaseManager = Depends(get_database),
+    exchange_manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
+    community_manager: CommunityManager = Depends(GetCommunityManager),
 ):
-    exchange_manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-    community_manager = CommunityManager(db.db)
-
     try:
         communities = await community_manager.get_by_member(user_id)
         if community_id not in [c['_id'] for c in communities]:
@@ -348,7 +347,7 @@ async def get_available_exchanges(
 
             result.append(exchange)
 
-        response_body = await render_fetch(db, result)
+        response_body = await render_fetch(result)
 
         return JSONResponse(
                 status_code=status.HTTP_200_OK, content=jsonable_encoder(response_body)
@@ -361,9 +360,9 @@ async def get_available_exchanges(
         )
 
 
-async def render_fetch(db: DatabaseManager, exchanges: List[Dict]):
-    sticker_manager = StickerManager(db.db)
-    user_manager = UserManager(db.db)
+async def render_fetch(exchanges: List[Dict]):
+    sticker_manager = await GetStickerManager()
+    user_manager = await GetUserManager()
 
     for exc in exchanges:
         stickers_to_receive = []

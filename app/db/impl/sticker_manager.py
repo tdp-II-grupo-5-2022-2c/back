@@ -3,6 +3,8 @@ import logging
 from fastapi import Body
 from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from typing import Union
+from app.db import DatabaseManager, get_database
 
 from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
@@ -42,7 +44,7 @@ class StickerManager:
                 stickers_remaining = []
                 stickers_up_to_now = stickers_in_package
                 while len(stickers_up_to_now) < 5 and i < 6:
-                    stickers_remaining = await self.db["stickers"].\
+                    stickers_remaining = await self.db["stickers"]. \
                         find({"weight": {"$gte": 4, "$lte": i}}) \
                         .to_list(5 - len(stickers_in_package))
                     i += 1
@@ -127,3 +129,15 @@ class StickerManager:
             ]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
+
+
+instance: Union[StickerManager, None] = None
+
+
+async def GetStickerManager():
+    global instance
+    if instance is None:
+        db: DatabaseManager = await get_database()
+        instance = StickerManager(db.db)
+
+    return instance
