@@ -5,7 +5,6 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
 from starlette import status
 from starlette.responses import JSONResponse
-from app.db import DatabaseManager, get_database
 from app.db.impl.community_manager import CommunityManager, GetCommunityManager
 from app.db.impl.exchange_manager import GetExchangeManager, ExchangeManager
 from app.db.impl.sticker_manager import GetStickerManager
