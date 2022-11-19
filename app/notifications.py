@@ -1,7 +1,9 @@
 import firebase_admin
 from firebase_admin import credentials, messaging
 
-cred = credentials.Certificate("firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json")
+cred = credentials.Certificate(
+    "firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
+)
 firebaseApp = firebase_admin.initialize_app(cred)
 
 

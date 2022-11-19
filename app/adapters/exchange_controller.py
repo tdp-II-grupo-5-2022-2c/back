@@ -267,7 +267,10 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
     await user_manager.update(receiver_id, receiver)
 
     if sender.fcmToken != "":
-        sendPush("Intercambio aceptado!", "Ve a Mis figus para ver las figuritas recibidas!", sender.fcmToken)
+        sendPush(
+            "Intercambio aceptado!",
+            "Ve a Mis figus para ver las figuritas recibidas!",
+            sender.fcmToken)
 
     exchange.completed = True
 
