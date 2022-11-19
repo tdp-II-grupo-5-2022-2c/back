@@ -8,7 +8,7 @@ from app.db import DatabaseManager, get_database
 
 from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
-from app.db.model.sticker import StickerModel
+from app.db.model.sticker import StickerModel, UpdateStickerModel
 from typing import List
 
 
@@ -28,6 +28,12 @@ class StickerManager:
         new = jsonable_encoder(sticker)
         await self.db["stickers"].insert_one(new)
         return new
+
+    async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
+        sticker = {k: v for k, v in sticker.dict().items() if v is not None}
+        await self.db["stickers"].update_one({"_id": id}, {"$set": sticker})
+        model = await self.get_by_id(id)
+        return model
 
     async def create_package(self):
         try:
@@ -112,6 +118,16 @@ class StickerManager:
             msg = f"[OPEN_PACKAGE] error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
+
+    async def find_by_name(self, name: str):
+        query = {}
+        if name is not None:
+            query["$or"] = [
+                {"name": name.title()},
+                {"name": {"$regex": name.title()}}
+            ]
+        stickers = await self.db["stickers"].find(query).to_list(100000)
+        return stickers
 
     async def find_by_query(
             self,

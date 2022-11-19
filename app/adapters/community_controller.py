@@ -28,11 +28,20 @@ MAX_USERS_PER_COMM = 11
 async def get_communities(
         owner: str = None,
         member: str = None,
+        name: str = None,
+        mail: str = None,
+        blocked: bool = None,
         db: DatabaseManager = Depends(get_database),
 ):
     manager = CommunityManager(db.db)
+    user_manager = UserManager(db.db)
+
     try:
-        response = await manager.get_communities(owner, member)
+        if mail is not None:
+            user = await user_manager.get_user_by_mail(mail)
+            response = await manager.get_communities(str(user.id), None, None, None)
+        else:
+            response = await manager.get_communities(owner, member, name, blocked)
         return response
     except HTTPException as e:
         raise e
@@ -213,6 +222,11 @@ async def join_community(
                 status_code=401, detail=f"Wrong password. "
                                         f"User {user_id} could not join community {community_id}"
             )
+        if community.is_blocked is True:
+            raise HTTPException(
+                status_code=401, detail=f"Community is blocked. "
+                                        f"User {user_id} could not join community {community_id}"
+            )
         if len(community.users) == MAX_USERS_PER_COMM:
             raise HTTPException(
                 status_code=400, detail=f"Full community."
@@ -242,4 +256,39 @@ async def join_community(
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Could not join user to Community. Exception: {e}"
+        )
+
+
+@router.put(
+    "/communities/{community_id}",
+    response_description="Update community",
+    status_code=status.HTTP_200_OK,
+)
+async def update(
+    community_id: str,
+    body: UpdateCommunityModel = Body(...),
+    x_user_id: Union[str, None] = Header(default=None),
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = CommunityManager(db.db)
+
+    if x_user_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing X-User-Id header on request",
+        )
+    try:
+        result = await manager.update(community_id, body)
+        if result.owner != x_user_id:
+            raise HTTPException(
+                status_code=401,
+                detail=f"user_id: {x_user_id} is not authorized for this operation",
+            )
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error updating Community by id {community_id}. Exception {e}"
         )

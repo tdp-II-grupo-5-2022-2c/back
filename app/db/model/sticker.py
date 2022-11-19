@@ -1,5 +1,6 @@
 from pydantic.main import BaseModel
 from app.db.model.py_object_id import PyObjectId
+from typing import Optional
 from pydantic import Field
 from bson import ObjectId
 import datetime
@@ -35,6 +36,24 @@ class StickerModel(BaseModel):
                 "position": "CF",
                 "country": "Argentina",
                 "image": "https://picsum.photos/300/200",
+                "weight": 5,
+            }
+        }
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+
+class UpdateStickerModel(BaseModel):
+    name: Optional[str]
+    weight: Optional[int]
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
                 "weight": 5,
             }
         }

@@ -3,7 +3,6 @@ from fastapi import Body
 from typing import Union
 from app.db import DatabaseManager, get_database
 from app.db.model.community import CommunityModel, UpdateCommunityModel
-
 from fastapi.encoders import jsonable_encoder
 
 
@@ -11,11 +10,15 @@ class CommunityManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_communities(self, owner: str, member: str):
+    async def get_communities(self, owner: str, member: str, name: str, blocked: bool):
         if owner is not None:
             data = await self.get_by_owner(owner)
         elif member is not None:
             data = await self.get_by_member(member)
+        elif name is not None:
+            data = await self.get_by_name(name)
+        elif blocked is not None:
+            data = await self.get_blocked(blocked)
         else:
             data = await self.db["communities"].find().to_list(5000)
 
@@ -46,7 +49,19 @@ class CommunityManager:
         return comms
 
     async def get_by_name(self, name: str):
-        comm = await self.db["communities"].find_one({"name": name})
+        query = {}
+        query["$or"] = [
+            {"name": name},
+            {"name": name.title()},
+            {"name": name.lower()},
+            {"name": {"$regex": name.title()}},
+            {"name": {"$regex": name.lower()}}
+        ]
+        comm = await self.db["communities"].find(query).to_list(5000)
+        return comm
+
+    async def get_blocked(self, blocked: bool):
+        comm = await self.db["communities"].find({"is_blocked": blocked}).to_list(5000)
         return comm
 
     async def get_community_by_id(self, community_id: str):
