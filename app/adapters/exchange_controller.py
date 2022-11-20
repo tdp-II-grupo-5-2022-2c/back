@@ -13,7 +13,7 @@ from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
 from app.db.model.my_sticker import MyStickerModel
 from app.db.model.user import UserModel
-from app.notifications import sendPush
+from app.firebase import sendPush
 
 
 router = APIRouter(tags=["exchanges"])

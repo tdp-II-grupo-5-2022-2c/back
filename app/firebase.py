@@ -1,10 +1,10 @@
 import firebase_admin
-from firebase_admin import credentials, messaging
+from firebase_admin import credentials, messaging, storage
 
 cred = credentials.Certificate(
-    "firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
+    "../firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
 )
-firebaseApp = firebase_admin.initialize_app(cred)
+firebaseApp = firebase_admin.initialize_app(cred, {'storageBucket': 'tdp-ii-grupo-5-2022-2c.appspot.com'})
 
 
 def sendPush(title: str, description: str, fcmToken: str):
@@ -19,3 +19,14 @@ def sendPush(title: str, description: str, fcmToken: str):
     response = messaging.send(message)
     # Response is a message ID string.
     print('Successfully sent message:', response)
+
+
+def uploadFile(filePath: str):
+    # Put your local file path
+    bucket = storage.bucket()
+    blob = bucket.blob(filePath)
+    blob.upload_from_filename(filePath)
+
+    # Opt : if you want to make public access from the URL
+    blob.make_public()
+

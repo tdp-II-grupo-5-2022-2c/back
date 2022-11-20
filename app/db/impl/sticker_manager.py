@@ -79,6 +79,10 @@ class StickerManager:
         model = await self.get_by_id(id)
         return model
 
+    async def get_package_counter(self) -> PackageCounterModel:
+        package_counter = await self.db["package-counter"].find_one()
+        return PackageCounterModel(**package_counter)
+
     async def create_package(self):
         try:
             package_counter = await self.db["package-counter"].find_one()
