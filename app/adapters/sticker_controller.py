@@ -91,6 +91,8 @@ async def get_package(
         user_updated.package_counter -= 1
         await user_manager.update(id=user_id.user_id, user=user_updated)
 
+        updateStickerMetrics(response) # ToDo ver que devuelve esto con el debugger, crear metricas, ver como obtener top 5 y el historico
+
         return JSONResponse(
                 status_code=status.HTTP_201_CREATED,
                 content=jsonable_encoder(response)
@@ -101,6 +103,11 @@ async def get_package(
         raise HTTPException(
             status_code=500, detail=f"Could not open package. Exception: {e}"
         )
+
+
+def updateStickerMetrics(stickers: List[StickerDetailResponse]):
+    for s in stickers:
+        s =
 
 
 @router.post(

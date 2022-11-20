@@ -7,6 +7,7 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
 from app.db.model.sticker import StickerModel, UpdateStickerModel
+from app.db.model.sticker_metrics import StickerMetricsModel
 from typing import List
 
 
@@ -25,6 +26,11 @@ class StickerManager:
     async def create_sticker(self, sticker: StickerModel = Body(...)):
         new = jsonable_encoder(sticker)
         await self.db["stickers"].insert_one(new)
+        return new
+
+    async def create_sticker_metrics(self, stickerMetrics: StickerMetricsModel):
+        new = jsonable_encoder(stickerMetrics)
+        await self.db["stickers_metrics"].insert_one(new)
         return new
 
     async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
