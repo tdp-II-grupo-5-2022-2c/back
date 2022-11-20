@@ -21,6 +21,7 @@ class UserModel(BaseModel):
     stickers_collected: int = 0
     album_completion_pct: float = 0
     exchanges_amount: int = 0
+    fcmToken: str = ""
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
@@ -50,6 +51,7 @@ class UpdateUserModel(BaseModel):
     country: Optional[str]
     favorite_countries: Optional[List[str]]
     package_counter: Optional[int]
+    fcmToken: Optional[str]
 
     class Config:
         arbitrary_types_allowed = True
