@@ -5,11 +5,10 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.params import Body
 from starlette import status
 from starlette.responses import JSONResponse
-from app.db import DatabaseManager, get_database
-from app.db.impl.community_manager import CommunityManager
-from app.db.impl.exchange_manager import ExchangeManager
-from app.db.impl.sticker_manager import StickerManager
-from app.db.impl.user_manager import UserManager
+from app.db.impl.community_manager import CommunityManager, GetCommunityManager
+from app.db.impl.exchange_manager import GetExchangeManager, ExchangeManager
+from app.db.impl.sticker_manager import GetStickerManager
+from app.db.impl.user_manager import UserManager, GetUserManager
 from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
 from app.db.model.my_sticker import MyStickerModel
@@ -27,11 +26,9 @@ router = APIRouter(tags=["exchanges"])
 )
 async def create_exchange(
     exchange: ExchangeModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+    manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
 ):
-    manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-
     # Validation for amount of stickers in exchange
     if len(exchange.stickers_to_give) > 5:
         raise HTTPException(
@@ -147,7 +144,8 @@ def stickersToGiveAndReceiveAreDiff(
 async def apply_action_to_exchange(
     exchange_id: str,
     exchangeAction: ExchangeActionModel = Body(...),
-    db: DatabaseManager = Depends(get_database),
+    manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
 ):
     # WARNING: Here we are assuming that sender and receiver are on the same community
     #  so they can perform exchange operations
@@ -160,9 +158,6 @@ async def apply_action_to_exchange(
             f"Available actions: {AVAILABLE_EXCHANGE_ACTIONS}"
         )
 
-    manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-
     try:
         user = await user_manager.get_by_id(exchangeAction.receiver_id)
         if user.is_profile_complete is False:
@@ -173,12 +168,16 @@ async def apply_action_to_exchange(
 
         exchange = await manager.get_exchange_by_id(exchange_id)
 
-        # TODO falta chequear que el exchange no este completado
+        if exchange.completed is True:
+            raise HTTPException(
+                status_code=400,
+                detail=f"exchange {exchange_id} is completed, you cannot apply any action"
+            )
 
         # WARNING: This is not a transactional operation,
         # if something fails this doesn't assure to end in a consistent state
         if exchangeAction.action == ACCEPT_ACTION:
-            updatedExchange = await applyAccept(db, exchange, exchangeAction.receiver_id)
+            updatedExchange = await applyAccept(exchange, exchangeAction.receiver_id)
         elif exchangeAction.action == REJECT_ACTION:
             updatedExchange = await applyReject(exchange, exchangeAction.receiver_id)
 
@@ -194,8 +193,8 @@ async def apply_action_to_exchange(
         )
 
 
-async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id: str):
-    user_manager = UserManager(db.db)
+async def applyAccept(exchange: ExchangeModel, receiver_id: str):
+    user_manager = await GetUserManager()
 
     receiver = await user_manager.get_by_id(receiver_id)
     if not userHasStickersForExchange(receiver, exchange.stickers_to_receive):
@@ -214,8 +213,6 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
         for sticker in receiver.stickers:
             if rs == sticker.id:
                 sticker.quantity -= 1
-                receiver.stickers_on_my_stickers_section -= 1
-                receiver.total_stickers_collected -= 1
 
         # sender must receive stickers_to_receive
         found = False
@@ -223,23 +220,14 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if rs == sticker.id:
                 found = True
                 sticker.quantity += 1
-                sender.stickers_on_my_stickers_section += 1
-                sender.total_stickers_collected += 1
 
         if not found:
             newSticker = MyStickerModel(id=rs, quantity=1, is_on_album=False)
             sender.stickers.append(newSticker)
-            sender.stickers_on_my_stickers_section += 1
-            sender.total_stickers_collected += 1
 
     # Do exchange for stickers_to_give
     for sg in exchange.stickers_to_give:
         # sender must deliver stickers_to_give, this action is moved to create exchange
-        # but the statistic is updated here
-        for sticker in sender.stickers:
-            if sg == sticker.id:
-                sender.stickers_on_my_stickers_section -= 1
-                sender.total_stickers_collected -= 1
 
         # receiver must receive stickers_to_give
         found = False
@@ -247,21 +235,17 @@ async def applyAccept(db: DatabaseManager, exchange: ExchangeModel, receiver_id:
             if sg == sticker.id:
                 found = True
                 sticker.quantity += 1
-                receiver.stickers_on_my_stickers_section += 1
-                receiver.total_stickers_collected += 1
 
         if not found:
             sticker = MyStickerModel(id=sg, quantity=1, is_on_album=False)
             receiver.stickers.append(sticker)
-            receiver.stickers_on_my_stickers_section += 1
-            receiver.total_stickers_collected += 1
-
-    logging.info(f'sender after exchange: {sender.dict()}')
-    logging.info(f'receiver after exchange: {receiver.dict()}')
 
     # Update statistics
     receiver.exchanges_amount += 1
     sender.exchanges_amount += 1
+
+    logging.info(f'sender after exchange: {sender.dict()}')
+    logging.info(f'receiver after exchange: {receiver.dict()}')
 
     await user_manager.update(exchange.sender_id, sender)
     await user_manager.update(receiver_id, receiver)
@@ -291,14 +275,12 @@ async def applyReject(exchange: ExchangeModel, receiver_id: str):
 async def get_pending_exchanges_by_sender_id(
     sender_id: str,
     completed: bool = None,
-    db: DatabaseManager = Depends(get_database),
+    exchange_manager: ExchangeManager = Depends(GetExchangeManager),
 ):
-    exchange_manager = ExchangeManager(db.db)
-
     try:
         if sender_id is not None:
             exchanges = await exchange_manager.get_exchange_by_sender_id(sender_id, completed)
-            response_body = await render_fetch(db, exchanges)
+            response_body = await render_fetch(exchanges)
             return response_body
 
         raise HTTPException(
@@ -322,12 +304,10 @@ async def get_pending_exchanges_by_sender_id(
 async def get_available_exchanges(
     user_id: str,
     community_id: str,
-    db: DatabaseManager = Depends(get_database),
+    exchange_manager: ExchangeManager = Depends(GetExchangeManager),
+    user_manager: UserManager = Depends(GetUserManager),
+    community_manager: CommunityManager = Depends(GetCommunityManager),
 ):
-    exchange_manager = ExchangeManager(db.db)
-    user_manager = UserManager(db.db)
-    community_manager = CommunityManager(db.db)
-
     try:
         communities = await community_manager.get_by_member(user_id)
         if community_id not in [c['_id'] for c in communities]:
@@ -358,7 +338,7 @@ async def get_available_exchanges(
 
             result.append(exchange)
 
-        response_body = await render_fetch(db, result)
+        response_body = await render_fetch(result)
 
         return JSONResponse(
                 status_code=status.HTTP_200_OK, content=jsonable_encoder(response_body)
@@ -371,9 +351,9 @@ async def get_available_exchanges(
         )
 
 
-async def render_fetch(db: DatabaseManager, exchanges: List[Dict]):
-    sticker_manager = StickerManager(db.db)
-    user_manager = UserManager(db.db)
+async def render_fetch(exchanges: List[Dict]):
+    sticker_manager = await GetStickerManager()
+    user_manager = await GetUserManager()
 
     for exc in exchanges:
         stickers_to_receive = []

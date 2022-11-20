@@ -1,8 +1,8 @@
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
-
+from typing import Union
+from app.db import DatabaseManager, get_database
 from app.db.model.community import CommunityModel, UpdateCommunityModel
-
 from fastapi.encoders import jsonable_encoder
 
 
@@ -51,6 +51,7 @@ class CommunityManager:
     async def get_by_name(self, name: str):
         query = {}
         query["$or"] = [
+            {"name": name},
             {"name": name.title()},
             {"name": name.lower()},
             {"name": {"$regex": name.title()}},
@@ -72,3 +73,15 @@ class CommunityManager:
             update_one({"_id": community_id}, {"$push": {"users": user_id}})
         model = await self.get_community_by_id(community_id)
         return model
+
+
+instance: Union[CommunityManager, None] = None
+
+
+async def GetCommunityManager():
+    global instance
+    if instance is None:
+        db: DatabaseManager = await get_database()
+        instance = CommunityManager(db.db)
+
+    return instance
