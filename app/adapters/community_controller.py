@@ -167,7 +167,7 @@ async def create_community(
             )
 
         comm = await manager.get_by_name(community.name)
-        if len(comm) == 0:
+        if len(comm) != 0:
             raise HTTPException(
                 status_code=400,
                 detail='there is already a community with that name'
