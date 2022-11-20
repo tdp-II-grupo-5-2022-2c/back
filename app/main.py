@@ -7,6 +7,7 @@ from app.adapters import exchange_controller
 from app.adapters import user_controller
 from app.adapters import sticker_controller
 from app.adapters import community_controller
+from app.adapters import reports_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +25,7 @@ app.include_router(user_controller.router)
 app.include_router(sticker_controller.router)
 app.include_router(community_controller.router)
 app.include_router(exchange_controller.router)
+app.include_router(reports_controller.router)
 
 origins = ["*"]
 

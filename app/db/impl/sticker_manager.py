@@ -10,7 +10,7 @@ from app.db.model.package import PackageModel
 from app.db.model.package_counter import PackageCounterModel
 from app.db.model.sticker import StickerModel, UpdateStickerModel
 from app.db.model.sticker_metrics import StickerMetricsModel
-from typing import List
+from typing import List, Dict
 
 
 class StickerManager:
@@ -34,6 +34,26 @@ class StickerManager:
         new = jsonable_encoder(stickerMetrics)
         await self.db["stickers_metrics"].insert_one(new)
         return new
+
+    async def get_sticker_metrics_by_sticker_id(self, sticker_id: str) -> Union[StickerMetricsModel, None]:
+        stickerMetric = await self.db["stickers_metrics"].\
+            find_one({"sticker_id": sticker_id})
+        if stickerMetric is None:
+            return None
+
+        return StickerMetricsModel(**stickerMetric)
+
+    async def get_sticker_metrics_top_5(self) -> List[Dict]:
+        return await self.db["stickers_metrics"].aggregate([
+            {'$sort': {'counter': 1}},
+            {'$limit': 5},
+            {'$project': {'_id': 0}}
+        ]).to_list(5)
+
+
+    async def update_sticker_metrics(self, stickerMetrics: StickerMetricsModel):
+        payload = {k: v for k, v in stickerMetrics.dict().items() if v is not None}
+        await self.db["stickers_metrics"].update_one({"sticker_id": stickerMetrics.sticker_id}, {"$set": payload})
 
     async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
         sticker = {k: v for k, v in sticker.dict().items() if v is not None}
