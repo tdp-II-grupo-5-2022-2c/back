@@ -36,20 +36,38 @@ class StickerManager:
         return new
 
     async def get_sticker_metrics_by_sticker_id(self, sticker_id: str) -> Union[StickerMetricsModel, None]:
-        stickerMetric = await self.db["stickers_metrics"].\
+        stickerMetric = await self.db["stickers_metrics"]. \
             find_one({"sticker_id": sticker_id})
         if stickerMetric is None:
             return None
 
         return StickerMetricsModel(**stickerMetric)
 
-    async def get_sticker_metrics_top_5(self) -> List[Dict]:
-        return await self.db["stickers_metrics"].aggregate([
-            {'$sort': {'counter': 1}},
-            {'$limit': 5},
-            {'$project': {'_id': 0}}
-        ]).to_list(5)
+    async def get_sticker_metrics_freq(self, top5: bool) -> List[Dict]:
+        sort = {'$sort': {'counter': 1}}
+        limit = {'$limit': 5}
+        merge = {'$lookup': {
+            'from': 'stickers',
+            'localField': 'sticker_id',
+            'foreignField': '_id',
+            'as': 'metadata'
+        }}
+        unwind = {'$unwind': {'path': '$metadata'}}
+        project = {'$project': {
+            '_id': 0,
+            'name': '$metadata.name',
+            'country': '$metadata.country',
+            'counter': 1
+        }}
 
+        pipeline = [sort]
+        if top5 is True:
+            pipeline = [*pipeline, limit]
+
+        pipeline = [*pipeline, merge, unwind, project]
+
+        return await self.db["stickers_metrics"]. \
+            aggregate(pipeline).to_list(10000)
 
     async def update_sticker_metrics(self, stickerMetrics: StickerMetricsModel):
         payload = {k: v for k, v in stickerMetrics.dict().items() if v is not None}
