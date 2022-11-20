@@ -21,6 +21,7 @@ class UserModel(BaseModel):
     stickers_collected: int = 0
     album_completion_pct: float = 0
     exchanges_amount: int = 0
+    has_daily_package := bool = True
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\

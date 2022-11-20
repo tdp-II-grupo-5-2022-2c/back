@@ -15,7 +15,7 @@ router = APIRouter(tags=["users"])
 
 @router.get(
     "/users",
-    response_description="Get a all users",
+    response_description="Get a all users or get an user by mail",
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
@@ -78,7 +78,7 @@ async def create_new(
 
 @router.put(
     "/users/{user_id}",
-    response_description="Update an user sticker's list",
+    response_description="Update an user",
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
 )
