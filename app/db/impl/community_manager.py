@@ -13,7 +13,7 @@ class CommunityManager:
     async def get_communities(self, owner: str, member: str, name: str, blocked: bool):
         query = {}
         if owner is not None:
-            query["owner"] = owner_id
+            query["owner"] = owner
         if member is not None:
             query["users"] = member
         if name is not None:
