@@ -11,17 +11,23 @@ class CommunityManager:
         self.db = db
 
     async def get_communities(self, owner: str, member: str, name: str, blocked: bool):
+        query = {}
         if owner is not None:
-            data = await self.get_by_owner(owner)
-        elif member is not None:
-            data = await self.get_by_member(member)
-        elif name is not None:
-            data = await self.get_by_name(name)
-        elif blocked is not None:
-            data = await self.get_blocked(blocked)
-        else:
-            data = await self.db["communities"].find().to_list(5000)
+            query["owner"] = owner_id
+        if member is not None:
+            query["users"] = member
+        if name is not None:
+            query["$or"] = [
+                {"name": name},
+                {"name": name.title()},
+                {"name": name.lower()},
+                {"name": {"$regex": name.title()}},
+                {"name": {"$regex": name.lower()}}
+            ]
+        if blocked is not None:
+            query["is_blocked"] = blocked
 
+        data = await self.db["communities"].find(query).to_list(5000)
         return data
 
     async def get_by_id(self, id: str):
