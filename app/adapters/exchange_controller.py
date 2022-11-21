@@ -13,7 +13,7 @@ from app.db.model.exchange import ExchangeModel, \
     ExchangeActionModel, AVAILABLE_EXCHANGE_ACTIONS, ACCEPT_ACTION, REJECT_ACTION
 from app.db.model.my_sticker import MyStickerModel
 from app.db.model.user import UserModel
-from app.notifications import sendPush
+from app.firebase import FirebaseManager, GetFirebaseManager
 
 
 router = APIRouter(tags=["exchanges"])
@@ -251,7 +251,8 @@ async def applyAccept(exchange: ExchangeModel, receiver_id: str):
     await user_manager.update(receiver_id, receiver)
 
     if sender.fcmToken != "":
-        sendPush(
+        firebaseManager: FirebaseManager = await GetFirebaseManager()
+        firebaseManager.sendPush(
             "Intercambio aceptado!",
             "Ve a Mis figus para ver las figuritas recibidas!",
             sender.fcmToken)
