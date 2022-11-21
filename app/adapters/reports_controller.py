@@ -4,7 +4,6 @@ from app.db.impl.sticker_manager import StickerManager, GetStickerManager
 from typing import List, Dict, Union
 import csv
 from app.firebase import uploadFile
-import math
 
 router = APIRouter(tags=["reports"])
 
@@ -45,7 +44,8 @@ def generateCSV(stickers: List[Dict]):
 
 async def calculatePercentage(stickers: List[Dict]) -> List[Dict]:
     sticker_manager = await GetStickerManager()
-    packageCounter = await sticker_manager.get_package_counter() # ToDo reiniciar package-counter para que tenga sentido la metrica
+    # ToDo reiniciar package-counter para que tenga sentido la metrica
+    packageCounter = await sticker_manager.get_package_counter()
 
     for s in stickers:
         s['percentage'] = round(s['counter'] / packageCounter.counter * 100, 2)

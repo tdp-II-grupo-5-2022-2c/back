@@ -35,7 +35,9 @@ class StickerManager:
         await self.db["stickers_metrics"].insert_one(new)
         return new
 
-    async def get_sticker_metrics_by_sticker_id(self, sticker_id: str) -> Union[StickerMetricsModel, None]:
+    async def get_sticker_metrics_by_sticker_id(
+            self,
+            sticker_id: str) -> Union[StickerMetricsModel, None]:
         stickerMetric = await self.db["stickers_metrics"]. \
             find_one({"sticker_id": sticker_id})
         if stickerMetric is None:
@@ -71,7 +73,8 @@ class StickerManager:
 
     async def update_sticker_metrics(self, stickerMetrics: StickerMetricsModel):
         payload = {k: v for k, v in stickerMetrics.dict().items() if v is not None}
-        await self.db["stickers_metrics"].update_one({"sticker_id": stickerMetrics.sticker_id}, {"$set": payload})
+        await self.db["stickers_metrics"].\
+            update_one({"sticker_id": stickerMetrics.sticker_id}, {"$set": payload})
 
     async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
         sticker = {k: v for k, v in sticker.dict().items() if v is not None}

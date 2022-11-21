@@ -4,7 +4,9 @@ from firebase_admin import credentials, messaging, storage
 cred = credentials.Certificate(
     "../firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
 )
-firebaseApp = firebase_admin.initialize_app(cred, {'storageBucket': 'tdp-ii-grupo-5-2022-2c.appspot.com'})
+firebaseApp = firebase_admin.initialize_app(
+    cred,
+    {'storageBucket': 'tdp-ii-grupo-5-2022-2c.appspot.com'})
 
 
 def sendPush(title: str, description: str, fcmToken: str):
@@ -27,6 +29,4 @@ def uploadFile(filePath: str):
     blob = bucket.blob(filePath)
     blob.upload_from_filename(filePath)
 
-    # Opt : if you want to make public access from the URL
     blob.make_public()
-
