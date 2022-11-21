@@ -45,7 +45,8 @@ async def get_communities(
                     status_code=404,
                     detail=f"Mail {mail} not found"
                 )
-            response = await manager.get_communities(list(map(lambda o: o['_id'], users)), None, name, blocked)
+            users_ids = list(map(lambda o: o['_id'], users))
+            response = await manager.get_communities(users_ids, None, name, blocked)
         else:
             response = await manager.get_communities([owner], member, name, blocked)
         return response

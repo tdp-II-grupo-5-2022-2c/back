@@ -43,7 +43,8 @@ class UserManager:
         return set_statistics(model)
 
     async def get_users_by_mail(self, mail: str):
-        users = await self.db["users"].find({"mail": {"$regex": mail, "$options": "i"}}).to_list(5000)
+        users = await self.db["users"]\
+            .find({"mail": {"$regex": mail, "$options": "i"}}).to_list(5000)
         return users
 
     async def add_new(self, user: UserModel = Body(...)):
