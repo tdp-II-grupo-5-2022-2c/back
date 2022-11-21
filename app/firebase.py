@@ -1,8 +1,12 @@
 import firebase_admin
 from firebase_admin import credentials, messaging, storage
+from pathlib import Path
+
+base_path = Path(__file__).parent
+file_path = (base_path / "../firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json").resolve()
 
 cred = credentials.Certificate(
-    "../firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
+    file_path
 )
 firebaseApp = firebase_admin.initialize_app(
     cred,
