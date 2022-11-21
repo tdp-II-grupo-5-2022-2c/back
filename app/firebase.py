@@ -3,21 +3,20 @@ from firebase_admin import credentials, messaging, storage
 from pathlib import Path
 from typing import Union
 
+pathToCred = "../firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
+base_path = Path(__file__).parent
+file_path = (base_path / pathToCred).resolve()
+
+cred = credentials.Certificate(
+    file_path
+)
+firebaseApp = firebase_admin.initialize_app(
+    cred,
+    {'storageBucket': 'tdp-ii-grupo-5-2022-2c.appspot.com'}
+)
+
 
 class FirebaseManager:
-    def __int__(self):
-        pathToCred = "../firebase/tdp-ii-grupo-5-2022-2c-firebase-adminsdk-f71fl-bfacf0ba84.json"
-        base_path = Path(__file__).parent
-        file_path = (base_path / pathToCred).resolve()
-
-        cred = credentials.Certificate(
-            file_path
-        )
-        self.firebaseApp = firebase_admin.initialize_app(
-            cred,
-            {'storageBucket': 'tdp-ii-grupo-5-2022-2c.appspot.com'}
-        )
-
     def sendPush(self, title: str, description: str, fcmToken: str):
         # See documentation on defining a message payload.
         message = messaging.Message(
