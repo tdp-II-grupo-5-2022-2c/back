@@ -1,3 +1,5 @@
+import logging
+
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 from typing import Union
@@ -10,22 +12,26 @@ class CommunityManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_communities(self, owner: str, member: str, name: str, blocked: bool):
-        query = {}
-        if owner is not None:
-            query["owner"] = owner
+    async def get_communities(self, owners: [str], member: str, name: str, blocked: bool):
+        owners = list(filter(lambda o: o is not None, owners))
+        query = {"$and": []}
+        if owners is not None and len(owners) > 0:
+            query["$and"].append({"owner": {"$in": owners}})
         if member is not None:
-            query["users"] = member
+            query["$and"].append({"users": member})
         if name is not None:
-            query["$or"] = [
+            query["$and"].append({"$or": [
                 {"name": name},
                 {"name": name.title()},
                 {"name": name.lower()},
-                {"name": {"$regex": name.title()}},
-                {"name": {"$regex": name.lower()}}
-            ]
+                {"name": {"$regex": name.title(), "$options": "i"}},
+                {"name": {"$regex": name.lower(), "$options": "i"}}
+            ]})
         if blocked is not None:
-            query["is_blocked"] = blocked
+            query["$and"].append({"is_blocked": blocked})
+
+        if len(query["$and"]) == 0:
+            query = {}
 
         data = await self.db["communities"].find(query).to_list(5000)
         return data
@@ -60,8 +66,8 @@ class CommunityManager:
             {"name": name},
             {"name": name.title()},
             {"name": name.lower()},
-            {"name": {"$regex": name.title()}},
-            {"name": {"$regex": name.lower()}}
+            {"name": {"$regex": name.title(), "$options": "i"}},
+            {"name": {"$regex": name.lower(), "$options": "i"}}
         ]
         comm = await self.db["communities"].find(query).to_list(5000)
         return comm

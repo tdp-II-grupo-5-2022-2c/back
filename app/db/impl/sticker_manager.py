@@ -124,7 +124,7 @@ class StickerManager:
         if name is not None:
             query["$or"] = [
                 {"name": name.title()},
-                {"name": {"$regex": name.title()}}
+                {"name": {"$regex": name.title(), "$options": "i"}}
             ]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
@@ -141,7 +141,7 @@ class StickerManager:
         if name is not None:
             query["$or"] = [
                 {"name": name.title()},
-                {"name": {"$regex": name.title()}}
+                {"name": {"$regex": name.title(), "$options": "i"}}
             ]
         stickers = await self.db["stickers"].find(query).to_list(100000)
         return stickers
