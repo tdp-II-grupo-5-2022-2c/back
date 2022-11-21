@@ -3,7 +3,7 @@ from starlette import status
 from app.db.impl.sticker_manager import StickerManager, GetStickerManager
 from typing import List, Dict, Union
 import csv
-from app.firebase import uploadFile
+from app.firebase import FirebaseManager, GetFirebaseManager
 
 router = APIRouter(tags=["reports"])
 
@@ -17,6 +17,7 @@ async def get_sticker_metrics(
         top5: Union[bool, None] = None,
         generate_binary: Union[bool, None] = None,
         sticker_manager: StickerManager = Depends(GetStickerManager),
+        firebase_manager: FirebaseManager = Depends(GetFirebaseManager),
 ):
     try:
         if top5 is None:
@@ -24,9 +25,9 @@ async def get_sticker_metrics(
 
         result = await sticker_manager.get_sticker_metrics_freq(top5=top5)
         if generate_binary is not None and generate_binary is True:
-            result = await calculatePercentage(result)
+            result = await calculatePercentage(sticker_manager, result)
             generateCSV(result)
-            uploadFile('stickers_freq.csv')
+            firebase_manager.uploadFile('stickers_freq.csv')
 
         return result
     except Exception as e:
@@ -42,8 +43,7 @@ def generateCSV(stickers: List[Dict]):
         dict_writer.writerows(stickers)
 
 
-async def calculatePercentage(stickers: List[Dict]) -> List[Dict]:
-    sticker_manager = await GetStickerManager()
+async def calculatePercentage(sticker_manager: StickerManager, stickers: List[Dict]) -> List[Dict]:
     # ToDo reiniciar package-counter para que tenga sentido la metrica
     packageCounter = await sticker_manager.get_package_counter()
 
