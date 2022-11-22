@@ -1,6 +1,8 @@
+from fastapi.encoders import jsonable_encoder
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from typing import List
-from datetime import datetime
+from typing import Union
+from app.db import DatabaseManager, get_database
 from app.db.model.report import AlbumCompletionReport
 from app.db.model.user import UserModel
 
@@ -11,7 +13,6 @@ class ReportManager:
 
     async def get_album_completion_report(self, users: List[UserModel]):
         report = AlbumCompletionReport()
-        report.date = datetime.today().strftime('%Y-%m-%d')
 
         for user in users:
             album_completion = user.album_completion_pct
@@ -31,6 +32,17 @@ class ReportManager:
             else:
                 report.p100 += 1
 
-            await self.db["album_reports"].insert_one(report)
-
+        await self.db["album_reports"].insert_one(report.__dict__)
         return report
+
+
+instance: Union[ReportManager, None] = None
+
+
+async def GetReportManager():
+    global instance
+    if instance is None:
+        db: DatabaseManager = await get_database()
+        instance = ReportManager(db.db)
+
+    return instance

@@ -1,10 +1,9 @@
-import datetime
 from pydantic.main import BaseModel
-from pydantic import Field
+from datetime import datetime
 
 
 class AlbumCompletionReport(BaseModel):
-    date: datetime.date = Field(...)
+    report_date: str = datetime.today().strftime('%Y-%m-%d')
     p20: float = 0
     p40: float = 0
     p60: float = 0
