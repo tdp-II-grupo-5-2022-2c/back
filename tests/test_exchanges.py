@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, AsyncMock, ANY
 import requests
 
 
-class TestStickerManager(unittest.TestCase):
+class TestExchangeManager(unittest.TestCase):
     def test_create_exchange(self):
         client = TestClient(app)
         exchangeManagerMock = MagicMock()
