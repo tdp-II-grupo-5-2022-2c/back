@@ -58,10 +58,10 @@ async def calculatePercentage(sticker_manager: StickerManager, stickers: List[Di
     return stickers
 
 
-@router.get(
+@router.post(
     "/reports/album-completion",
     response_description="Get users album completion percentage",
-    response_model=AlbumCompletionReport,
+    response_model=str,
     status_code=status.HTTP_200_OK,
 )
 async def get_album_completion_report(
@@ -70,7 +70,44 @@ async def get_album_completion_report(
 ):
     try:
         users = await user_manager.get_all()
-        response = await manager.get_album_completion_report(users)
+
+        report = AlbumCompletionReport()
+        for user in users:
+            album_completion = user.album_completion_pct
+
+            if album_completion < 20:
+                report.p20 += 1
+            elif album_completion < 40:
+                report.p40 += 1
+            elif album_completion < 60:
+                report.p60 += 1
+            elif album_completion < 80:
+                report.p80 += 1
+            else:
+                report.p100 += 1
+
+        await manager.save_album_completion_report(report)
+        return "Report generated"
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not generate album completion report. Exception: {e}"
+        )
+
+
+@router.get(
+    "/reports/album-completion",
+    response_description="Get users album completion percentage",
+    response_model=AlbumCompletionReport,
+    status_code=status.HTTP_200_OK,
+)
+async def get_album_completion_report(
+        date: str,
+        manager: ReportManager = Depends(GetReportManager),
+):
+    try:
+        response = await manager.get_album_completion_report(date)
         return response
     except HTTPException as e:
         raise e
