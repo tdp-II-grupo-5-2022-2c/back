@@ -24,11 +24,15 @@ class TestReportsManager(unittest.TestCase):
             {'name': 'Gary Medel', 'country': 'CHI', 'counter': 34},
         ]
         stickerManagerMock.get_sticker_metrics_freq = AsyncMock(return_value=top5List)
+        stickerManagerMock.get_package_counter = AsyncMock(return_value=PackageCounterModel(counter=10))
 
         response = client.get('/reports/stickers-metrics-freq?top5=True')
 
         assert response.status_code == 200
         stickerManagerMock.get_sticker_metrics_freq.assert_called_once_with(top5=True)
+        for s in top5List:
+            s['percentage'] = round(s['counter'] / 10 * 100, 2)
+
         assert response.json() == top5List
 
     def test_unexpected_error_calling_mongo(self):
