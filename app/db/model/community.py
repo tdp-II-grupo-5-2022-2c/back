@@ -12,6 +12,7 @@ class CommunityModel(BaseModel):
     owner: str = Field(...)
     users: List[str] = []
     password: str = "password"
+    description: str = Field(...)
     is_blocked: bool = False
 
     class Config:
@@ -23,6 +24,7 @@ class CommunityModel(BaseModel):
                 "name": "name",
                 "owner": "name",
                 "password": "password",
+                "description": "description",
                 "users": [],
                 "is_blocked": False
             }
@@ -33,6 +35,7 @@ class UpdateCommunityModel(BaseModel):
     name: Optional[str]
     owner: Optional[str]
     password: Optional[str]
+    description: Optional[str]
     users: Optional[List[str]]
     is_blocked: Optional[bool]
 
@@ -44,6 +47,7 @@ class UpdateCommunityModel(BaseModel):
                 "name": "name",
                 "owner": "name",
                 "password": "password",
+                "description": "description",
                 "users": [],
                 "is_blocked": False
             }
