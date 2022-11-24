@@ -87,7 +87,7 @@ async def get_album_completion_report(
                 report.p100 += 1
 
         await manager.save_album_completion_report(report)
-        return "Report generated"
+        return report
     except HTTPException as e:
         raise e
     except Exception as e:
