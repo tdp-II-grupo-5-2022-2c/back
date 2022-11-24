@@ -12,7 +12,7 @@ class CommunityModel(BaseModel):
     owner: str = Field(...)
     users: List[str] = []
     password: str = "password"
-    description: str = Field(...)
+    description: str = ""
     is_blocked: bool = False
 
     class Config:
