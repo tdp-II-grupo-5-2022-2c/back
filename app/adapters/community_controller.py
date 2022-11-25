@@ -12,6 +12,7 @@ from app.adapters.dtos.community_details import UserNameResponse
 from app.adapters.dtos.community_details import CommunityDetailResponse
 from app.db.impl.user_manager import UserManager
 import logging
+import traceback
 from app.db.model.community import CommunityModel, UpdateCommunityModel
 
 router = APIRouter(tags=["communities"])
@@ -38,14 +39,22 @@ async def get_communities(
 
     try:
         if mail is not None:
-            user = await user_manager.get_user_by_mail(mail)
-            response = await manager.get_communities(str(user.id), None, None, None)
+            users = await user_manager.get_users_by_mail(mail)
+            if users is None or len(users) == 0:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Mail {mail} not found"
+                )
+            users_ids = list(map(lambda o: o['_id'], users))
+            response = await manager.get_communities(users_ids, None, name, blocked)
         else:
-            response = await manager.get_communities(owner, member, name, blocked)
+            response = await manager.get_communities([owner], member, name, blocked)
         return response
     except HTTPException as e:
         raise e
     except Exception as e:
+        logging.error(f"Error getting Communities. Exception {e}")
+        logging.error(traceback.format_exc())
         raise HTTPException(
             status_code=500, detail=f"Error getting Communities. Exception {e}"
         )
@@ -95,9 +104,12 @@ async def get_community_by_id(
     except HTTPException as e:
         raise e
     except Exception as e:
+        error_msg = f"Error getting Community by id {community_id}. Exception {e}"
+        logging.error(error_msg)
+        logging.error(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=f"Error getting Community by id {community_id}. Exception {e}"
+            detail=error_msg
         )
 
 
@@ -139,9 +151,12 @@ async def set_community_password(
     except HTTPException as e:
         raise e
     except Exception as e:
+        error_msg = f"Error updating Community by id {community_id}. Exception {e}"
+        logging.error(error_msg)
+        logging.error(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=f"Error updating Community by id {community_id}. Exception {e}"
+            detail=error_msg
         )
 
 
@@ -188,8 +203,11 @@ async def create_community(
     except HTTPException as e:
         raise e
     except Exception as e:
+        error_msg = f"Could not create Community Exception {e}"
+        logging.error(error_msg)
+        logging.error(traceback.format_exc())
         raise HTTPException(
-            status_code=500, detail=f"Could not create Community. Exception: {e}"
+            status_code=500, detail=error_msg
         )
 
 
@@ -254,8 +272,11 @@ async def join_community(
     except HTTPException as e:
         raise e
     except Exception as e:
+        error_msg = f"Could not join user to Community. Exception: {e}"
+        logging.error(error_msg)
+        logging.error(traceback.format_exc())
         raise HTTPException(
-            status_code=500, detail=f"Could not join user to Community. Exception: {e}"
+            status_code=500, detail=error_msg
         )
 
 
@@ -288,7 +309,10 @@ async def update(
     except HTTPException as e:
         raise e
     except Exception as e:
+        error_msg = f"Error updating Community by id {community_id}. Exception {e}"
+        logging.error(error_msg)
+        logging.error(traceback.format_exc())
         raise HTTPException(
             status_code=500,
-            detail=f"Error updating Community by id {community_id}. Exception {e}"
+            detail=error_msg
         )
