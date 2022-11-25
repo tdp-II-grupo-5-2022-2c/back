@@ -1,3 +1,4 @@
+import json
 import unittest
 from fastapi.testclient import TestClient
 
@@ -106,5 +107,11 @@ class TestReportsManager(unittest.TestCase):
 
         response = client.post('/reports/album-completion')
 
+        response_parsed = json.loads(response.content)
         assert response.status_code == 200
+        assert response_parsed["p20"] == 2
+        assert response_parsed["p40"] == 3
+        assert response_parsed["p60"] == 1
+        assert response_parsed["p80"] == 1
+        assert response_parsed["p100"] == 2
 
