@@ -61,7 +61,7 @@ async def calculatePercentage(sticker_manager: StickerManager, stickers: List[Di
 @router.post(
     "/reports/album-completion",
     response_description="Get users album completion percentage",
-    response_model=str,
+    response_model=AlbumCompletionReport,
     status_code=status.HTTP_200_OK,
 )
 async def get_album_completion_report(
