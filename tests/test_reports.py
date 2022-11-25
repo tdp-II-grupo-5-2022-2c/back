@@ -115,3 +115,14 @@ class TestReportsManager(unittest.TestCase):
         assert response_parsed["p80"] == 1
         assert response_parsed["p100"] == 2
 
+    def test_get_album_completion_report_fails(self):
+        client = TestClient(app)
+        report_manager_mock = MagicMock()
+
+        app.dependency_overrides[GetReportManager] = lambda: report_manager_mock
+
+        report_manager_mock.get_album_completion_report = AsyncMock(return_value=None)
+
+        response = client.get('/reports/album-completion?date=01-03-2022')
+
+        assert response.status_code == 404
