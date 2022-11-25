@@ -64,7 +64,7 @@ async def calculatePercentage(sticker_manager: StickerManager, stickers: List[Di
     response_model=AlbumCompletionReport,
     status_code=status.HTTP_200_OK,
 )
-async def get_album_completion_report(
+async def post_album_completion_report(
         manager: ReportManager = Depends(GetReportManager),
         user_manager: UserManager = Depends(GetUserManager),
 ):
