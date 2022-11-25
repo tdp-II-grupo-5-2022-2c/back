@@ -46,6 +46,11 @@ class UserManager:
         model = UserModel(**user)
         return set_statistics(model)
 
+    async def get_users_by_mail(self, mail: str):
+        users = await self.db["users"]\
+            .find({"mail": {"$regex": mail, "$options": "i"}}).to_list(5000)
+        return users
+
     async def add_new(self, user: UserModel = Body(...)):
         new = jsonable_encoder(user)
         await self.db["users"].insert_one(new)
