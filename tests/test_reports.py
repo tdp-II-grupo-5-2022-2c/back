@@ -1,13 +1,14 @@
 import unittest
 from fastapi.testclient import TestClient
-from app.main import app
-from app.db.impl.sticker_manager import GetStickerManager, StickerManager
-from app.db.impl.user_manager import UserManager, GetUserManager
-from app.db.model.package_counter import PackageCounterModel
+
+from app.db.impl.user_manager import GetUserManager
 from app.db.model.user import UserModel
-from app.firebase import FirebaseManager, GetFirebaseManager
-from unittest.mock import MagicMock, AsyncMock, ANY, Mock
-import requests
+from app.main import app
+from app.db.impl.sticker_manager import GetStickerManager
+from app.db.model.package_counter import PackageCounterModel
+from app.firebase import GetFirebaseManager
+from unittest.mock import MagicMock, AsyncMock
+from app.db.impl.report_manager import GetReportManager
 
 
 class TestReportsManager(unittest.TestCase):
@@ -70,4 +71,40 @@ class TestReportsManager(unittest.TestCase):
         assert response.status_code == 200
         firebaseManagerMock.uploadFile.assert_called_once_with('stickers_freq.csv')
         assert response.json() == freqList
+
+    def test_post_album_completion_report(self):
+        client = TestClient(app)
+        user_manager_mock = MagicMock()
+        report_manager_mock = MagicMock()
+
+        app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
+        app.dependency_overrides[GetReportManager] = lambda: report_manager_mock
+
+        users_list = [
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=10),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=10),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=20),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=30),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=35),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=40),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=70),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=80),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", album_completion_pct=100),
+        ]
+
+        user_manager_mock.get_all = AsyncMock(return_value=users_list)
+        report_manager_mock.save_album_completion_report = AsyncMock(return_value=200)
+
+        response = client.post('/reports/album-completion')
+
+        assert response.status_code == 200
 

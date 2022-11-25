@@ -4,8 +4,8 @@ from datetime import datetime
 
 class AlbumCompletionReport(BaseModel):
     report_date: str = datetime.today().strftime('%d-%m-%Y')
-    p20: float = 0
-    p40: float = 0
-    p60: float = 0
-    p80: float = 0
-    p100: float = 0
+    p20: int = 0
+    p40: int = 0
+    p60: int = 0
+    p80: int = 0
+    p100: int = 0

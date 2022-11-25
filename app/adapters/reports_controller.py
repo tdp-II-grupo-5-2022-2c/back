@@ -108,6 +108,8 @@ async def get_album_completion_report(
 ):
     try:
         response = await manager.get_album_completion_report(date)
+        if response is None:
+            raise HTTPException(status_code=404, detail=f"Report of date {date} Not Found")
         return response
     except HTTPException as e:
         raise e
