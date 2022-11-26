@@ -24,7 +24,7 @@ class UserModel(BaseModel):
     album_completion_pct: float = 0
     exchanges_amount: int = 0
     fcmToken: str = ""
-    register_date: datetime.date = Field(...)
+    register_date: str = Field(...)
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
