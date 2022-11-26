@@ -27,7 +27,6 @@ async def get_users(
         if mail is not None:
             logging.info(mail)
             response = await manager.get_user_by_mail(mail=mail)
-            logging.info(response)
             return response
         response = await manager.get_all()
         return response
@@ -175,4 +174,25 @@ async def paste_sticker(
     except Exception as e:
         raise HTTPException(
             status_code=400, detail=f"Could not paste sticker. Exception: {e}"
+        )
+
+
+@router.get(
+    "/users/stats",
+    response_description="Get stats registrer users by date",
+    status_code=status.HTTP_200_OK,
+)
+async def get_users_stats(
+    db: DatabaseManager = Depends(get_database),
+):
+    manager = UserManager(db.db)
+    try:
+        response = await manager.get_user_register_stats()
+        logging.info(response)
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error getting Users Stats."
         )

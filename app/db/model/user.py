@@ -5,6 +5,8 @@ from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
 from app.db.model.my_sticker import MyStickerModel
+import datetime
+
 
 
 class UserModel(BaseModel):
@@ -22,6 +24,7 @@ class UserModel(BaseModel):
     album_completion_pct: float = 0
     exchanges_amount: int = 0
     fcmToken: str = ""
+    register_date: datetime.date = Field(...)
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\

@@ -190,6 +190,18 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
+    async def get_user_register_stats(self):
+        pipeline = [
+            {"$group": {
+                "_id": "$register_date",
+                "total" : {"$sum" : 1}
+                }
+            }
+        ]
+        data = await self.db["users"].aggregate(pipeline)
+        return data
+
+
 
 instance: Union[UserManager, None] = None
 
