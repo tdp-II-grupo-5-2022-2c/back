@@ -43,3 +43,26 @@ class TestUsersManager(unittest.TestCase):
         response = client.put('/users/123/packages/daily-package')
 
         assert response.status_code == 400
+
+    def test_put_daily_packages_to_all_users(self):
+        client = TestClient(app)
+        user_manager_mock = MagicMock()
+
+        app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
+
+        users_list = [
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", has_daily_packages=False),
+            UserModel(mail="mail1", name="name1", lastname="lastname1",
+                      date_of_birth="birth1", has_daily_packages=False),
+        ]
+
+        user_manager_mock.get_all = AsyncMock(return_value=users_list)
+        user_manager_mock.update = AsyncMock(return_value=200)
+
+        response = client.put('/users/packages/daily-package')
+
+        response_parsed = json.loads(response.content)
+        assert response.status_code == 200
+        assert response_parsed[0]["has_packages_available"] is True
+        assert response_parsed[1]["has_packages_available"] is True

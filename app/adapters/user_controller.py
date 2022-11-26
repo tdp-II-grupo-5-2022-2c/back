@@ -179,6 +179,31 @@ async def paste_sticker(
 
 
 @router.put(
+    "/users/packages/daily-package",
+    response_model=List[UserModel],
+    status_code=status.HTTP_200_OK,
+    description="Set the daily packages on True to all users"
+)
+async def put_daily_package(
+        manager: UserManager = Depends(GetUserManager),
+):
+    try:
+        users = await manager.get_all()
+        users_updated = []
+        for user in users:
+            user.has_packages_available = True
+            users_updated.append(user)
+            await manager.update(id=user.id, user=user)
+        return users_updated
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Could not get daily packages. Exception: {e}"
+        )
+
+
+@router.put(
     "/users/{user_id}/packages/daily-package",
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
