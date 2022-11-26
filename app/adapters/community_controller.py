@@ -98,6 +98,7 @@ async def get_community_by_id(
             name=comm.name,
             owner=comm.owner,
             users=users,
+            description=comm.description,
             password=comm.password
         )
         return response

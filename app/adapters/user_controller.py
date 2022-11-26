@@ -178,21 +178,24 @@ async def paste_sticker(
 
 
 @router.get(
-    "/users/stats",
+    "/users/info",
     response_description="Get stats registrer users by date",
     status_code=status.HTTP_200_OK,
 )
 async def get_users_stats(
-    db: DatabaseManager = Depends(get_database),
+    db: DatabaseManager = Depends(get_database)
 ):
+    logging.info("ok")
     manager = UserManager(db.db)
-    try:
-        response = await manager.get_user_register_stats()
-        logging.info(response)
-        return response
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error getting Users Stats."
-        )
+    logging.info("ok2")
+#    try:
+    response = await manager.get_register_stats()
+    logging.info("ok4")
+    logging.info(response)
+    return response
+#    except HTTPException as e:
+#        raise e
+#    except Exception as e:
+#        raise HTTPException(
+#            status_code=500, detail=f"Error getting Users Stats."
+#        )

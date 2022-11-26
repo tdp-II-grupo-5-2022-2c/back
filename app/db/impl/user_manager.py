@@ -26,6 +26,23 @@ class UserManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
+    async def get_register_stats(self):
+        logging.info("hola")
+        pipeline = [
+            {"$group": {
+                "_id": "$register_date",
+                "total": {"$sum": 1}
+                }
+            }
+        ]
+        data = []
+        async for user in self.db["users"].aggregate(pipeline):
+            logging.info(user)
+            data.append(user)
+        return data
+        #data = await self.db["users"].aggregate(pipeline)
+        #return data
+
     async def get_all(self):
         users = await self.db["users"].find().to_list(2000)
         models = []
@@ -193,17 +210,6 @@ class UserManager:
             msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
-
-    async def get_user_register_stats(self):
-        pipeline = [
-            {"$group": {
-                "_id": "$register_date",
-                "total" : {"$sum" : 1}
-                }
-            }
-        ]
-        data = await self.db["users"].aggregate(pipeline)
-        return data
 
 
 
