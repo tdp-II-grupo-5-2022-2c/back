@@ -7,7 +7,6 @@ from app.db.model.my_sticker import MyStickerModel
 from app.db.model.user import UserModel
 from app.db.model.exchange import ExchangeModel
 from unittest.mock import MagicMock, AsyncMock, ANY
-import requests
 
 
 class TestExchangeManager(unittest.TestCase):

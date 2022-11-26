@@ -1,8 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
+
+from app.db.impl.report_manager import ReportManager, GetReportManager
 from app.db.impl.sticker_manager import StickerManager, GetStickerManager
 from typing import List, Dict, Union
 import csv
+
+from app.db.impl.user_manager import GetUserManager, UserManager
+from app.db.model.report import AlbumCompletionReport
 from app.firebase import FirebaseManager, GetFirebaseManager
 
 router = APIRouter(tags=["reports"])
@@ -51,3 +56,64 @@ async def calculatePercentage(sticker_manager: StickerManager, stickers: List[Di
         s['percentage'] = round(s['counter'] / packageCounter.counter * 100, 2)
 
     return stickers
+
+
+@router.post(
+    "/reports/album-completion",
+    response_description="Get users album completion percentage",
+    response_model=AlbumCompletionReport,
+    status_code=status.HTTP_200_OK,
+)
+async def post_album_completion_report(
+        manager: ReportManager = Depends(GetReportManager),
+        user_manager: UserManager = Depends(GetUserManager),
+):
+    try:
+        users = await user_manager.get_all()
+
+        report = AlbumCompletionReport()
+        for user in users:
+            album_completion = user.album_completion_pct
+
+            if album_completion < 20:
+                report.p20 += 1
+            elif album_completion < 40:
+                report.p40 += 1
+            elif album_completion < 60:
+                report.p60 += 1
+            elif album_completion < 80:
+                report.p80 += 1
+            else:
+                report.p100 += 1
+
+        await manager.save_album_completion_report(report)
+        return report
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not generate album completion report. Exception: {e}"
+        )
+
+
+@router.get(
+    "/reports/album-completion",
+    response_description="Get users album completion percentage",
+    response_model=AlbumCompletionReport,
+    status_code=status.HTTP_200_OK,
+)
+async def get_album_completion_report(
+        date: str,
+        manager: ReportManager = Depends(GetReportManager),
+):
+    try:
+        response = await manager.get_album_completion_report(date)
+        if response is None:
+            raise HTTPException(status_code=404, detail=f"Report of date {date} Not Found")
+        return response
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not generate album completion report. Exception: {e}"
+        )
