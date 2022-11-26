@@ -21,7 +21,7 @@ class UserModel(BaseModel):
     stickers_collected: int = 0
     album_completion_pct: float = 0
     exchanges_amount: int = 0
-    daily_packages_available := int = 2
+    has_packages_available = bool = True
     fcmToken: str = ""
 
     def isProfileComplete(self) -> bool:
