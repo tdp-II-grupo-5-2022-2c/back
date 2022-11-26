@@ -184,7 +184,7 @@ async def paste_sticker(
     status_code=status.HTTP_200_OK,
     description="Set the daily packages on True to all users"
 )
-async def put_daily_package(
+async def put_daily_package_availability(
         manager: UserManager = Depends(GetUserManager),
 ):
     try:
@@ -199,7 +199,7 @@ async def put_daily_package(
         raise e
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Could not get daily packages. Exception: {e}"
+            status_code=500, detail=f"Could not get daily packages. Exception: {e}"
         )
 
 
@@ -227,5 +227,5 @@ async def put_daily_package(
         raise e
     except Exception as e:
         raise HTTPException(
-            status_code=400, detail=f"Could not get daily packages. Exception: {e}"
+            status_code=500, detail=f"Could not get daily packages. Exception: {e}"
         )
