@@ -27,8 +27,12 @@ class UserManager:
         self.db = db
 
     async def get_all(self):
-        users = await self.db["users"].find().to_list(20)
-        return users
+        users = await self.db["users"].find().to_list(2000)
+        models = []
+        for user in users:
+            model = UserModel(**user)
+            models.append(set_statistics(model))
+        return models
 
     async def get_by_id(self, id: str):
         user = await self.db["users"].find_one({"_id": id})
