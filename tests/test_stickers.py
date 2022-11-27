@@ -11,6 +11,7 @@ from app.db.model.package_counter import PackageCounterModel
 from app.firebase import GetFirebaseManager
 from unittest.mock import MagicMock, AsyncMock
 from app.db.impl.report_manager import GetReportManager
+from fastapi_pagination import Page
 
 
 class TestStickersManager(unittest.TestCase):
@@ -39,13 +40,14 @@ class TestStickersManager(unittest.TestCase):
                 image='path/to/image',
             ),
         ]
-        stickerManagerMock.get_all = AsyncMock(return_value=stickers)
+        page = Page(items=stickers, total=len(stickers), page=1, size=50)
+        stickerManagerMock.get_all = AsyncMock(return_value=page)
 
         response = client.get('/stickers')
 
         assert response.status_code == 200
         stickerManagerMock.get_all.assert_called_once_with(50, 1)
-        assert len(response.json()) == len(stickers)
+        assert len(response.json()['items']) == len(stickers)
 
     def test_get_stickers_custom_paginated(self):
         client = TestClient(app)
@@ -72,10 +74,11 @@ class TestStickersManager(unittest.TestCase):
                 image='path/to/image',
             ),
         ]
-        stickerManagerMock.get_all = AsyncMock(return_value=stickers)
+        page = Page(items=stickers, total=len(stickers), page=3, size=30)
+        stickerManagerMock.get_all = AsyncMock(return_value=page)
 
         response = client.get('/stickers?page=3&size=30')
 
         assert response.status_code == 200
         stickerManagerMock.get_all.assert_called_once_with(30, 3)
-        assert len(response.json()) == len(stickers)
+        assert len(response.json()['items']) == len(stickers)
