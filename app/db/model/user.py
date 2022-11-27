@@ -23,6 +23,7 @@ class UserModel(BaseModel):
     exchanges_amount: int = 0
     has_packages_available = bool = True
     fcmToken: str = ""
+    is_admin: bool = False
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
