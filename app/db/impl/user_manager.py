@@ -198,17 +198,17 @@ class UserManager:
         pipeline = [
             {
                 '$group': {
-                    '_id': '$register_date', 
+                    '_id': '$register_date',
                     'count': {
                         '$sum': 1
                     }
                 }
             }, {
                 '$group': {
-                    '_id': 'result', 
+                    '_id': 'result',
                     'result': {
                         '$push': {
-                            'k': '$_id', 
+                            'k': '$_id',
                             'v': '$count'
                         }
                     }
@@ -223,8 +223,6 @@ class UserManager:
         ]
         async for user in self.db["users"].aggregate(pipeline):
             return user
-        #result = await self.db["users"].aggregate(pipeline)
-        #return result
 
 instance: Union[UserManager, None] = None
 
