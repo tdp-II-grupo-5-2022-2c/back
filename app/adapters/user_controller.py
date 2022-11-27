@@ -22,7 +22,7 @@ async def get_info(
     manager: UserManager = Depends(GetUserManager),
 ):
     try:
-        response = await manager.get_register_stats()
+        response = await manager.get_register_info()
         return response
     except HTTPException as e:
         raise e

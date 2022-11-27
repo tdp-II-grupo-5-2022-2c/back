@@ -194,16 +194,37 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def get_register_stats(self):
-        users = await self.db["users"].find().to_list(2000)
-        data = {}
-        for user in users:
-            if user["register_date"] in data:
-                data[user["register_date"]] += 1
-            else:
-                data[user["register_date"]] = 1
-        return data
-
+    async def get_register_info(self):
+        pipeline = [
+            {
+                '$group': {
+                    '_id': '$register_date', 
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            }, {
+                '$group': {
+                    '_id': 'result', 
+                    'result': {
+                        '$push': {
+                            'k': '$_id', 
+                            'v': '$count'
+                        }
+                    }
+                }
+            }, {
+                '$replaceRoot': {
+                    'newRoot': {
+                        '$arrayToObject': '$result'
+                    }
+                }
+            }
+        ]
+        async for user in self.db["users"].aggregate(pipeline):
+            return user
+        #result = await self.db["users"].aggregate(pipeline)
+        #return result
 
 instance: Union[UserManager, None] = None
 
