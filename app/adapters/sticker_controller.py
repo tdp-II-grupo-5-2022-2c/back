@@ -11,7 +11,8 @@ from app.db.impl.user_manager import UserManager, GetUserManager
 from app.db.model.sticker import StickerModel, UpdateStickerModel
 from app.db.model.sticker_metrics import StickerMetricsModel
 from app.db.model.user_id import UserIdModel
-from typing import List, Union
+from typing import List
+from fastapi_pagination import Page
 
 
 router = APIRouter(tags=["stickers"])
@@ -21,6 +22,7 @@ router = APIRouter(tags=["stickers"])
     "/stickers",
     response_description="Get all stickers",
     status_code=status.HTTP_200_OK,
+    response_model=Page[StickerModel],
 )
 async def get_stickers(
     name: str = None,
