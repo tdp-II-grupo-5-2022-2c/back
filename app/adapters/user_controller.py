@@ -19,9 +19,8 @@ router = APIRouter(tags=["users"])
     status_code=status.HTTP_200_OK,
 )
 async def get_info(
-    db: DatabaseManager = Depends(get_database)
+    manager: UserManager = Depends(GetUserManager),
 ):
-    manager = UserManager(db.db)
     try:
         response = await manager.get_register_stats()
         return response
