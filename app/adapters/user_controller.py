@@ -191,7 +191,7 @@ async def put_daily_package_availability(
         users = await manager.get_all()
         users_updated = []
         for user in users:
-            user.has_packages_available = True
+            user.has_daily_packages_available = True
             users_updated.append(user)
             await manager.update(id=user.id, user=user)
         return users_updated
@@ -215,11 +215,11 @@ async def put_daily_package(
 ):
     try:
         user = await manager.get_by_id(id=user_id)
-        if user.has_packages_available is False:
+        if user.has_daily_packages_available is False:
             raise HTTPException(
                 status_code=400, detail=f"User {user_id} hasn't any packages available"
             )
-        user.has_packages_available = False
+        user.has_daily_packages_available = False
         user.package_counter += 2
         await manager.update(id=user_id, user=user)
         return user
