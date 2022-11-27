@@ -15,3 +15,4 @@ class CommunityDetailResponse(BaseModel):
     owner: str
     users: List[UserNameResponse]
     password: str
+    description: str
