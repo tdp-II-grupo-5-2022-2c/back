@@ -5,8 +5,6 @@ from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
 from app.db.model.my_sticker import MyStickerModel
-import datetime
-
 
 
 class UserModel(BaseModel):

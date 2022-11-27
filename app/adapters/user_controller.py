@@ -21,18 +21,15 @@ router = APIRouter(tags=["users"])
 async def get_info(
     db: DatabaseManager = Depends(get_database)
 ):
-    logging.info("hola")
     manager = UserManager(db.db)
     try:
         response = await manager.get_register_stats()
-        logging.info(response)
         return response
-        #return response
     except HTTPException as e:
         raise e
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error getting Users Stats."
+            status_code=500, detail=f"Error getting Users Stats. {e}"
         )
 
 

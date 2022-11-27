@@ -196,7 +196,6 @@ class UserManager:
 
     async def get_register_stats(self):
         users = await self.db["users"].find().to_list(2000)
-        logging.info(users)
         data = {}
         for user in users:
             if user["register_date"] in data:
@@ -204,8 +203,6 @@ class UserManager:
             else:
                 data[user["register_date"]] = 1
         return data
-        #data = await self.db["users"].aggregate(pipeline)
-        #return data
 
 
 instance: Union[UserManager, None] = None
