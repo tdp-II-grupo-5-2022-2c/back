@@ -23,7 +23,7 @@ class UserModel(BaseModel):
     exchanges_amount: int = 0
     has_packages_available = bool = True
     fcmToken: str = ""
-    register_date: str = Field(...)
+    register_date: str = ""
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
@@ -40,6 +40,7 @@ class UserModel(BaseModel):
             "example": {
                 "mail": "user@mail",
                 "stickers": [],
+                "register_date": "2022-11-11"
             }
         }
 
