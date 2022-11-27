@@ -1,17 +1,19 @@
-
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 from typing import Union
 from app.db import DatabaseManager, get_database
 from app.db.model.community import CommunityModel, UpdateCommunityModel
 from fastapi.encoders import jsonable_encoder
+from fastapi_pagination.ext.motor import paginate
+from fastapi_pagination import Params
 
 
 class CommunityManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_communities(self, owners: [str], member: str, name: str, blocked: bool):
+    async def get_communities(self, owners: [str], member: str, name: str, blocked: bool,
+                              size: int = 50, page: int = 0):
         owners = list(filter(lambda o: o is not None, owners))
         query = {"$and": []}
         if owners is not None and len(owners) > 0:
@@ -32,7 +34,7 @@ class CommunityManager:
         if len(query["$and"]) == 0:
             query = {}
 
-        data = await self.db["communities"].find(query).to_list(5000)
+        data = await paginate(self.db["communities"], query, Params(size=size, page=page))
         return data
 
     async def get_by_id(self, id: str):
@@ -80,7 +82,7 @@ class CommunityManager:
         return comm
 
     async def join_community(self, community_id: str, user_id: str):
-        await self.db["communities"].\
+        await self.db["communities"]. \
             update_one({"_id": community_id}, {"$push": {"users": user_id}})
         model = await self.get_community_by_id(community_id)
         return model
