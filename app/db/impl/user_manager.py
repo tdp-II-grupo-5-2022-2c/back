@@ -26,23 +26,6 @@ class UserManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_register_stats(self):
-        logging.info("hola")
-        pipeline = [
-            {"$group": {
-                "_id": "$register_date",
-                "total": {"$sum": 1}
-                }
-            }
-        ]
-        data = []
-        async for user in self.db["users"].aggregate(pipeline):
-            logging.info(user)
-            data.append(user)
-        return data
-        #data = await self.db["users"].aggregate(pipeline)
-        #return data
-
     async def get_all(self):
         users = await self.db["users"].find().to_list(2000)
         models = []
@@ -211,6 +194,18 @@ class UserManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
+    async def get_register_stats(self):
+        users = await self.db["users"].find().to_list(2000)
+        logging.info(users)
+        data = {}
+        for user in users:
+            if user["register_date"] in data:
+                data[user["register_date"]] += 1
+            else:
+                data[user["register_date"]] = 1
+        return data
+        #data = await self.db["users"].aggregate(pipeline)
+        #return data
 
 
 instance: Union[UserManager, None] = None
