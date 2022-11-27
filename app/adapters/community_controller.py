@@ -101,7 +101,8 @@ async def get_community_by_id(
             owner=comm.owner,
             description=comm.description,
             users=users,
-            password=comm.password
+            password=comm.password,
+            is_blocked=comm.is_blocked
         )
         return response
     except HTTPException as e:
