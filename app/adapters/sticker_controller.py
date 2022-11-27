@@ -11,7 +11,7 @@ from app.db.impl.user_manager import UserManager, GetUserManager
 from app.db.model.sticker import StickerModel, UpdateStickerModel
 from app.db.model.sticker_metrics import StickerMetricsModel
 from app.db.model.user_id import UserIdModel
-from typing import List
+from typing import List, Union
 
 
 router = APIRouter(tags=["stickers"])
@@ -24,14 +24,16 @@ router = APIRouter(tags=["stickers"])
 )
 async def get_stickers(
     name: str = None,
-    db: DatabaseManager = Depends(get_database),
+    manager: StickerManager = Depends(GetStickerManager),
+    size: int = 50,
+    page: int = 1,
 ):
-    manager = StickerManager(db.db)
     try:
         if name is not None:
             response = await manager.find_by_name(name)
         else:
-            response = await manager.get_all()
+            response = await manager.get_all(size, page)
+
         return response
     except HTTPException as e:
         raise e

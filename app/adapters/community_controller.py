@@ -7,13 +7,14 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from app.db import DatabaseManager, get_database
-from app.db.impl.community_manager import CommunityManager
+from app.db.impl.community_manager import CommunityManager, GetCommunityManager
 from app.adapters.dtos.community_details import UserNameResponse
 from app.adapters.dtos.community_details import CommunityDetailResponse
-from app.db.impl.user_manager import UserManager
+from app.db.impl.user_manager import UserManager, GetUserManager
 import logging
 import traceback
 from app.db.model.community import CommunityModel, UpdateCommunityModel
+from fastapi_pagination import Page
 
 router = APIRouter(tags=["communities"])
 
@@ -25,6 +26,7 @@ MAX_USERS_PER_COMM = 11
     response_description="Get community by owner id or member id."
                          "If no parameter is specified, it will get all communities",
     status_code=status.HTTP_200_OK,
+    response_model=Page[CommunityModel],
 )
 async def get_communities(
         owner: str = None,
@@ -32,11 +34,11 @@ async def get_communities(
         name: str = None,
         mail: str = None,
         blocked: bool = None,
-        db: DatabaseManager = Depends(get_database),
+        size: int = 50,
+        page: int = 1,
+        manager: CommunityManager = Depends(GetCommunityManager),
+        user_manager: UserManager = Depends(GetUserManager),
 ):
-    manager = CommunityManager(db.db)
-    user_manager = UserManager(db.db)
-
     try:
         if mail is not None:
             users = await user_manager.get_users_by_mail(mail)
@@ -46,9 +48,9 @@ async def get_communities(
                     detail=f"Mail {mail} not found"
                 )
             users_ids = list(map(lambda o: o['_id'], users))
-            response = await manager.get_communities(users_ids, None, name, blocked)
+            response = await manager.get_communities(users_ids, None, name, blocked, size, page)
         else:
-            response = await manager.get_communities([owner], member, name, blocked)
+            response = await manager.get_communities([owner], member, name, blocked, size, page)
         return response
     except HTTPException as e:
         raise e

@@ -12,6 +12,7 @@ from app.conf.config import Settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.db import db
+from fastapi_pagination import add_pagination
 
 # logging.config.fileConfig('app/conf/logging.conf', disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
@@ -56,6 +57,7 @@ async def startup():
 async def shutdown():
     await db.close_database_connection()
 
+add_pagination(app)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host='0.0.0.0', port=settings.port, reload=True)
