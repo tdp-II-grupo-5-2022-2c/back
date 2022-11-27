@@ -290,10 +290,10 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual(0, result.exchanges_amount)
 
     @pytest.mark.asyncio
-    async def test_get_user_by_mail(self):
+    async def test_get_register_info(self):
         # Given
         info = {
-            "28-04-12": 1
+            "2022-11-12": 1
         }
         self.db["users"].aggregate = MagicMock(return_value=info)
 

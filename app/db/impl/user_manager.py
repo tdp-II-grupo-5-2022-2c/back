@@ -224,6 +224,7 @@ class UserManager:
         async for user in self.db["users"].aggregate(pipeline):
             return user
 
+
 instance: Union[UserManager, None] = None
 
 
