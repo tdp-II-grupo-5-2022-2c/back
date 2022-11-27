@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from typing import List
 
 from app.db import DatabaseManager, get_database
-from app.db.impl.user_manager import UserManager
+from app.db.impl.user_manager import UserManager, GetUserManager
 import logging
 from app.db.impl.sticker_manager import StickerManager
 from app.db.model.user import UserModel, UpdateUserModel
@@ -38,12 +38,12 @@ async def get_info(
 
 @router.get(
     "/users",
-    response_description="Get a all users",
+    response_description="Get a all users or get an user by mail",
     status_code=status.HTTP_200_OK,
 )
 async def get_users(
-    mail: str = None,
-    db: DatabaseManager = Depends(get_database),
+        mail: str = None,
+        db: DatabaseManager = Depends(get_database),
 ):
     manager = UserManager(db.db)
     try:
@@ -100,7 +100,7 @@ async def create_new(
 
 @router.put(
     "/users/{user_id}",
-    response_description="Update an user sticker's list",
+    response_description="Update an user",
     response_model=UserModel,
     status_code=status.HTTP_200_OK,
 )
@@ -200,3 +200,54 @@ async def paste_sticker(
         )
 
 
+@router.put(
+    "/users/packages/daily-package",
+    response_model=List[UserModel],
+    status_code=status.HTTP_200_OK,
+    description="Set the daily packages on True to all users"
+)
+async def put_daily_package_availability(
+        manager: UserManager = Depends(GetUserManager),
+):
+    try:
+        users = await manager.get_all()
+        users_updated = []
+        for user in users:
+            user.has_packages_available = True
+            users_updated.append(user)
+            await manager.update(id=user.id, user=user)
+        return users_updated
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not get daily packages. Exception: {e}"
+        )
+
+
+@router.put(
+    "/users/{user_id}/packages/daily-package",
+    response_model=UserModel,
+    status_code=status.HTTP_200_OK,
+    description="Add the daily packages to the user's package amount"
+)
+async def put_daily_package(
+        user_id: str,
+        manager: UserManager = Depends(GetUserManager),
+):
+    try:
+        user = await manager.get_by_id(id=user_id)
+        if user.has_packages_available is False:
+            raise HTTPException(
+                status_code=400, detail=f"User {user_id} hasn't any packages available"
+            )
+        user.has_packages_available = False
+        user.package_counter += 2
+        await manager.update(id=user_id, user=user)
+        return user
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Could not get daily packages. Exception: {e}"
+        )
