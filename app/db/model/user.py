@@ -5,6 +5,7 @@ from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
 from app.db.model.my_sticker import MyStickerModel
+import datetime 
 
 
 class UserModel(BaseModel):
@@ -23,7 +24,7 @@ class UserModel(BaseModel):
     exchanges_amount: int = 0
     has_packages_available = bool = True
     fcmToken: str = ""
-    register_date: str = ""
+    register_date: str = datetime.date.today().strftime('%Y-%m-%d')
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
