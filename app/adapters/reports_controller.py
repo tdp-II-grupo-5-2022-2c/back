@@ -105,12 +105,34 @@ async def post_album_completion_report(
 async def get_album_completion_report(
         date: str,
         manager: ReportManager = Depends(GetReportManager),
+        user_manager: UserManager = Depends(GetUserManager),
 ):
     try:
         response = await manager.get_album_completion_report(date)
+
         if response is None:
-            raise HTTPException(status_code=404, detail=f"Report of date {date} Not Found")
-        return response
+            report = AlbumCompletionReport()
+        else:
+            report = response
+
+        users = await user_manager.get_all()
+
+        for user in users:
+            album_completion = user.album_completion_pct
+
+            if album_completion < 20:
+                report.p20 += 1
+            elif album_completion < 40:
+                report.p40 += 1
+            elif album_completion < 60:
+                report.p60 += 1
+            elif album_completion < 80:
+                report.p80 += 1
+            else:
+                report.p100 += 1
+
+        await manager.save_album_completion_report(report)
+        return report
     except HTTPException as e:
         raise e
     except Exception as e:

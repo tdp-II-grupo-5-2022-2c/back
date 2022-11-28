@@ -9,7 +9,11 @@ class ReportManager:
         self.db = db
 
     async def save_album_completion_report(self, report: AlbumCompletionReport):
-        await self.db["album_reports"].insert_one(report.__dict__)
+        await self.db["album_reports"].update_one(
+            {"report_date": report.report_date},
+            {"$set": report.dict()},
+            upsert=True
+        )
         return
 
     async def get_album_completion_report(self, date):
