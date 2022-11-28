@@ -17,14 +17,16 @@ from fastapi_pagination.ext.motor import paginate
 from fastapi_pagination import Params
 
 
-def get_random_stickers_from_list(sticker_list: List[StickerModel], amount_of_stickers_desired: int):
+def get_random_stickers_from_list(sticker_list: List[StickerModel],
+                                  amount_of_stickers_desired: int):
     random_sticker_list = []
     amount_of_stickers_to_return = min(amount_of_stickers_desired, len(sticker_list))
     positions_stickers_added = []
 
     for i in range(amount_of_stickers_to_return):
         random_pos = choice(
-            [number for number in range(0, len(sticker_list)) if number not in positions_stickers_added]
+            [number for number in range(0, len(sticker_list))
+             if number not in positions_stickers_added]
         )
         random_sticker_list.append(sticker_list[random_pos])
         positions_stickers_added.append(random_pos)
@@ -112,16 +114,23 @@ class StickerManager:
             package_amount = package_counter_model.counter
 
             # We get all the stickers whose weight is between 1 and 3
-            stickers_with_weight_1 = await self.db["stickers"].find({"weight": 1}).to_list(TOTAL_STICKERS_ALBUM)
-            stickers_with_weight_2 = await self.db["stickers"].find({"weight": 2}).to_list(TOTAL_STICKERS_ALBUM)
-            stickers_with_weight_3 = await self.db["stickers"].find({"weight": 3}).to_list(TOTAL_STICKERS_ALBUM)
+            stickers_with_weight_1 = await self.db["stickers"].find({"weight": 1}). \
+                to_list(TOTAL_STICKERS_ALBUM)
+            stickers_with_weight_2 = await self.db["stickers"].find({"weight": 2}). \
+                to_list(TOTAL_STICKERS_ALBUM)
+            stickers_with_weight_3 = await self.db["stickers"].find({"weight": 3}). \
+                to_list(TOTAL_STICKERS_ALBUM)
 
             # If it is a normal package, we need 5 stickers whose weight is between 1 and 3
             if (package_amount % 11 != 0) or (package_amount == 0):
 
                 # Select 5 random ones stickers whose weight is between 1 and 3
-                stickers_with_weight_1_to_3 = stickers_with_weight_1 + stickers_with_weight_2 + stickers_with_weight_3
-                stickers_in_package = get_random_stickers_from_list(stickers_with_weight_1_to_3, 5)
+                stickers_with_weight_1_to_3 = stickers_with_weight_1 + \
+                                              stickers_with_weight_2 + \
+                                              stickers_with_weight_3
+                stickers_in_package = get_random_stickers_from_list(
+                    stickers_with_weight_1_to_3,
+                    5)
 
                 # Some variables that will help us with the amount of stickers check
                 next_sticker_weight_to_add = 4
@@ -134,7 +143,10 @@ class StickerManager:
                     stickers_remaining = await self.db["stickers"]. \
                         find({"weight": {"$gte": 4, "$lte": next_sticker_weight_to_add}}) \
                         .to_list(TOTAL_STICKERS_ALBUM)
-                    stickers_remaining = get_random_stickers_from_list(stickers_remaining, 5 - len(stickers_in_package))
+                    stickers_remaining = get_random_stickers_from_list(
+                        stickers_remaining,
+                        5 - len(stickers_in_package)
+                    )
                     next_sticker_weight_to_add += 1
                     stickers_up_to_now = stickers_in_package + stickers_remaining
 
@@ -149,8 +161,10 @@ class StickerManager:
                 # 2 stickers with weight between 2 and 4
 
                 # Get the remaining stickers lists that we will use
-                stickers_with_weight_4 = await self.db["stickers"].find({"weight": 4}).to_list(TOTAL_STICKERS_ALBUM)
-                stickers_with_weight_5 = await self.db["stickers"].find({"weight": 5}).to_list(TOTAL_STICKERS_ALBUM)
+                stickers_with_weight_4 = await self.db["stickers"].find({"weight": 4}) \
+                    .to_list(TOTAL_STICKERS_ALBUM)
+                stickers_with_weight_5 = await self.db["stickers"].find({"weight": 5}) \
+                    .to_list(TOTAL_STICKERS_ALBUM)
 
                 # Search for a sticker with weight 5
                 difficult_sticker = get_random_stickers_from_list(stickers_with_weight_5, 1)
@@ -160,8 +174,9 @@ class StickerManager:
 
                 # If there is no sticker with weight 5, we search one with a lower weight
                 while len(difficult_sticker) < 1 and next_sticker_weight_to_add > 0:
-                    difficult_sticker = await self.db["stickers"].find({"weight": next_sticker_weight_to_add}).to_list(
-                        1)
+                    difficult_sticker = await self.db["stickers"].find(
+                        {"weight": next_sticker_weight_to_add}) \
+                        .to_list(1)
                     next_sticker_weight_to_add -= 1
 
                 if len(difficult_sticker) < 1:
@@ -178,10 +193,13 @@ class StickerManager:
                 # If the amount of stickers with weight 1 is less than 2,
                 # we search for stickers with higher weight
                 while len(easy_stickers_up_to_now) < 2 and next_sticker_weight_to_add < 6:
-                    easy_stickers_remaining = await self.db["stickers"].find({"weight": next_sticker_weight_to_add}) \
+                    easy_stickers_remaining = await self.db["stickers"].find(
+                        {"weight": next_sticker_weight_to_add}) \
                         .to_list(TOTAL_STICKERS_ALBUM)
-                    easy_stickers_remaining = get_random_stickers_from_list(easy_stickers_remaining,
-                                                                            2 - len(easy_stickers))
+                    easy_stickers_remaining = get_random_stickers_from_list(
+                        easy_stickers_remaining,
+                        2 - len(easy_stickers)
+                    )
                     next_sticker_weight_to_add += 1
                     easy_stickers_up_to_now = easy_stickers_up_to_now + easy_stickers_remaining
 
@@ -191,22 +209,28 @@ class StickerManager:
                     raise Exception("No stickers at the moment to create a package")
 
                 # We search for 2 stickers with weight between 2 and 4
-                stickers_with_weight_2_to_4 = stickers_with_weight_2 + stickers_with_weight_3 + stickers_with_weight_4
+                stickers_with_weight_2_to_4 = stickers_with_weight_2 + \
+                                              stickers_with_weight_3 + \
+                                              stickers_with_weight_4
                 medium_stickers = get_random_stickers_from_list(
                     stickers_with_weight_2_to_4, 2)
 
                 # If the amount of stickers with weight between 2 and 4 is less than 2,
                 # we search for stickers with weight 1
                 if len(medium_stickers) < 2:
-                    remaining_medium_stickers = get_random_stickers_from_list(stickers_with_weight_1,
-                                                                              2 - len(medium_stickers))
+                    remaining_medium_stickers = get_random_stickers_from_list(
+                        stickers_with_weight_1,
+                        2 - len(medium_stickers)
+                    )
                     medium_stickers = medium_stickers + remaining_medium_stickers
 
                 # If the amount of stickers with weight between 1 and 4 is less than 2,
                 # we search for stickers with weight 5
                 if len(medium_stickers) < 2:
-                    remaining_medium_stickers = get_random_stickers_from_list(stickers_with_weight_5,
-                                                                              2 - len(medium_stickers))
+                    remaining_medium_stickers = get_random_stickers_from_list(
+                        stickers_with_weight_5,
+                        2 - len(medium_stickers)
+                    )
                     medium_stickers = medium_stickers + remaining_medium_stickers
 
                 if len(medium_stickers) < 2:
