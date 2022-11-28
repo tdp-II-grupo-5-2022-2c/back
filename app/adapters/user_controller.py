@@ -28,7 +28,6 @@ async def get_users(
         if mail is not None:
             logging.info(mail)
             response = await manager.get_user_by_mail(mail=mail)
-            logging.info(response)
             return response
         response = await manager.get_all()
         return response

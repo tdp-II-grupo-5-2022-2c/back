@@ -27,7 +27,8 @@ class TestUserManager(unittest.TestCase):
             total_stickers_collected=0,
             album_completion_pct=0,
             exchanges_amount=0,
-            stickers=[]
+            stickers=[],
+            register_date="2022-11-02"
         )
         self.db["users"].find_one = MagicMock(return_value=user)
 
@@ -63,7 +64,8 @@ class TestUserManager(unittest.TestCase):
             stickers_on_my_stickers_section=0,
             total_stickers_collected=0,
             album_completion_pct=0,
-            exchanges_amount=0
+            exchanges_amount=0,
+            register_date="2022-11-02"
         )
         self.db["users"].find_one = MagicMock(return_value=user)
 
@@ -104,7 +106,8 @@ class TestUserManager(unittest.TestCase):
             stickers_on_my_stickers_section=2,
             total_stickers_collected=2,
             album_completion_pct=0,
-            exchanges_amount=0
+            exchanges_amount=0,
+            register_date="2022-11-02"
         )
 
         self.db["users"].find_one = MagicMock(return_value=user)
@@ -146,7 +149,8 @@ class TestUserManager(unittest.TestCase):
             stickers_on_my_stickers_section=0,
             total_stickers_collected=1,
             album_completion_pct=0.001,
-            exchanges_amount=0
+            exchanges_amount=0,
+            register_date="2022-11-02"
         )
 
         self.db["users"].find_one = MagicMock(return_value=user_after_paste)
@@ -201,7 +205,8 @@ class TestUserManager(unittest.TestCase):
             stickers_on_my_stickers_section=5,
             total_stickers_collected=5,
             album_completion_pct=0.,
-            exchanges_amount=0
+            exchanges_amount=0,
+            register_date="2022-11-02"
         )
 
         self.db["users"].update_one = MagicMock(return_value=True)
@@ -258,7 +263,8 @@ class TestUserManager(unittest.TestCase):
             stickers_on_my_stickers_section=5,
             total_stickers_collected=5,
             album_completion_pct=0.,
-            exchanges_amount=0
+            exchanges_amount=0,
+            register_date="2022-11-02"
         )
 
         self.db["users"].update_one = MagicMock(return_value=False)
@@ -282,3 +288,20 @@ class TestUserManager(unittest.TestCase):
         self.assertEqual(5, result.total_stickers_collected)
         self.assertEqual(0, result.album_completion_pct)
         self.assertEqual(0, result.exchanges_amount)
+
+    @pytest.mark.asyncio
+    async def test_get_register_info(self):
+        # Given
+        info = {
+            "2022-11-12": 1
+        }
+        self.db["users"].aggregate = MagicMock(return_value=info)
+
+        user_manager = UserManager(self.db)
+
+        # When
+        result = await user_manager.get_register_info()
+
+        # Then
+        self.assertIsNotNone(result)
+        self.assertEqual(1, result["2022-11-12"])

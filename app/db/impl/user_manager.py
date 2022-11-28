@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import Union
 from app.db import DatabaseManager, get_database
@@ -193,6 +194,55 @@ class UserManager:
             msg = f"[ADD NEW STICKER] id: {user_id} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
+
+    async def get_register_info(self):
+        pipeline = [
+            {
+                '$group': {
+                    '_id': {
+                        '$ifNull': [
+                            '$register_date',
+                            datetime.date.today().strftime('%Y-%m-%d')
+                        ]
+                    },
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            },
+            {
+                '$sort': {
+                    '_id': 1
+                }
+            },
+            {
+                '$group': {
+                    '_id': 'result',
+                    'result': {
+                        '$push': {
+                            'k': '$_id',
+                            'v': '$count'
+                        }
+                    }
+                }
+            },
+            {
+                '$replaceRoot': {
+                    'newRoot': {
+                        '$arrayToObject': '$result'
+                    }
+                }
+            }
+        ]
+        async for user in self.db["users"].aggregate(pipeline):
+            data_tuple = sorted(user.items())
+            data = dict(data_tuple)
+
+            last = data_tuple[0][1]
+            for k, v in data_tuple[1:]:
+                data[k] += last
+                last = data[k]
+            return data
 
 
 instance: Union[UserManager, None] = None

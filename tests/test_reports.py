@@ -130,3 +130,18 @@ class TestReportsManager(unittest.TestCase):
         response = client.get('/reports/album-completion?date=01-03-2022')
 
         assert response.status_code == 404
+
+    def test_get_register_info(self):
+        client = TestClient(app)
+        user_manager_mock = MagicMock()
+
+        app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
+
+        info = {"2022-11-27": 2}
+        user_manager_mock.get_register_info = AsyncMock(return_value=info)
+
+        response = client.get('/reports/registered-users')
+
+        response_parsed = json.loads(response.content)
+        assert response.status_code == 200
+        assert response_parsed["2022-11-27"] is 2
