@@ -209,9 +209,7 @@ class StickerManager:
                     raise Exception("No stickers at the moment to create a package")
 
                 # We search for 2 stickers with weight between 2 and 4
-                stickers_with_weight_2_to_4 = stickers_with_weight_2 + \
-                                              stickers_with_weight_3 + \
-                                              stickers_with_weight_4
+                stickers_with_weight_2_to_4 = stickers_with_weight_2 + stickers_with_weight_3 + stickers_with_weight_4
                 medium_stickers = get_random_stickers_from_list(
                     stickers_with_weight_2_to_4, 2)
 
