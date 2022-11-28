@@ -9,6 +9,7 @@ import logging
 from app.db.impl.sticker_manager import StickerManager
 from app.db.model.user import UserModel, UpdateUserModel
 from app.adapters.dtos.sticker_details import StickerDetailResponse
+from app.firebase import FirebaseManager, GetFirebaseManager
 
 router = APIRouter(tags=["users"])
 
@@ -185,14 +186,22 @@ async def paste_sticker(
 )
 async def put_daily_package_availability(
         manager: UserManager = Depends(GetUserManager),
+        firebaseManager: FirebaseManager = Depends(GetFirebaseManager),
 ):
     try:
         users = await manager.get_all()
         users_updated = []
         for user in users:
-            user.has_packages_available = True
+            user.has_daily_packages_available = True
             users_updated.append(user)
             await manager.update(id=user.id, user=user)
+            if user.fcmToken != '':
+                firebaseManager.sendPush(
+                    title="Reclama tus paquetes diarios!",
+                    description="Anda a Inicio para reclamar tus paquetes diarios",
+                    fcmToken=user.fcmToken
+                )
+
         return users_updated
     except HTTPException as e:
         raise e
@@ -214,11 +223,11 @@ async def put_daily_package(
 ):
     try:
         user = await manager.get_by_id(id=user_id)
-        if user.has_packages_available is False:
+        if user.has_daily_packages_available is False:
             raise HTTPException(
                 status_code=400, detail=f"User {user_id} hasn't any packages available"
             )
-        user.has_packages_available = False
+        user.has_daily_packages_available = False
         user.package_counter += 2
         await manager.update(id=user_id, user=user)
         return user

@@ -1,4 +1,5 @@
-from bson import ObjectId
+from bson.objectid import ObjectId
+import pydantic
 
 
 class PyObjectId(ObjectId):
@@ -15,3 +16,8 @@ class PyObjectId(ObjectId):
     @classmethod
     def __modify_schema__(cls, field_schema):
         field_schema.update(type="string")
+
+
+# fix ObjectId & FastApi conflict
+pydantic.json.ENCODERS_BY_TYPE[ObjectId] = str
+pydantic.json.ENCODERS_BY_TYPE[PyObjectId] = str
