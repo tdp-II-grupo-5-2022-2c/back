@@ -46,7 +46,41 @@ class TestStickersManager(unittest.TestCase):
         response = client.get('/stickers')
 
         assert response.status_code == 200
-        stickerManagerMock.get_all.assert_called_once_with(50, 1)
+        stickerManagerMock.get_all.assert_called_once_with(None, 50, 1)
+        assert len(response.json()['items']) == len(stickers)
+
+    def test_get_stickers_default_paginated_with_name(self):
+        client = TestClient(app)
+        stickerManagerMock = MagicMock()
+        app.dependency_overrides[GetStickerManager] = lambda: stickerManagerMock
+
+        stickers = [
+            StickerModel(
+                name='s1',
+                number=1,
+                date_of_birth='1998-03-02',
+                height=12.3,
+                position=10,
+                country='ARG',
+                image='path/to/image',
+            ),
+            StickerModel(
+                name='s2',
+                number=2,
+                date_of_birth='1998-03-02',
+                height=13.3,
+                position=11,
+                country='ARG',
+                image='path/to/image',
+            ),
+        ]
+        page = Page(items=stickers, total=len(stickers), page=1, size=50)
+        stickerManagerMock.get_all = AsyncMock(return_value=page)
+
+        response = client.get('/stickers?name=TuMamma')
+
+        assert response.status_code == 200
+        stickerManagerMock.get_all.assert_called_once_with('TuMamma', 50, 1)
         assert len(response.json()['items']) == len(stickers)
 
     def test_get_stickers_custom_paginated(self):
@@ -80,5 +114,5 @@ class TestStickersManager(unittest.TestCase):
         response = client.get('/stickers?page=3&size=30')
 
         assert response.status_code == 200
-        stickerManagerMock.get_all.assert_called_once_with(30, 3)
+        stickerManagerMock.get_all.assert_called_once_with(None, 30, 3)
         assert len(response.json()['items']) == len(stickers)
