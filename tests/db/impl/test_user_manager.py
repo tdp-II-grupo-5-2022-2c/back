@@ -305,4 +305,3 @@ class TestUserManager(unittest.TestCase):
         # Then
         self.assertIsNotNone(result)
         self.assertEqual(1, result["2022-11-12"])
-        
