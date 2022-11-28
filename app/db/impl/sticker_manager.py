@@ -86,6 +86,7 @@ class StickerManager:
         project = {'$project': {
             '_id': 0,
             'name': '$metadata.name',
+            'number': '$metadata.number',
             'country': '$metadata.country',
             'counter': 1
         }}
