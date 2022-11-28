@@ -5,7 +5,7 @@ from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
 from app.db.model.my_sticker import MyStickerModel
-import datetime
+from datetime import datetime, timezone, timedelta
 
 
 class UserModel(BaseModel):
@@ -24,7 +24,8 @@ class UserModel(BaseModel):
     exchanges_amount: int = 0
     has_daily_packages_available: bool = True
     fcmToken: str = ""
-    register_date: str = datetime.date.today().strftime('%Y-%m-%d')
+    register_date: str = (datetime.now(timezone.utc) - timedelta(hours=3))\
+        .strftime('%Y-%m-%d')
     is_admin: bool = False
 
     def isProfileComplete(self) -> bool:

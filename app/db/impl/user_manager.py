@@ -235,7 +235,6 @@ class UserManager:
             }
         ]
         async for user in self.db["users"].aggregate(pipeline):
-            #user.sort(key=lambda date: datetime.strptime(date, "%Y-%m-%d"))
             data_tuple = sorted(user.items())
             data = dict(data_tuple)
             
