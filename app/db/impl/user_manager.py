@@ -199,7 +199,12 @@ class UserManager:
         pipeline = [
             {
                 '$group': {
-                    '_id': {'$ifNull': ['$register_date', datetime.date.today().strftime('%Y-%m-%d')]},
+                    '_id': {
+                        '$ifNull': [
+                            '$register_date',
+                            datetime.date.today().strftime('%Y-%m-%d')
+                        ]
+                    },
                     'count': {
                         '$sum': 1
                     }
