@@ -1,3 +1,4 @@
+import datetime
 import logging
 from typing import Union
 from app.db import DatabaseManager, get_database
@@ -198,22 +199,29 @@ class UserManager:
         pipeline = [
             {
                 '$group': {
-                    '_id': '$register_date',
+                    '_id': {'$ifNull': ['$register_date', datetime.date.today().strftime('%Y-%m-%d')]},
                     'count': {
                         '$sum': 1
                     }
                 }
-            }, {
+            },
+            {
+                '$sort': {
+                    '_id': 1
+                }
+            },
+            {
                 '$group': {
                     '_id': 'result',
                     'result': {
                         '$push': {
-                            'k': {'$ifNull': ['$_id', '2022-11-27']},
+                            'k': '$_id',
                             'v': '$count'
                         }
                     }
                 }
-            }, {
+            },
+            {
                 '$replaceRoot': {
                     'newRoot': {
                         '$arrayToObject': '$result'
