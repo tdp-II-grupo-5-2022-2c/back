@@ -14,25 +14,6 @@ router = APIRouter(tags=["users"])
 
 
 @router.get(
-    "/users/info",
-    response_description="Get stats registrer users by date",
-    status_code=status.HTTP_200_OK,
-)
-async def get_info(
-    manager: UserManager = Depends(GetUserManager),
-):
-    try:
-        response = await manager.get_register_info()
-        return response
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error getting Users Stats. {e}"
-        )
-
-
-@router.get(
     "/users",
     response_description="Get a all users or get an user by mail",
     status_code=status.HTTP_200_OK,
