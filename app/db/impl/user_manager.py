@@ -208,7 +208,7 @@ class UserManager:
                     '_id': 'result',
                     'result': {
                         '$push': {
-                            'k': '$_id',
+                            'k': {'$ifNull': ['$_id', '2022-11-27']},
                             'v': '$count'
                         }
                     }

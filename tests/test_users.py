@@ -66,18 +66,3 @@ class TestUsersManager(unittest.TestCase):
         assert response.status_code == 200
         assert response_parsed[0]["has_packages_available"] is True
         assert response_parsed[1]["has_packages_available"] is True
-
-    def test_get_register_info(self):
-        client = TestClient(app)
-        user_manager_mock = MagicMock()
-
-        app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
-
-        info = {"2022-11-27": 2}
-        user_manager_mock.get_register_info = AsyncMock(return_value=info)
-
-        response = client.get('/users/info')
-
-        response_parsed = json.loads(response.content)
-        assert response.status_code == 200
-        assert response_parsed["2022-11-27"] is 2
