@@ -82,7 +82,7 @@ class StickerManager:
 
     async def update_sticker_metrics(self, stickerMetrics: StickerMetricsModel):
         payload = {k: v for k, v in stickerMetrics.dict().items() if v is not None}
-        await self.db["stickers_metrics"].\
+        await self.db["stickers_metrics"]. \
             update_one({"sticker_id": stickerMetrics.sticker_id}, {"$set": payload})
 
     async def update(self, id: str, sticker: UpdateStickerModel = Body(...)):
@@ -178,7 +178,6 @@ class StickerManager:
             msg = f"[OPEN_PACKAGE] error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
-
 
     async def find_by_query(
             self,
