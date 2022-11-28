@@ -23,8 +23,15 @@ class StickerManager:
         sticker = await self.db["stickers"].find_one({"_id": id})
         return sticker
 
-    async def get_all(self, size: int = 50, page: int = 0):
-        stickers = await paginate(self.db["stickers"], params=Params(size=size, page=page))
+    async def get_all(self, name: str = None, size: int = 50, page: int = 0):
+        query = {}
+        if name is not None:
+            query["$or"] = [
+                {"name": name.title()},
+                {"name": {"$regex": name.title(), "$options": "i"}}
+            ]
+
+        stickers = await paginate(self.db["stickers"], query, params=Params(size=size, page=page))
         return stickers
 
     async def create_sticker(self, sticker: StickerModel = Body(...)):
@@ -172,15 +179,6 @@ class StickerManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def find_by_name(self, name: str):
-        query = {}
-        if name is not None:
-            query["$or"] = [
-                {"name": name.title()},
-                {"name": {"$regex": name.title(), "$options": "i"}}
-            ]
-        stickers = await self.db["stickers"].find(query).to_list(100000)
-        return stickers
 
     async def find_by_query(
             self,

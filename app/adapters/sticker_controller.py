@@ -31,11 +31,7 @@ async def get_stickers(
     page: int = 1,
 ):
     try:
-        if name is not None:
-            response = await manager.find_by_name(name)
-        else:
-            response = await manager.get_all(size, page)
-
+        response = await manager.get_all(name, size, page)
         return response
     except HTTPException as e:
         raise e
