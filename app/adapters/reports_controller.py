@@ -111,7 +111,8 @@ async def get_album_completion_report(
         if date == None:
             HTTPException(status_code=404, detail='missing date')
 
-        if datetime.today().strftime('%d-%m-%Y') == date:
+        today = (datetime.now(timezone.utc) - timedelta(hours=3)).strftime('%d-%m-%Y')
+        if today == date:
             report = AlbumCompletionReport()
             users = await user_manager.get_all()
 
