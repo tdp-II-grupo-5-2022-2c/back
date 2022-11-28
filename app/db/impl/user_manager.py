@@ -11,13 +11,38 @@ from app.db.model.package import PackageModel
 from app.db.model.my_sticker import MyStickerModel
 from fastapi.encoders import jsonable_encoder
 
-TOTAL_STICKERS_ALBUM = 76
+TOTAL_STICKERS_ALBUM = None
 
 
-def set_statistics(model: UserModel):
+async def getTotalStickersAlbum() -> int:
+    global TOTAL_STICKERS_ALBUM
+    if TOTAL_STICKERS_ALBUM is None:
+        db = await get_database()
+        result = await db.db['stickers'].aggregate([
+            {
+                '$group': {
+                    '_id': None,
+                    'count': {
+                        '$sum': 1
+                    }
+                }
+            }, {
+                '$project': {
+                    '_id': 0,
+                    'count': 1
+                }
+            }
+        ]).to_list(10)
+        TOTAL_STICKERS_ALBUM = result[0]['count']
+
+    return TOTAL_STICKERS_ALBUM
+
+
+async def set_statistics(model: UserModel):
     stickers_on_album = list(filter(lambda x: x.is_on_album is True, model.stickers))
     stickers_on_album_amount = len(stickers_on_album)
-    model.album_completion_pct = stickers_on_album_amount / TOTAL_STICKERS_ALBUM
+    totalStickers = await getTotalStickersAlbum()
+    model.album_completion_pct = round(stickers_on_album_amount / totalStickers * 100, 2)
     stickers_on_my_stickers_section = [i.quantity for i in model.stickers]
     model.stickers_collected = sum(stickers_on_my_stickers_section) + stickers_on_album_amount
     return model
@@ -32,23 +57,26 @@ class UserManager:
         models = []
         for user in users:
             model = UserModel(**user)
-            models.append(set_statistics(model))
+            model = await set_statistics(model)
+            models.append(model)
         return models
 
     async def get_by_id(self, id: str):
         user = await self.db["users"].find_one({"_id": id})
         if user is not None:
             model = UserModel(**user)
-            return set_statistics(model)
+            model = await set_statistics(model)
+            return model
         return None
 
     async def get_user_by_mail(self, mail: str):
         user = await self.db["users"].find_one({"mail": mail})
         model = UserModel(**user)
-        return set_statistics(model)
+        model = await set_statistics(model)
+        return model
 
     async def get_users_by_mail(self, mail: str):
-        users = await self.db["users"]\
+        users = await self.db["users"] \
             .find({"mail": {"$regex": mail, "$options": "i"}}).to_list(5000)
         return users
 
