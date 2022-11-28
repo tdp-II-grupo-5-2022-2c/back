@@ -125,11 +125,10 @@ class StickerManager:
             if (package_amount % 11 != 0) or (package_amount == 0):
 
                 # Select 5 random ones stickers whose weight is between 1 and 3
-                stickers_with_weight_1_to_3 = stickers_with_weight_1 + \
-                                              stickers_with_weight_2 + \
-                                              stickers_with_weight_3
                 stickers_in_package = get_random_stickers_from_list(
-                    stickers_with_weight_1_to_3,
+                    stickers_with_weight_1 +
+                    stickers_with_weight_2 +
+                    stickers_with_weight_3,
                     5)
 
                 # Some variables that will help us with the amount of stickers check
@@ -209,9 +208,11 @@ class StickerManager:
                     raise Exception("No stickers at the moment to create a package")
 
                 # We search for 2 stickers with weight between 2 and 4
-                stickers_with_weight_2_to_4 = stickers_with_weight_2 + stickers_with_weight_3 + stickers_with_weight_4
                 medium_stickers = get_random_stickers_from_list(
-                    stickers_with_weight_2_to_4, 2)
+                    stickers_with_weight_2 +
+                    stickers_with_weight_3 +
+                    stickers_with_weight_4,
+                    2)
 
                 # If the amount of stickers with weight between 2 and 4 is less than 2,
                 # we search for stickers with weight 1
