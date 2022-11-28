@@ -237,9 +237,9 @@ class UserManager:
         async for user in self.db["users"].aggregate(pipeline):
             data_tuple = sorted(user.items())
             data = dict(data_tuple)
-            
+
             last = data_tuple[0][1]
-            for k,v in data_tuple[1:]:
+            for k, v in data_tuple[1:]:
                 data[k] += last
                 last = data[k]
             return data
