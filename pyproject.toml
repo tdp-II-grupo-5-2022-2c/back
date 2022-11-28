@@ -6,8 +6,8 @@ authors = ["Eliana Gamarra <elianagam2@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-fastapi = "0.75.1"
-pydantic = "1.9.0"
+fastapi = "0.80.0"
+pydantic = "1.9.1"
 pytest = "7.1.1"
 uvicorn = "0.17.6"
 
@@ -21,6 +21,7 @@ httpx = "^0.23.0"
 respx = "^0.19.2"
 firebase-admin = "^6.0.1"
 requests = "^2.28.1"
+fastapi-pagination = "^0.10.0"
 
 [tool.pytest.ini_options]
 pythonpath = [

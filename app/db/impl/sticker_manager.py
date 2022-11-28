@@ -11,6 +11,8 @@ from app.db.model.package_counter import PackageCounterModel
 from app.db.model.sticker import StickerModel, UpdateStickerModel
 from app.db.model.sticker_metrics import StickerMetricsModel
 from typing import List, Dict
+from fastapi_pagination.ext.motor import paginate
+from fastapi_pagination import Params
 
 
 class StickerManager:
@@ -21,8 +23,8 @@ class StickerManager:
         sticker = await self.db["stickers"].find_one({"_id": id})
         return sticker
 
-    async def get_all(self):
-        stickers = await self.db["stickers"].find().to_list(100)
+    async def get_all(self, size: int = 50, page: int = 0):
+        stickers = await paginate(self.db["stickers"], params=Params(size=size, page=page))
         return stickers
 
     async def create_sticker(self, sticker: StickerModel = Body(...)):

@@ -7,6 +7,7 @@ from starlette.testclient import TestClient
 from app.db.impl.user_manager import GetUserManager
 from app.db.model.user import UserModel
 from app.main import app
+from app.firebase import FirebaseManager, GetFirebaseManager
 
 
 class TestUsersManager(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestUsersManager(unittest.TestCase):
         app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
 
         user = UserModel(mail="mail1", name="name1", lastname="lastname1",
-                         date_of_birth="birth1", has_packages_available=True,
+                         date_of_birth="birth1", has_daily_packages_available=True,
                          package_counter=1)
         user_manager_mock.get_by_id = AsyncMock(return_value=user)
         user_manager_mock.update = AsyncMock(return_value=user)
@@ -27,7 +28,7 @@ class TestUsersManager(unittest.TestCase):
 
         response_parsed = json.loads(response.content)
         assert response.status_code == 200
-        assert response_parsed["has_packages_available"] is False
+        assert response_parsed["has_daily_packages_available"] is False
         assert response_parsed["package_counter"] == 3
 
     def test_put_daily_packages_fails(self):
@@ -37,7 +38,7 @@ class TestUsersManager(unittest.TestCase):
         app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
 
         user = UserModel(mail="mail1", name="name1", lastname="lastname1",
-                         date_of_birth="birth1", has_packages_available=False)
+                         date_of_birth="birth1", has_daily_packages_available=False)
         user_manager_mock.get_by_id = AsyncMock(return_value=user)
 
         response = client.put('/users/123/packages/daily-package')
@@ -47,22 +48,30 @@ class TestUsersManager(unittest.TestCase):
     def test_put_daily_packages_to_all_users(self):
         client = TestClient(app)
         user_manager_mock = MagicMock()
+        firebase_manager_mock = MagicMock()
 
         app.dependency_overrides[GetUserManager] = lambda: user_manager_mock
+        app.dependency_overrides[GetFirebaseManager] = lambda: firebase_manager_mock
 
         users_list = [
             UserModel(mail="mail1", name="name1", lastname="lastname1",
-                      date_of_birth="birth1", has_daily_packages=False),
+                      date_of_birth="birth1", has_daily_packages_available=False,
+                      fcmToken='token-re-loco'),
             UserModel(mail="mail1", name="name1", lastname="lastname1",
-                      date_of_birth="birth1", has_daily_packages=False),
+                      date_of_birth="birth1", has_daily_packages_available=False),
         ]
 
         user_manager_mock.get_all = AsyncMock(return_value=users_list)
         user_manager_mock.update = AsyncMock(return_value=200)
+        firebase_manager_mock.sendPush = MagicMock()
 
         response = client.put('/users/packages/daily-package')
 
         response_parsed = json.loads(response.content)
         assert response.status_code == 200
-        assert response_parsed[0]["has_packages_available"] is True
-        assert response_parsed[1]["has_packages_available"] is True
+        assert response_parsed[0]["has_daily_packages_available"] is True
+        assert response_parsed[1]["has_daily_packages_available"] is True
+        firebase_manager_mock.sendPush.assert_called_once_with(
+            title="Reclama tus paquetes diarios!",
+            description="Anda a Inicio para reclamar tus paquetes diarios",
+            fcmToken='token-re-loco')

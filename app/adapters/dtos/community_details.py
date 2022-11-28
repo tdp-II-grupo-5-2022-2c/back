@@ -16,3 +16,4 @@ class CommunityDetailResponse(BaseModel):
     users: List[UserNameResponse]
     password: str
     description: str
+    is_blocked: bool
