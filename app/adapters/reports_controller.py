@@ -43,7 +43,7 @@ async def get_sticker_metrics(
 
 def generateCSV(stickers: List[Dict]):
     with open('stickers_freq.csv', 'w', newline='') as output_file:
-        dict_writer = csv.DictWriter(output_file, ['name', 'country', 'counter', 'percentage'])
+        dict_writer = csv.DictWriter(output_file, ['name', 'country', 'number', 'counter', 'percentage'])
         dict_writer.writeheader()
         dict_writer.writerows(stickers)
 
