@@ -140,7 +140,7 @@ class TestReportsManager(unittest.TestCase):
         info = {"2022-11-27": 2}
         user_manager_mock.get_register_info = AsyncMock(return_value=info)
 
-        response = client.get('/reports/user-register')
+        response = client.get('/reports/registered-users')
 
         response_parsed = json.loads(response.content)
         assert response.status_code == 200

@@ -120,12 +120,12 @@ async def get_album_completion_report(
 
 
 @router.get(
-    "/reports/user-register",
-    response_description="Get stats registrer users by date",
+    "/reports/registered-users",
+    response_description="Get stats registered users by date",
     status_code=status.HTTP_200_OK,
 )
 async def get_info(
-    manager: UserManager = Depends(GetUserManager),
+        manager: UserManager = Depends(GetUserManager),
 ):
     try:
         response = await manager.get_register_info()
