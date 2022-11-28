@@ -29,8 +29,8 @@ async def get_sticker_metrics(
             top5 = False
 
         result = await sticker_manager.get_sticker_metrics_freq(top5=top5)
+        result = await calculatePercentage(sticker_manager, result)
         if generate_binary is not None and generate_binary is True:
-            result = await calculatePercentage(sticker_manager, result)
             generateCSV(result)
             firebase_manager.uploadFile('stickers_freq.csv')
 

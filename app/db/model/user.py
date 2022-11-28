@@ -22,9 +22,10 @@ class UserModel(BaseModel):
     stickers_collected: int = 0
     album_completion_pct: float = 0
     exchanges_amount: int = 0
-    has_packages_available = bool = True
+    has_daily_packages_available: bool = True
     fcmToken: str = ""
     register_date: str = datetime.date.today().strftime('%Y-%m-%d')
+    is_admin: bool = False
 
     def isProfileComplete(self) -> bool:
         if self.mail == "" or self.name == ""\
