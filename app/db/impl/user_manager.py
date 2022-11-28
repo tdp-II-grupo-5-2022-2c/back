@@ -222,7 +222,15 @@ class UserManager:
             }
         ]
         async for user in self.db["users"].aggregate(pipeline):
-            return user
+            #user.sort(key=lambda date: datetime.strptime(date, "%Y-%m-%d"))
+            data_tuple = sorted(user.items())
+            data = dict(data_tuple)
+            
+            last = data_tuple[0][1]
+            for k,v in data_tuple[1:]:
+                data[k] += last
+                last = data[k]
+            return data
 
 
 instance: Union[UserManager, None] = None
